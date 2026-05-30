@@ -49,6 +49,7 @@ export const marketingImages = {
 export const publicNav = [
   { href: "/", label: "Home" },
   { href: "/features", label: "Features" },
+  { href: "/docs", label: "Docs" },
   { href: "/mission", label: "Mission" },
   { href: "/pitch", label: "Pitch" },
   { href: "/login", label: "Login" },
@@ -453,4 +454,60 @@ export const pitchDifferentiators = [
     title: "Commandable workflow",
     body: "The natural-language command layer can operate the demo like a power tool.",
   },
+] as const;
+
+export const docsQuickLinks = [
+  {
+    body: "JSON-RPC endpoint, tools, resources, permissions, and test payloads for external agent clients.",
+    label: "Protocol",
+    title: "MCP server",
+  },
+  {
+    body: "Data sources, Gemini usage, prompt patterns, safety rules, and synthetic-data boundaries.",
+    label: "AI depth",
+    title: "Provenance",
+  },
+  {
+    body: "Frameworks, deployment, environment variables, and quality checks for reviewers and teammates.",
+    label: "Build",
+    title: "Engineering notes",
+  },
+] as const;
+
+export const docsMcpMethods = [
+  "initialize",
+  "tools/list",
+  "tools/call",
+  "resources/list",
+  "resources/read",
+] as const;
+
+export const docsPromptLibrary = [
+  {
+    category: "Data Processing",
+    output:
+      "Structured intake summaries, missing question lists, red-flag notes, and clinician-reviewable workflow data.",
+    title: "Safe Intake Cleanup",
+  },
+  {
+    category: "Feature Generation",
+    output:
+      "Bilingual patient-facing handouts, care-step summaries, urgent return warnings, and teach-back prompts.",
+    title: "Patient Handout Generator",
+  },
+  {
+    category: "System Prompt",
+    output:
+      "MCP-callable workflow briefs with summary, missing questions, red flags, and follow-up ownership.",
+    title: "MCP Workflow Brief",
+  },
+] as const;
+
+export const docsAiPractices = [
+  "Synthetic demo cases only; no real patient data in the submitted demo.",
+  "Gemini 2.5 Flash through Vercel AI SDK for structured workflow generation.",
+  "Zod schemas validate AI outputs, MCP JSON-RPC payloads, and tool arguments.",
+  "Prompts explicitly block diagnosis, prescription, and autonomous clinical decisions.",
+  "Every patient-facing and clinical output is framed as draft support for clinician review.",
+  "Demo fallback responses keep the product testable when an AI key is unavailable.",
 ] as const;

@@ -32,7 +32,7 @@ export function HomeExperience() {
 export function PublicPageExperience({
   page,
 }: {
-  page: "features" | "login" | "mission" | "pitch";
+  page: "docs" | "features" | "login" | "mission" | "pitch";
 }) {
   const auth = useDemoAuth();
 

@@ -11,6 +11,10 @@ import {
   audienceCards,
   brand,
   demoRunbook,
+  docsAiPractices,
+  docsMcpMethods,
+  docsPromptLibrary,
+  docsQuickLinks,
   featureCatalog,
   featurePillars,
   homepageHighlights,
@@ -30,7 +34,7 @@ import {
 } from "../data";
 import { BrandMark } from "./brand-mark";
 
-type PublicPage = "features" | "home" | "login" | "mission" | "pitch";
+type PublicPage = "docs" | "features" | "home" | "login" | "mission" | "pitch";
 
 export function PublicSite({
   page = "home",
@@ -42,6 +46,7 @@ export function PublicSite({
   return (
     <main className="min-h-screen bg-[#fbfaf6] text-slate-950">
       <PublicHeader activePage={page} />
+      {page === "docs" ? <DocsPage /> : null}
       {page === "features" ? <FeaturesPage /> : null}
       {page === "mission" ? <MissionPage /> : null}
       {page === "pitch" ? <PitchPage /> : null}
@@ -185,6 +190,176 @@ function FeaturesPage() {
       <WorkflowBand />
       <ShowcaseStories />
     </>
+  );
+}
+
+function DocsPage() {
+  return (
+    <>
+      <PageHero
+        eyebrow="Product docs"
+        title="AI, MCP, and clinic workflow details reviewers can verify."
+        body="A compact documentation hub for the submitted demo: how the data flows, which AI surfaces exist, what MCP exposes, and how the build is deployed."
+      />
+      <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="grid gap-3 md:grid-cols-3">
+          {docsQuickLinks.map((item) => (
+            <article
+              className="border border-border bg-white p-5"
+              key={item.title}
+            >
+              <p className="font-semibold text-primary text-xs uppercase tracking-[0.14em]">
+                {item.label}
+              </p>
+              <h2 className="mt-3 font-bold text-xl">{item.title}</h2>
+              <p className="mt-2 text-muted-foreground leading-7">
+                {item.body}
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+      <DocsMcpSection />
+      <DocsAiSection />
+      <DocsBuildSection />
+    </>
+  );
+}
+
+function DocsMcpSection() {
+  return (
+    <section className="bg-[#071f1a] text-white">
+      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
+        <div>
+          <p className="font-semibold text-[#f2c14e] text-sm uppercase tracking-[0.16em]">
+            MCP usage
+          </p>
+          <h2 className="mt-3 font-black text-3xl tracking-normal sm:text-5xl">
+            Agent-readable clinic context.
+          </h2>
+          <p className="mt-4 text-white/76 text-lg leading-8">
+            The app exposes a custom MCP-compatible endpoint at{" "}
+            <span className="font-mono text-[#f2c14e]">/api/mcp</span>. It is
+            intentionally demo-safe: external clients can inspect synthetic
+            scenarios, capability metadata, and workflow tools without touching
+            real patient records.
+          </p>
+        </div>
+        <div className="grid gap-3 md:grid-cols-2">
+          <article className="border border-white/16 bg-white/10 p-5">
+            <h3 className="font-bold text-xl">Methods</h3>
+            <ul className="mt-4 space-y-2">
+              {docsMcpMethods.map((method) => (
+                <li className="font-mono text-[#f2c14e] text-sm" key={method}>
+                  {method}
+                </li>
+              ))}
+            </ul>
+          </article>
+          <article className="border border-white/16 bg-white/10 p-5">
+            <h3 className="font-bold text-xl">Tools</h3>
+            <ul className="mt-4 space-y-2 text-white/76 text-sm leading-6">
+              <li>clinic.demo_manifest</li>
+              <li>clinic.list_demo_scenarios</li>
+              <li>clinic.workflow_brief</li>
+            </ul>
+          </article>
+          <article className="border border-white/16 bg-white/10 p-5 md:col-span-2">
+            <h3 className="font-bold text-xl">Quick test</h3>
+            <pre className="mt-4 overflow-x-auto bg-slate-950 p-4 text-white/82 text-xs leading-6">
+              <code>{`curl -s https://bracu-steel.vercel.app/api/mcp \\
+  -H 'content-type: application/json' \\
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'`}</code>
+            </pre>
+          </article>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function DocsAiSection() {
+  return (
+    <section className="bg-white">
+      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
+        <div>
+          <p className="font-semibold text-primary text-sm uppercase tracking-[0.16em]">
+            Data and AI provenance
+          </p>
+          <h2 className="mt-3 font-black text-3xl tracking-normal sm:text-5xl">
+            Synthetic data, structured AI, human review.
+          </h2>
+          <p className="mt-4 text-muted-foreground text-lg leading-8">
+            Clinic Copilot BD uses Gemini through the Vercel AI SDK for live
+            workflow generation. The product constrains outputs with schemas,
+            safety prompts, and review boundaries.
+          </p>
+        </div>
+        <div className="grid gap-3 md:grid-cols-2">
+          {docsAiPractices.map((practice) => (
+            <article
+              className="border border-border bg-[#fbfaf6] p-4"
+              key={practice}
+            >
+              <CheckCircle2
+                className="text-primary"
+                size={20}
+                aria-hidden="true"
+              />
+              <p className="mt-3 text-muted-foreground text-sm leading-6">
+                {practice}
+              </p>
+            </article>
+          ))}
+        </div>
+      </div>
+      <div className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
+        <div className="grid gap-3 md:grid-cols-3">
+          {docsPromptLibrary.map((prompt) => (
+            <article
+              className="border border-border bg-white p-5"
+              key={prompt.title}
+            >
+              <p className="font-semibold text-primary text-xs uppercase tracking-[0.14em]">
+                {prompt.category}
+              </p>
+              <h3 className="mt-3 font-bold text-xl">{prompt.title}</h3>
+              <p className="mt-2 text-muted-foreground text-sm leading-6">
+                {prompt.output}
+              </p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function DocsBuildSection() {
+  return (
+    <section className="bg-[#fffdf8]">
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <p className="font-semibold text-primary text-sm uppercase tracking-[0.16em]">
+          Build and deployment
+        </p>
+        <h2 className="mt-3 max-w-4xl font-black text-3xl tracking-normal sm:text-5xl">
+          A deployable stack with live AI, realtime data, and verifiable docs.
+        </h2>
+        <div className="mt-8 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          {[
+            ["Frontend", "Next.js 16, React 19, TypeScript, Tailwind CSS 4"],
+            ["Backend", "Convex realtime data, Next.js API routes"],
+            ["AI", "Vercel AI SDK, Google Gemini, structured outputs"],
+            ["Quality", "Biome, production build checks, demo fallbacks"],
+          ].map(([label, body]) => (
+            <article className="border border-border bg-white p-5" key={label}>
+              <h3 className="font-bold text-xl">{label}</h3>
+              <p className="mt-2 text-muted-foreground leading-7">{body}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
 

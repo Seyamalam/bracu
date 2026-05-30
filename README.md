@@ -12,6 +12,7 @@ Clinic Copilot BD is not a diagnosis or prescription engine. It is a clinical wo
 
 - Public landing site with feature, mission, pitch, and login pages
 - Interactive public homepage with MCP data-layer pitch, command preview, proof stats, feature catalog, and generated clinic visuals
+- Public docs page for MCP usage, AI provenance, prompt categories, and deployment notes
 - Expanded pitch page with product score map, differentiators, demo runbook, and operational proof
 - Generated product visuals and custom Clinic Copilot BD logo
 - Model Context Protocol endpoint at `/api/mcp` for demo-safe tools and resources
@@ -166,6 +167,7 @@ Public product pages:
 
 ```txt
 /          Landing page and demo entry
+/docs      AI, MCP, prompt, and deployment documentation
 /features  Complete workflow overview
 /mission   Mission, vision, and care principles
 /pitch     Product pitch
