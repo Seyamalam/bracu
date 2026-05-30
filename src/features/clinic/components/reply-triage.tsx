@@ -9,14 +9,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { demoPatientReply } from "../data";
 import type { CopilotOutput, PatientReplyTriageOutput } from "../types";
 import { SectionHeading } from "./section-heading";
+import { SuggestedCommandButton } from "./suggested-command-button";
 
 export function ReplyTriage({
   model,
+  onRunCommand,
   output,
   patientName,
   triageSignal,
 }: {
   model: string;
+  onRunCommand: (command: string) => void | Promise<void>;
   output: CopilotOutput | null;
   patientName: string;
   triageSignal: number;
@@ -134,16 +137,11 @@ export function ReplyTriage({
               <p className="font-semibold text-xs">Suggested commands</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {triage.suggestedCommands.map((command) => (
-                  <Button
-                    className="h-auto min-h-9 whitespace-normal px-2 py-1 text-left text-xs"
+                  <SuggestedCommandButton
+                    command={command}
                     key={command}
-                    type="button"
-                    variant="secondary"
-                    onClick={() => void copyText(command)}
-                  >
-                    <ClipboardCopy size={14} aria-hidden="true" />
-                    {command}
-                  </Button>
+                    onRunCommand={onRunCommand}
+                  />
                 ))}
               </div>
             </div>

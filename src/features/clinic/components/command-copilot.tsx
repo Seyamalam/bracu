@@ -28,14 +28,21 @@ export const CommandCopilot = forwardRef<HTMLInputElement, CommandCopilotProps>(
     const [isRunning, setIsRunning] = useState(false);
     const [error, setError] = useState("");
 
-    async function runCommand() {
+    async function runCommand(commandOverride = command) {
+      const nextCommand = commandOverride.trim();
+      if (!nextCommand) {
+        setError("Type a command first.");
+        return;
+      }
+
       setIsRunning(true);
       setError("");
+      setCommand(nextCommand);
       try {
         const response = await fetch("/api/command", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ command, model }),
+          body: JSON.stringify({ command: nextCommand, model }),
         });
         const data = await response.json();
         if (!response.ok) {
@@ -46,7 +53,7 @@ export const CommandCopilot = forwardRef<HTMLInputElement, CommandCopilotProps>(
         await onApplyPlan(plan);
         onCommandComplete({
           id: crypto.randomUUID(),
-          command,
+          command: nextCommand,
           summary: plan.summary,
           actions: plan.actions.map((action) => action.type),
           mode: data.mode ?? "live",
@@ -81,7 +88,11 @@ export const CommandCopilot = forwardRef<HTMLInputElement, CommandCopilotProps>(
                 }
               }}
             />
-            <Button type="button" disabled={isRunning} onClick={runCommand}>
+            <Button
+              type="button"
+              disabled={isRunning}
+              onClick={() => void runCommand()}
+            >
               <CornerDownLeft size={17} aria-hidden="true" />
               Run
             </Button>
@@ -105,10 +116,11 @@ export const CommandCopilot = forwardRef<HTMLInputElement, CommandCopilotProps>(
             {commandExamples.map((example) => (
               <Button
                 className="h-auto px-2 py-1 text-xs"
+                disabled={isRunning}
                 key={example}
                 type="button"
                 variant="outline"
-                onClick={() => setCommand(example)}
+                onClick={() => void runCommand(example)}
               >
                 <Wand2 size={13} aria-hidden="true" />
                 {example}
@@ -138,9 +150,10 @@ export const CommandCopilot = forwardRef<HTMLInputElement, CommandCopilotProps>(
                 {history.slice(0, 3).map((entry) => (
                   <button
                     className="rounded-md border border-border bg-background px-3 py-2 text-left transition hover:border-primary"
+                    disabled={isRunning}
                     key={entry.id}
                     type="button"
-                    onClick={() => setCommand(entry.command)}
+                    onClick={() => void runCommand(entry.command)}
                   >
                     <span className="block font-semibold text-sm">
                       {entry.command}

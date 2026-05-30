@@ -1,21 +1,24 @@
 "use client";
 
-import { BadgeCheck, ClipboardCopy, FileCheck2 } from "lucide-react";
+import { BadgeCheck, FileCheck2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import type { CopilotOutput, VisitCloseoutOutput } from "../types";
 import { SectionHeading } from "./section-heading";
+import { SuggestedCommandButton } from "./suggested-command-button";
 
 export function VisitCloseout({
   closeoutSignal,
   model,
+  onRunCommand,
   output,
   patientName,
 }: {
   closeoutSignal: number;
   model: string;
+  onRunCommand: (command: string) => void | Promise<void>;
   output: CopilotOutput | null;
   patientName: string;
 }) {
@@ -64,10 +67,6 @@ export function VisitCloseout({
       void closeVisit();
     }
   }, [closeVisit, closeoutSignal]);
-
-  async function copyText(text: string) {
-    await navigator.clipboard.writeText(text);
-  }
 
   return (
     <Card className="border-teal-200">
@@ -123,16 +122,11 @@ export function VisitCloseout({
               <p className="font-semibold text-xs">Suggested commands</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {closeout.suggestedCommands.map((command) => (
-                  <Button
-                    className="h-auto min-h-9 whitespace-normal px-2 py-1 text-left text-xs"
+                  <SuggestedCommandButton
+                    command={command}
                     key={command}
-                    type="button"
-                    variant="secondary"
-                    onClick={() => void copyText(command)}
-                  >
-                    <ClipboardCopy size={14} aria-hidden="true" />
-                    {command}
-                  </Button>
+                    onRunCommand={onRunCommand}
+                  />
                 ))}
               </div>
             </div>

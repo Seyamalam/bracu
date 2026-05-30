@@ -1,20 +1,23 @@
 "use client";
 
-import { ClipboardCopy, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import type { ApprovalReadinessOutput, CopilotOutput } from "../types";
 import { SectionHeading } from "./section-heading";
+import { SuggestedCommandButton } from "./suggested-command-button";
 
 export function ApprovalReadiness({
   checkSignal,
   model,
+  onRunCommand,
   output,
 }: {
   checkSignal: number;
   model: string;
+  onRunCommand: (command: string) => void | Promise<void>;
   output: CopilotOutput | null;
 }) {
   const [readiness, setReadiness] = useState<ApprovalReadinessOutput | null>(
@@ -58,10 +61,6 @@ export function ApprovalReadiness({
       void checkReadiness();
     }
   }, [checkReadiness, checkSignal]);
-
-  async function copyCommand(command: string) {
-    await navigator.clipboard.writeText(command);
-  }
 
   return (
     <Card className="border-lime-200">
@@ -118,16 +117,11 @@ export function ApprovalReadiness({
               <p className="font-semibold text-xs">Suggested commands</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {readiness.suggestedCommands.map((command) => (
-                  <Button
-                    className="h-auto min-h-9 whitespace-normal px-2 py-1 text-left text-xs"
+                  <SuggestedCommandButton
+                    command={command}
                     key={command}
-                    type="button"
-                    variant="secondary"
-                    onClick={() => void copyCommand(command)}
-                  >
-                    <ClipboardCopy size={14} aria-hidden="true" />
-                    {command}
-                  </Button>
+                    onRunCommand={onRunCommand}
+                  />
                 ))}
               </div>
             </div>

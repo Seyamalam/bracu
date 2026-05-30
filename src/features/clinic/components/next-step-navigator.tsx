@@ -1,20 +1,23 @@
 "use client";
 
-import { ClipboardCopy, Compass, Sparkles } from "lucide-react";
+import { Compass, Sparkles } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import type { CopilotOutput, NextStepOutput } from "../types";
 import { SectionHeading } from "./section-heading";
+import { SuggestedCommandButton } from "./suggested-command-button";
 
 export function NextStepNavigator({
   model,
   output,
   patientName,
   planSignal,
+  onRunCommand,
 }: {
   model: string;
+  onRunCommand: (command: string) => void | Promise<void>;
   output: CopilotOutput | null;
   patientName: string;
   planSignal: number;
@@ -72,10 +75,6 @@ export function NextStepNavigator({
     }
   }, [planNextSteps, planSignal]);
 
-  async function copyCommand(command: string) {
-    await navigator.clipboard.writeText(command);
-  }
-
   return (
     <Card className="border-sky-200">
       <CardHeader>
@@ -117,16 +116,11 @@ export function NextStepNavigator({
               <p className="font-semibold text-xs">Suggested commands</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {plan.suggestedCommands.map((command) => (
-                  <Button
-                    className="h-auto min-h-9 whitespace-normal px-2 py-1 text-left text-xs"
+                  <SuggestedCommandButton
+                    command={command}
                     key={command}
-                    type="button"
-                    variant="secondary"
-                    onClick={() => void copyCommand(command)}
-                  >
-                    <ClipboardCopy size={14} aria-hidden="true" />
-                    {command}
-                  </Button>
+                    onRunCommand={onRunCommand}
+                  />
                 ))}
               </div>
             </div>

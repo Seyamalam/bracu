@@ -9,15 +9,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { demoPatientQuestion } from "../data";
 import type { CopilotOutput, PatientQuestionOutput } from "../types";
 import { SectionHeading } from "./section-heading";
+import { SuggestedCommandButton } from "./suggested-command-button";
 
 export function PatientQuestionAnswer({
   answerSignal,
   model,
+  onRunCommand,
   output,
   patientName,
 }: {
   answerSignal: number;
   model: string;
+  onRunCommand: (command: string) => void | Promise<void>;
   output: CopilotOutput | null;
   patientName: string;
 }) {
@@ -136,16 +139,11 @@ export function PatientQuestionAnswer({
               <p className="font-semibold text-xs">Suggested commands</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {answer.suggestedCommands.map((command) => (
-                  <Button
-                    className="h-auto min-h-9 whitespace-normal px-2 py-1 text-left text-xs"
+                  <SuggestedCommandButton
+                    command={command}
                     key={command}
-                    type="button"
-                    variant="secondary"
-                    onClick={() => void copyText(command)}
-                  >
-                    <ClipboardCopy size={14} aria-hidden="true" />
-                    {command}
-                  </Button>
+                    onRunCommand={onRunCommand}
+                  />
                 ))}
               </div>
             </div>

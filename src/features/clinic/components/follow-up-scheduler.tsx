@@ -1,20 +1,23 @@
 "use client";
 
-import { CalendarClock, ClipboardCopy, PhoneCall } from "lucide-react";
+import { CalendarClock, PhoneCall } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import type { CopilotOutput, FollowUpPlanOutput } from "../types";
 import { SectionHeading } from "./section-heading";
+import { SuggestedCommandButton } from "./suggested-command-button";
 
 export function FollowUpScheduler({
   model,
+  onRunCommand,
   output,
   patientName,
   scheduleSignal,
 }: {
   model: string;
+  onRunCommand: (command: string) => void | Promise<void>;
   output: CopilotOutput | null;
   patientName: string;
   scheduleSignal: number;
@@ -67,10 +70,6 @@ export function FollowUpScheduler({
     }
   }, [scheduleFollowUp, scheduleSignal]);
 
-  async function copyText(text: string) {
-    await navigator.clipboard.writeText(text);
-  }
-
   return (
     <Card className="border-emerald-200">
       <CardHeader>
@@ -121,16 +120,11 @@ export function FollowUpScheduler({
               <p className="font-semibold text-xs">Suggested commands</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {plan.suggestedCommands.map((command) => (
-                  <Button
-                    className="h-auto min-h-9 whitespace-normal px-2 py-1 text-left text-xs"
+                  <SuggestedCommandButton
+                    command={command}
                     key={command}
-                    type="button"
-                    variant="secondary"
-                    onClick={() => void copyText(command)}
-                  >
-                    <ClipboardCopy size={14} aria-hidden="true" />
-                    {command}
-                  </Button>
+                    onRunCommand={onRunCommand}
+                  />
                 ))}
               </div>
             </div>

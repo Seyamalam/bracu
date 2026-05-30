@@ -585,6 +585,41 @@ export function ClinicCopilotApp() {
     }
   }
 
+  async function runSuggestedCommand(command: string) {
+    const nextCommand = command.trim();
+    if (!nextCommand) {
+      return;
+    }
+
+    setError("");
+    setLiveMessage(`Running suggested command: ${nextCommand}`);
+    try {
+      const response = await fetch("/api/command", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ command: nextCommand, model: selectedModel }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error ?? "Suggested command failed.");
+      }
+      const plan = data.output as CommandPlan;
+      await applyCommandPlan(plan);
+      recordCommand({
+        id: crypto.randomUUID(),
+        command: nextCommand,
+        summary: plan.summary,
+        actions: plan.actions.map((action) => action.type),
+        mode: data.mode ?? "live",
+        createdAt: Date.now(),
+      });
+    } catch (caught) {
+      setError(
+        caught instanceof Error ? caught.message : "Suggested command failed.",
+      );
+    }
+  }
+
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
       const isModifier = event.metaKey || event.ctrlKey;
@@ -711,6 +746,7 @@ export function ClinicCopilotApp() {
           <ImpactSnapshot output={displayOutput} title={copy.impactTitle} />
           <NextStepNavigator
             model={selectedModel}
+            onRunCommand={runSuggestedCommand}
             output={displayOutput}
             patientName={selectedCase?.patientName ?? form.patientName}
             planSignal={nextStepSignal}
@@ -719,6 +755,7 @@ export function ClinicCopilotApp() {
             documentText={form.intake}
             extractSignal={documentExtractSignal}
             model={selectedModel}
+            onRunCommand={runSuggestedCommand}
             onApplyAddendum={(addendum) =>
               setForm((currentForm) => ({
                 ...currentForm,
@@ -740,11 +777,13 @@ export function ClinicCopilotApp() {
           <ApprovalReadiness
             checkSignal={approvalCheckSignal}
             model={selectedModel}
+            onRunCommand={runSuggestedCommand}
             output={displayOutput}
           />
           <VisitCloseout
             closeoutSignal={visitCloseoutSignal}
             model={selectedModel}
+            onRunCommand={runSuggestedCommand}
             output={displayOutput}
             patientName={selectedCase?.patientName ?? form.patientName}
           />
@@ -754,6 +793,7 @@ export function ClinicCopilotApp() {
           <PatientQuestionAnswer
             answerSignal={patientQuestionSignal}
             model={selectedModel}
+            onRunCommand={runSuggestedCommand}
             output={displayOutput}
             patientName={selectedCase?.patientName ?? form.patientName}
           />
@@ -766,12 +806,14 @@ export function ClinicCopilotApp() {
           />
           <FollowUpScheduler
             model={selectedModel}
+            onRunCommand={runSuggestedCommand}
             output={displayOutput}
             patientName={selectedCase?.patientName ?? form.patientName}
             scheduleSignal={followUpScheduleSignal}
           />
           <ReplyTriage
             model={selectedModel}
+            onRunCommand={runSuggestedCommand}
             output={displayOutput}
             patientName={selectedCase?.patientName ?? form.patientName}
             triageSignal={replyTriageSignal}
