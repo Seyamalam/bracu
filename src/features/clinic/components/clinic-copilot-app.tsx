@@ -36,6 +36,7 @@ import { ModelSelector } from "./model-selector";
 import { PatientHandout } from "./patient-handout";
 import { PresentationMode } from "./presentation-mode";
 import { ReferralComposer } from "./referral-composer";
+import { RiskExplainer } from "./risk-explainer";
 import { SafetyBanner } from "./safety-banner";
 import { SafetyFrame } from "./safety-frame";
 import { ShortcutHelp } from "./shortcut-help";
@@ -75,6 +76,7 @@ export function ClinicCopilotApp() {
     "referral" | "visit_summary"
   >("referral");
   const [briefingSignal, setBriefingSignal] = useState(0);
+  const [riskExplainSignal, setRiskExplainSignal] = useState(0);
 
   const cases = useQuery(api.cases.listRecent, { userId: auth.user?._id });
   const auditLogs = useQuery(
@@ -481,6 +483,11 @@ export function ClinicCopilotApp() {
         await cleanIntakeWithAi();
       }
 
+      if (action.type === "explain_risk") {
+        setRiskExplainSignal((signal) => signal + 1);
+        setLiveMessage("Explaining selected case risk.");
+      }
+
       if (action.type === "approve_case") {
         approveSelectedCase();
       }
@@ -619,6 +626,11 @@ export function ClinicCopilotApp() {
         <section className="space-y-4">
           <SafetyBanner title={copy.clinicianReview} body={copy.safetyBanner} />
           <ImpactSnapshot output={displayOutput} title={copy.impactTitle} />
+          <RiskExplainer
+            explainSignal={riskExplainSignal}
+            model={selectedModel}
+            output={displayOutput}
+          />
           <CaseAssistant model={selectedModel} output={displayOutput} />
           <DoctorConsole output={displayOutput} onSave={saveDraftEdits} />
           <PatientHandout copy={copy} output={displayOutput} />

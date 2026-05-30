@@ -7,6 +7,7 @@ import type {
   IntakeFormState,
   MedicineSafetyOutput,
   ReferralOutput,
+  RiskExplanationOutput,
 } from "./types";
 
 export const sampleIntakes = [
@@ -131,6 +132,7 @@ export const commandExamples = [
   "Create a visit summary for the family",
   "Brief me on today's clinic queue",
   "Clean this intake and extract vitals",
+  "Explain why this case is risky",
   "Add a bleeding red flag and simplify the Bangla handout",
   "Create a 52 year old male chest pain intake",
   "Check medicine safety for paracetamol 500mg and antibiotic twice daily",
@@ -402,3 +404,30 @@ export const demoIntakeCleanupOutput = {
   ],
   languageDetected: "mixed",
 } satisfies IntakeCleanupOutput;
+
+export const demoRiskExplanation = {
+  riskLevel: "medium",
+  plainReason:
+    "The draft is medium priority because fever and systemic symptoms are present, but key danger signs and vitals have not yet been confirmed.",
+  evidenceForRisk: [
+    "Fever and body ache have lasted several days.",
+    "Current vitals, hydration, and oxygen status are not documented.",
+    "Allergy, pregnancy, chronic disease, and medicine history remain unclear.",
+  ],
+  evidenceAgainstRisk: [
+    "No breathing difficulty was reported in the intake.",
+    "No confirmed bleeding, confusion, or chest pain was documented.",
+  ],
+  uncertainty: [
+    "Measured temperature, pulse, blood pressure, respiratory rate, and SpO2 are missing.",
+    "Exposure history and current medicines are not confirmed.",
+  ],
+  clinicianActions: [
+    "Check vitals and danger signs before giving patient instructions.",
+    "Ask missing questions and document clinician assessment.",
+    "Escalate if red flags are present or symptoms worsen.",
+  ],
+  patientSafetyNet: [
+    "Seek urgent care for breathing difficulty, chest pain, confusion, bleeding, fainting, dehydration, or rapidly worsening symptoms.",
+  ],
+} satisfies RiskExplanationOutput;
