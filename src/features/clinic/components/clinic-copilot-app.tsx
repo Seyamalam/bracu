@@ -33,6 +33,7 @@ import { JudgeDemoPanel } from "./judge-demo-panel";
 import { MedicineSafety } from "./medicine-safety";
 import { Metric } from "./metric";
 import { ModelSelector } from "./model-selector";
+import { NextStepNavigator } from "./next-step-navigator";
 import { PatientHandout } from "./patient-handout";
 import { PresentationMode } from "./presentation-mode";
 import { ReferralComposer } from "./referral-composer";
@@ -79,6 +80,7 @@ export function ClinicCopilotApp() {
   const [briefingSignal, setBriefingSignal] = useState(0);
   const [riskExplainSignal, setRiskExplainSignal] = useState(0);
   const [handoffSignal, setHandoffSignal] = useState(0);
+  const [nextStepSignal, setNextStepSignal] = useState(0);
 
   const cases = useQuery(api.cases.listRecent, { userId: auth.user?._id });
   const auditLogs = useQuery(
@@ -291,6 +293,7 @@ export function ClinicCopilotApp() {
     setReferralDocumentType("referral");
     setRiskExplainSignal((signal) => signal + 1);
     setHandoffSignal((signal) => signal + 1);
+    setNextStepSignal((signal) => signal + 1);
     setReferralComposeSignal((signal) => signal + 1);
     setFollowUpComposeSignal((signal) => signal + 1);
     setBriefingSignal((signal) => signal + 1);
@@ -515,6 +518,11 @@ export function ClinicCopilotApp() {
         setLiveMessage("Creating staff handoff.");
       }
 
+      if (action.type === "plan_next_steps") {
+        setNextStepSignal((signal) => signal + 1);
+        setLiveMessage("Planning next steps for the selected case.");
+      }
+
       if (action.type === "approve_case") {
         approveSelectedCase();
       }
@@ -653,6 +661,12 @@ export function ClinicCopilotApp() {
         <section className="space-y-4">
           <SafetyBanner title={copy.clinicianReview} body={copy.safetyBanner} />
           <ImpactSnapshot output={displayOutput} title={copy.impactTitle} />
+          <NextStepNavigator
+            model={selectedModel}
+            output={displayOutput}
+            patientName={selectedCase?.patientName ?? form.patientName}
+            planSignal={nextStepSignal}
+          />
           <RiskExplainer
             explainSignal={riskExplainSignal}
             model={selectedModel}

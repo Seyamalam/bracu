@@ -116,6 +116,16 @@ export type StaffHandoffOutput = {
   handoffScript: string;
 };
 
+export type NextStepOutput = {
+  priority: Severity;
+  headline: string;
+  immediateActions: string[];
+  suggestedCommands: string[];
+  accessibilityNotes: string[];
+  patientCommunication: string;
+  demoNarration: string;
+};
+
 export type CommandAction =
   | {
       type: "fill_intake";
@@ -149,7 +159,8 @@ export type CommandAction =
   | { type: "compose_briefing" }
   | { type: "cleanup_intake" }
   | { type: "explain_risk" }
-  | { type: "compose_handoff" };
+  | { type: "compose_handoff" }
+  | { type: "plan_next_steps" };
 
 export type CommandPlan = {
   summary: string;

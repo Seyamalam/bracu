@@ -6,6 +6,7 @@ import type {
   IntakeCleanupOutput,
   IntakeFormState,
   MedicineSafetyOutput,
+  NextStepOutput,
   ReferralOutput,
   RiskExplanationOutput,
   StaffHandoffOutput,
@@ -133,6 +134,7 @@ export const commandExamples = [
   "Write a referral letter for this patient",
   "Create a visit summary for the family",
   "Brief me on today's clinic queue",
+  "Tell me what to do next for this case",
   "Create a nurse handoff and receptionist task list",
   "Clean this intake and extract vitals",
   "Explain why this case is risky",
@@ -144,7 +146,7 @@ export const commandExamples = [
 export const commandPlaybook = [
   {
     label: "Operate",
-    examples: ["generate", "referral", "handoff", "print handout"],
+    examples: ["next steps", "referral", "handoff", "print handout"],
   },
   {
     label: "Navigate",
@@ -464,3 +466,28 @@ export const demoStaffHandoff = {
   handoffScript:
     "Medium-priority fever case. Please confirm vitals and danger signs first, then doctor review before handout or follow-up message.",
 } satisfies StaffHandoffOutput;
+
+export const demoNextStepOutput = {
+  priority: "medium",
+  headline: "Finish safety review before handout or follow-up.",
+  immediateActions: [
+    "Confirm vitals, allergy history, pregnancy status if relevant, and current medicines.",
+    "Review missing questions with the clinician before approving the draft.",
+    "Prepare a patient-friendly handout only after clinician approval.",
+  ],
+  suggestedCommands: [
+    "Explain why this case is risky",
+    "Create a nurse handoff and receptionist task list",
+    "Compose a WhatsApp follow-up for this patient",
+    "Write a referral letter for this patient",
+  ],
+  accessibilityNotes: [
+    "Use Bangla patient copy if the patient or family prefers Bangla.",
+    "Read urgent return warnings aloud for low-literacy patients.",
+    "Keep the next action visible for staff using keyboard navigation.",
+  ],
+  patientCommunication:
+    "Tell the patient the clinician is reviewing safety details first, and they should report breathing difficulty, chest pain, fainting, bleeding, or worsening symptoms immediately.",
+  demoNarration:
+    "This turns the AI from a note writer into a clinic operator: it tells staff the safest next move and gives commands that run the workflow.",
+} satisfies NextStepOutput;
