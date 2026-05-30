@@ -124,6 +124,7 @@ export const commandExamples = [
   "Use the fastest model and clear filters",
   "Mark this patient for follow-up",
   "Compose a WhatsApp follow-up for this patient",
+  "Add a bleeding red flag and simplify the Bangla handout",
   "Create a 52 year old male chest pain intake",
   "Check medicine safety for paracetamol 500mg and antibiotic twice daily",
 ];
@@ -131,7 +132,7 @@ export const commandExamples = [
 export const commandPlaybook = [
   {
     label: "Operate",
-    examples: ["generate", "approve", "follow-up SMS", "print handout"],
+    examples: ["generate", "approve", "edit draft", "print handout"],
   },
   {
     label: "Navigate",

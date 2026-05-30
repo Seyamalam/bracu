@@ -84,7 +84,8 @@ export type CommandAction =
   | { type: "set_model"; model: string }
   | { type: "reset_workspace"; scope: "filters" | "intake" | "all" }
   | { type: "run_judge_demo"; scenarioLabel?: string }
-  | { type: "compose_followup"; channel: "sms" | "whatsapp" };
+  | { type: "compose_followup"; channel: "sms" | "whatsapp" }
+  | { type: "edit_draft"; instruction: string };
 
 export type CommandPlan = {
   summary: string;

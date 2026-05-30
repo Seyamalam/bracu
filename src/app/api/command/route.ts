@@ -70,6 +70,10 @@ const commandPlanSchema = z.object({
         type: z.literal("compose_followup"),
         channel: z.enum(["sms", "whatsapp"]),
       }),
+      z.object({
+        type: z.literal("edit_draft"),
+        instruction: z.string(),
+      }),
     ]),
   ),
 });
@@ -103,17 +107,38 @@ export async function POST(request: Request) {
       output: Output.object({ schema: commandPlanSchema }),
       temperature: 0,
       system:
-        "You translate natural-language clinic operator commands into safe UI actions for Clinic Copilot BD. Only use these exact action type strings: fill_intake, load_scenario, generate_draft, check_medicine, set_status, approve_case, switch_language, print_handout, presentation_mode, search_cases, filter_cases, select_case, set_model, reset_workspace, run_judge_demo, compose_followup. For Bangla use switch_language with language bn. For scenarios use load_scenario with scenarioLabel. For a request to run a judge demo, winning demo, pitch flow, or full demo, prefer run_judge_demo. For SMS, WhatsApp, callback, or patient follow-up message requests use compose_followup. Never use language_switch, scenario_name, set_ui_mode, diagnosis, or prescribe actions. Keep the summary short.",
+        "You translate natural-language clinic operator commands into safe UI actions for Clinic Copilot BD. Only use these exact action type strings: fill_intake, load_scenario, generate_draft, check_medicine, set_status, approve_case, switch_language, print_handout, presentation_mode, search_cases, filter_cases, select_case, set_model, reset_workspace, run_judge_demo, compose_followup, edit_draft. For Bangla use switch_language with language bn. For scenarios use load_scenario with scenarioLabel. For a request to run a judge demo, winning demo, pitch flow, or full demo, prefer run_judge_demo. For SMS, WhatsApp, callback, or patient follow-up message requests use compose_followup. For commands that ask to change, rewrite, simplify, add, remove, improve, or edit the selected generated clinical note or handout, use edit_draft with the original command as instruction. Never use language_switch, scenario_name, set_ui_mode, diagnosis, or prescribe actions. Keep the summary short.",
       prompt: `Available scenarios: ${demoScenarios.map((scenario) => scenario.label).join(", ")}
 
 Command:
 ${command}`,
     });
 
-    return Response.json({ output: result.output, mode: "live" });
+    return Response.json({ output: sanitizePlan(result.output), mode: "live" });
   } catch {
     return Response.json({ output: fallbackPlan(command), mode: "fallback" });
   }
+}
+
+function sanitizePlan(plan: z.infer<typeof commandPlanSchema>) {
+  const seenSingleRunActions = new Set<string>();
+  const actions = plan.actions.filter((action) => {
+    if (
+      !["edit_draft", "run_judge_demo", "compose_followup"].includes(
+        action.type,
+      )
+    ) {
+      return true;
+    }
+
+    if (seenSingleRunActions.has(action.type)) {
+      return false;
+    }
+    seenSingleRunActions.add(action.type);
+    return true;
+  });
+
+  return { ...plan, actions };
 }
 
 function fallbackPlan(command: string) {
@@ -199,6 +224,18 @@ function fallbackPlan(command: string) {
       type: "compose_followup",
       channel: normalized.includes("sms") ? "sms" : "whatsapp",
     });
+  }
+  if (
+    normalized.includes("edit") ||
+    normalized.includes("rewrite") ||
+    normalized.includes("simplify") ||
+    normalized.includes("red flag") ||
+    normalized.includes("add a red flag") ||
+    normalized.includes("add red flag") ||
+    normalized.includes("add a question") ||
+    normalized.includes("improve handout")
+  ) {
+    actions.push({ type: "edit_draft", instruction: command });
   }
   if (normalized.includes("medicine") || normalized.includes("med")) {
     actions.push({ type: "check_medicine" });

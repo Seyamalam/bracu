@@ -270,6 +270,37 @@ export function ClinicCopilotApp() {
     setPresentationMode(true);
   }
 
+  async function editDraftByCommand(instruction: string) {
+    if (!displayOutput) {
+      setError("Generate or select a draft before editing it.");
+      return;
+    }
+
+    setError("");
+    setLiveMessage("Editing selected draft with AI.");
+    try {
+      const response = await fetch("/api/draft-edit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          draft: displayOutput,
+          instruction,
+          model: selectedModel,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error ?? "Draft edit failed.");
+      }
+      const editedOutput = data.output as CopilotOutput;
+      setOutput(editedOutput);
+      saveDraftEdits(editedOutput);
+      setLiveMessage(`Draft edited: ${instruction}`);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Draft edit failed.");
+    }
+  }
+
   async function applyCommandPlan(plan: CommandPlan) {
     let nextForm = form;
 
@@ -370,6 +401,10 @@ export function ClinicCopilotApp() {
         setFollowUpChannel(action.channel);
         setFollowUpComposeSignal((signal) => signal + 1);
         setLiveMessage(`Composing ${action.channel} follow-up.`);
+      }
+
+      if (action.type === "edit_draft") {
+        await editDraftByCommand(action.instruction);
       }
 
       if (action.type === "approve_case") {
