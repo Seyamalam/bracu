@@ -1,7 +1,9 @@
 import { Radio } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import type { Id } from "../../../../convex/_generated/dataModel";
+import type { CaseStatus } from "../types";
 import { SeverityBadge } from "./doctor-console";
 import { SectionHeading } from "./section-heading";
 
@@ -13,13 +15,18 @@ type CaseBoardItem = {
   redFlagCount: number;
   chiefComplaint: string;
   severity: "low" | "medium" | "high";
+  status: CaseStatus;
 };
 
 export function CaseBoard({
   cases,
+  selectedCaseId,
+  onSelectCase,
   onStatusChange,
 }: {
   cases: CaseBoardItem[] | undefined;
+  selectedCaseId?: Id<"cases">;
+  onSelectCase: (caseId: Id<"cases">) => void;
   onStatusChange: (caseId: Id<"cases">, status: "handout" | "followup") => void;
 }) {
   return (
@@ -35,22 +42,35 @@ export function CaseBoard({
         <div className="space-y-3">
           {(cases ?? []).map((caseItem) => (
             <div
-              className="rounded-lg border border-border bg-background p-3"
+              className={
+                selectedCaseId === caseItem._id
+                  ? "w-full rounded-lg border border-primary bg-background p-3 text-left shadow-sm"
+                  : "w-full rounded-lg border border-border bg-background p-3 text-left transition hover:border-primary"
+              }
               key={caseItem._id}
             >
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <p className="font-semibold">{caseItem.patientName}</p>
-                  <p className="text-muted-foreground text-xs">
-                    {caseItem.age} yrs · {caseItem.language} ·{" "}
-                    {caseItem.redFlagCount} flags
-                  </p>
+              <button
+                className="w-full text-left"
+                type="button"
+                onClick={() => onSelectCase(caseItem._id)}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <p className="font-semibold">{caseItem.patientName}</p>
+                    <p className="text-muted-foreground text-xs">
+                      {caseItem.age} yrs · {caseItem.language} ·{" "}
+                      {caseItem.redFlagCount} flags
+                    </p>
+                  </div>
+                  <SeverityBadge severity={caseItem.severity} />
                 </div>
-                <SeverityBadge severity={caseItem.severity} />
-              </div>
-              <p className="mt-2 line-clamp-2 text-muted-foreground text-sm">
-                {caseItem.chiefComplaint}
-              </p>
+                <Badge className="mt-2 capitalize" variant="outline">
+                  {caseItem.status}
+                </Badge>
+                <p className="mt-2 line-clamp-2 text-muted-foreground text-sm">
+                  {caseItem.chiefComplaint}
+                </p>
+              </button>
               <div className="mt-3 grid grid-cols-2 gap-2">
                 <Button
                   type="button"

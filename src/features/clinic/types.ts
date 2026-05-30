@@ -1,6 +1,7 @@
 export type Sex = "female" | "male" | "other" | "unknown";
 export type Language = "bn" | "en" | "mixed";
 export type Severity = "low" | "medium" | "high";
+export type CaseStatus = "waiting" | "review" | "handout" | "followup";
 
 export type CopilotOutput = {
   chiefComplaint: string;
@@ -34,4 +35,11 @@ export type IntakeFormState = {
   age: string;
   sex: Sex;
   intake: string;
+};
+
+export type MedicineSafetyOutput = {
+  riskLevel: Severity;
+  issues: string[];
+  clarifyingQuestions: string[];
+  patientInstructions: string[];
 };

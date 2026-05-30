@@ -1,10 +1,28 @@
-import { Printer } from "lucide-react";
+import { Copy, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import type { CopilotOutput } from "../types";
 import { SectionHeading } from "./section-heading";
 
 export function PatientHandout({ output }: { output: CopilotOutput | null }) {
+  const handoutText = output
+    ? [
+        output.patientHandout.title,
+        output.patientHandout.plainSummary,
+        ...output.patientHandout.careSteps,
+        ...output.patientHandout.medicineInstructions,
+        ...output.patientHandout.urgentReturnWarnings,
+        output.followUp.message,
+      ].join("\n")
+    : "";
+
+  async function copyHandout() {
+    if (!handoutText) {
+      return;
+    }
+    await navigator.clipboard.writeText(handoutText);
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -26,14 +44,26 @@ export function PatientHandout({ output }: { output: CopilotOutput | null }) {
                   Follow-up: {output.followUp.timing}
                 </p>
               </div>
-              <Button
-                size="icon"
-                type="button"
-                variant="outline"
-                title="Print handout"
-              >
-                <Printer size={17} aria-hidden="true" />
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  size="icon"
+                  type="button"
+                  variant="outline"
+                  title="Copy handout"
+                  onClick={copyHandout}
+                >
+                  <Copy size={17} aria-hidden="true" />
+                </Button>
+                <Button
+                  size="icon"
+                  type="button"
+                  variant="outline"
+                  title="Print handout"
+                  onClick={() => window.print()}
+                >
+                  <Printer size={17} aria-hidden="true" />
+                </Button>
+              </div>
             </div>
             <p className="mt-3 text-slate-700 leading-7">
               {output.patientHandout.plainSummary}

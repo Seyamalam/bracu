@@ -11,17 +11,17 @@
 
 ## Sprint 1: Winning MVP
 
-- [ ] Add case status transitions: waiting, in review, handout ready, follow-up.
-- [ ] Add print/share patient handout view.
-- [ ] Add voice intake using browser speech recognition where available.
-- [ ] Add medicine safety checker UI.
-- [ ] Add anonymized clinic trend dashboard.
+- [x] Add case status transitions: waiting, in review, handout ready, follow-up.
+- [x] Add print/share patient handout view.
+- [x] Add voice intake using browser speech recognition where available.
+- [x] Add medicine safety checker UI.
+- [x] Add anonymized clinic trend dashboard.
 - [ ] Add scripted fake patient demos for judges.
 
 ## Sprint 2: Production Path
 
-- [ ] Add authentication and clinic roles.
-- [ ] Add audit log for every generated AI artifact.
+- [x] Add temporary email/password authentication and clinic roles.
+- [x] Add audit log for auth, AI draft creation, and case status changes.
 - [ ] Add file upload for prescriptions or lab reports.
 - [ ] Add model/provider switcher.
 - [ ] Add stronger medical safety policy tests.

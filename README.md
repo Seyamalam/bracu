@@ -10,11 +10,15 @@ Clinic Copilot BD is not a diagnosis or prescription engine. It is a clinical wo
 
 ## Core Demo
 
+- Temporary email/password clinic access
 - Reception intake in Bangla or English
 - AI generated chief complaint, timeline, severity, missing questions, and red flags
 - Doctor console with SOAP note, checklist, and safety framing
 - Patient handout in Bangla/English with medicine schedule and return warnings
+- Medicine safety clarity checker
+- Voice intake where browser speech recognition is available
 - Realtime case board powered by Convex
+- Clinic trend dashboard for anonymized severity/follow-up signals
 - Responsive mobile-first interface for clinic desks and phones
 
 ## Stack
@@ -72,3 +76,9 @@ bun run build
 - Clinicians remain responsible for medical decisions.
 - Patient-facing output uses plain language and urgent-return warnings.
 - Demo data should be fake or anonymized.
+
+## Temporary Auth
+
+The current hackathon build uses a deliberately simple email/password flow stored
+in Convex. This is only for demo gating and per-user workspace separation. Replace
+it with production authentication before handling real users or real patient data.

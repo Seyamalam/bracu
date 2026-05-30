@@ -1,4 +1,4 @@
-import type { CopilotOutput } from "./types";
+import type { CopilotOutput, MedicineSafetyOutput } from "./types";
 
 export const sampleIntakes = [
   {
@@ -27,6 +27,13 @@ export const safetyPrinciples = [
   "No diagnosis claims. No autonomous prescribing.",
   "Patient copy prioritizes plain language and return warnings.",
 ];
+
+export const trendLabels = {
+  high: "High priority",
+  medium: "Medium priority",
+  low: "Low priority",
+  followup: "Needs follow-up",
+};
 
 export const emptyWorkflowSteps = [
   ["1", "Capture intake", "Paste Bangla, English, or mixed notes."],
@@ -87,3 +94,20 @@ export const demoCopilotOutput = {
     message: "আপনার জ্বর/কাশির অবস্থা জানাতে ২৪-৪৮ ঘণ্টার মধ্যে ক্লিনিকের সাথে যোগাযোগ করুন।",
   },
 } satisfies CopilotOutput;
+
+export const demoMedicineSafetyOutput = {
+  riskLevel: "medium",
+  issues: [
+    "Dosage and frequency are missing or unclear for at least one medicine.",
+    "Confirm allergies, pregnancy status, kidney/liver disease, and current medications before dispensing.",
+  ],
+  clarifyingQuestions: [
+    "What exact dose, route, and frequency did the clinician intend?",
+    "Does the patient have any known drug allergy?",
+    "Is the patient taking any regular medication already?",
+  ],
+  patientInstructions: [
+    "Follow only the clinician-approved dose and timing.",
+    "Stop and contact the clinic urgently if rash, breathing trouble, swelling, or severe dizziness occurs.",
+  ],
+} satisfies MedicineSafetyOutput;
