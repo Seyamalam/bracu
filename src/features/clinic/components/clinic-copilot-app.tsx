@@ -33,6 +33,7 @@ import { Metric } from "./metric";
 import { ModelSelector } from "./model-selector";
 import { PatientHandout } from "./patient-handout";
 import { PresentationMode } from "./presentation-mode";
+import { ReferralComposer } from "./referral-composer";
 import { SafetyBanner } from "./safety-banner";
 import { SafetyFrame } from "./safety-frame";
 import { ShortcutHelp } from "./shortcut-help";
@@ -66,6 +67,10 @@ export function ClinicCopilotApp() {
   const [followUpChannel, setFollowUpChannel] = useState<"sms" | "whatsapp">(
     "whatsapp",
   );
+  const [referralComposeSignal, setReferralComposeSignal] = useState(0);
+  const [referralDocumentType, setReferralDocumentType] = useState<
+    "referral" | "visit_summary"
+  >("referral");
 
   const cases = useQuery(api.cases.listRecent, { userId: auth.user?._id });
   const auditLogs = useQuery(
@@ -407,6 +412,12 @@ export function ClinicCopilotApp() {
         await editDraftByCommand(action.instruction);
       }
 
+      if (action.type === "compose_referral") {
+        setReferralDocumentType(action.documentType);
+        setReferralComposeSignal((signal) => signal + 1);
+        setLiveMessage(`Writing ${action.documentType} paperwork.`);
+      }
+
       if (action.type === "approve_case") {
         approveSelectedCase();
       }
@@ -552,6 +563,13 @@ export function ClinicCopilotApp() {
             output={displayOutput}
             patientName={selectedCase?.patientName ?? form.patientName}
             preferredChannel={followUpChannel}
+          />
+          <ReferralComposer
+            composeSignal={referralComposeSignal}
+            documentType={referralDocumentType}
+            model={selectedModel}
+            output={displayOutput}
+            patientName={selectedCase?.patientName ?? form.patientName}
           />
           <MedicineSafety
             commandMedicines={commandMedicines}

@@ -4,6 +4,7 @@ import type {
   FollowUpMessageOutput,
   IntakeFormState,
   MedicineSafetyOutput,
+  ReferralOutput,
 } from "./types";
 
 export const sampleIntakes = [
@@ -124,6 +125,8 @@ export const commandExamples = [
   "Use the fastest model and clear filters",
   "Mark this patient for follow-up",
   "Compose a WhatsApp follow-up for this patient",
+  "Write a referral letter for this patient",
+  "Create a visit summary for the family",
   "Add a bleeding red flag and simplify the Bangla handout",
   "Create a 52 year old male chest pain intake",
   "Check medicine safety for paracetamol 500mg and antibiotic twice daily",
@@ -132,7 +135,7 @@ export const commandExamples = [
 export const commandPlaybook = [
   {
     label: "Operate",
-    examples: ["generate", "approve", "edit draft", "print handout"],
+    examples: ["generate", "referral", "edit draft", "print handout"],
   },
   {
     label: "Navigate",
@@ -321,3 +324,31 @@ export const demoFollowUpMessage = {
     "Remind that medicine changes need clinician approval.",
   ],
 } satisfies FollowUpMessageOutput;
+
+export const demoReferralOutput = {
+  documentType: "referral",
+  urgency: "medium",
+  title: "Clinician-reviewed referral draft",
+  recipient: "Receiving clinician or emergency desk",
+  reason:
+    "Further clinician assessment is requested because the current intake includes symptoms that need vitals, examination, and safety review.",
+  clinicalSummary:
+    "Patient reports fever and systemic symptoms. This document is AI-generated draft support only and requires clinician review before use.",
+  keyFindings: [
+    "Symptoms and duration should be confirmed at handover.",
+    "Vitals, hydration status, and danger signs need documentation.",
+    "Medication history, allergy, pregnancy status, and comorbidities should be checked.",
+  ],
+  redFlags: [
+    "Escalate urgently for breathing difficulty, chest pain, confusion, bleeding, severe dehydration, fainting, or rapidly worsening condition.",
+  ],
+  requestedAction:
+    "Please assess, document vitals and examination findings, and decide next steps according to clinical judgment.",
+  patientInstructions:
+    "Bring current medicines, reports, and this note. Seek urgent care immediately if danger signs appear or symptoms worsen.",
+  clinicianChecklist: [
+    "Confirm identity, age, pregnancy status, allergies, and current medicines.",
+    "Record vital signs and focused examination.",
+    "Review red flags before sharing this document.",
+  ],
+} satisfies ReferralOutput;

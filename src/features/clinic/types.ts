@@ -58,6 +58,20 @@ export type FollowUpMessageOutput = {
   urgency: Severity;
 };
 
+export type ReferralOutput = {
+  documentType: "referral" | "visit_summary";
+  urgency: Severity;
+  title: string;
+  recipient: string;
+  reason: string;
+  clinicalSummary: string;
+  keyFindings: string[];
+  redFlags: string[];
+  requestedAction: string;
+  patientInstructions: string;
+  clinicianChecklist: string[];
+};
+
 export type CommandAction =
   | {
       type: "fill_intake";
@@ -85,7 +99,8 @@ export type CommandAction =
   | { type: "reset_workspace"; scope: "filters" | "intake" | "all" }
   | { type: "run_judge_demo"; scenarioLabel?: string }
   | { type: "compose_followup"; channel: "sms" | "whatsapp" }
-  | { type: "edit_draft"; instruction: string };
+  | { type: "edit_draft"; instruction: string }
+  | { type: "compose_referral"; documentType: "referral" | "visit_summary" };
 
 export type CommandPlan = {
   summary: string;
