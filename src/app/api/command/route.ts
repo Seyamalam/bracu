@@ -39,6 +39,21 @@ const commandPlanSchema = z.object({
         type: z.literal("presentation_mode"),
         enabled: z.boolean(),
       }),
+      z.object({
+        type: z.literal("search_cases"),
+        query: z.string(),
+      }),
+      z.object({
+        type: z.literal("filter_cases"),
+        status: z
+          .enum(["all", "waiting", "review", "handout", "followup"])
+          .optional(),
+        severity: z.enum(["all", "low", "medium", "high"]).optional(),
+      }),
+      z.object({
+        type: z.literal("select_case"),
+        patientName: z.string(),
+      }),
     ]),
   ),
 });
@@ -72,7 +87,7 @@ export async function POST(request: Request) {
       output: Output.object({ schema: commandPlanSchema }),
       temperature: 0,
       system:
-        "You translate natural-language clinic operator commands into safe UI actions for Clinic Copilot BD. Only use these exact action type strings: fill_intake, load_scenario, generate_draft, check_medicine, set_status, approve_case, switch_language, print_handout, presentation_mode. For Bangla use switch_language with language bn. For scenarios use load_scenario with scenarioLabel. Never use language_switch, scenario_name, set_ui_mode, diagnosis, or prescribe actions. Keep the summary short.",
+        "You translate natural-language clinic operator commands into safe UI actions for Clinic Copilot BD. Only use these exact action type strings: fill_intake, load_scenario, generate_draft, check_medicine, set_status, approve_case, switch_language, print_handout, presentation_mode, search_cases, filter_cases, select_case. For Bangla use switch_language with language bn. For scenarios use load_scenario with scenarioLabel. Never use language_switch, scenario_name, set_ui_mode, diagnosis, or prescribe actions. Keep the summary short.",
       prompt: `Available scenarios: ${demoScenarios.map((scenario) => scenario.label).join(", ")}
 
 Command:
@@ -94,6 +109,29 @@ function fallbackPlan(command: string) {
   }
   if (normalized.includes("presentation")) {
     actions.push({ type: "presentation_mode", enabled: true });
+  }
+  if (normalized.includes("search")) {
+    const query = command
+      .replace(/search for/i, "")
+      .replace(/search/i, "")
+      .replace(/show high priority cases/i, "")
+      .trim();
+    actions.push({ type: "search_cases", query: query || command });
+  }
+  if (
+    normalized.includes("high priority") ||
+    normalized.includes("high risk")
+  ) {
+    actions.push({ type: "filter_cases", severity: "high" });
+  }
+  if (normalized.includes("medium priority")) {
+    actions.push({ type: "filter_cases", severity: "medium" });
+  }
+  if (normalized.includes("low priority")) {
+    actions.push({ type: "filter_cases", severity: "low" });
+  }
+  if (normalized.includes("clear filter") || normalized.includes("all cases")) {
+    actions.push({ type: "filter_cases", severity: "all", status: "all" });
   }
   if (normalized.includes("approve")) {
     actions.push({ type: "approve_case" });

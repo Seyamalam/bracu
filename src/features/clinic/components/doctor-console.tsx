@@ -1,11 +1,28 @@
-import { Activity, AlertTriangle, ClipboardCheck } from "lucide-react";
+import { Activity, AlertTriangle, ClipboardCheck, Save } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
 import { emptyWorkflowSteps } from "../data";
 import type { CopilotOutput } from "../types";
 import { SectionHeading } from "./section-heading";
 
-export function DoctorConsole({ output }: { output: CopilotOutput | null }) {
+export function DoctorConsole({
+  output,
+  onSave,
+}: {
+  output: CopilotOutput | null;
+  onSave: (output: CopilotOutput) => void;
+}) {
+  const [draft, setDraft] = useState<CopilotOutput | null>(output);
+
+  useEffect(() => {
+    setDraft(output);
+  }, [output]);
+
+  const activeOutput = draft;
+
   return (
     <Card className="min-h-64">
       <CardHeader>
@@ -16,37 +33,102 @@ export function DoctorConsole({ output }: { output: CopilotOutput | null }) {
         />
       </CardHeader>
       <CardContent>
-        {output ? (
+        {activeOutput ? (
           <div className="space-y-4">
             <div className="grid gap-3 md:grid-cols-[1fr_auto]">
               <div>
-                <p className="font-semibold text-2xl">
-                  {output.chiefComplaint}
-                </p>
-                <p className="mt-2 text-muted-foreground text-sm leading-6">
-                  {output.summary}
-                </p>
+                <Textarea
+                  aria-label="Chief complaint"
+                  className="min-h-14 resize-none font-semibold text-xl"
+                  value={activeOutput.chiefComplaint}
+                  onChange={(event) =>
+                    setDraft({
+                      ...activeOutput,
+                      chiefComplaint: event.target.value,
+                    })
+                  }
+                />
+                <Textarea
+                  aria-label="Case summary"
+                  className="mt-2 min-h-24 resize-none text-sm"
+                  value={activeOutput.summary}
+                  onChange={(event) =>
+                    setDraft({ ...activeOutput, summary: event.target.value })
+                  }
+                />
               </div>
-              <SeverityBadge severity={output.severity} />
+              <div className="flex flex-col gap-2">
+                <SeverityBadge severity={activeOutput.severity} />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => onSave(activeOutput)}
+                >
+                  <Save size={16} aria-hidden="true" />
+                  Save edits
+                </Button>
+              </div>
             </div>
 
             <div className="grid gap-3 md:grid-cols-2">
               <InfoBlock
                 title="Missing Questions"
-                items={output.missingQuestions}
+                items={activeOutput.missingQuestions}
+                onItemsChange={(items) =>
+                  setDraft({ ...activeOutput, missingQuestions: items })
+                }
               />
               <InfoBlock
                 tone="danger"
                 title="Safety Red Flags"
-                items={output.redFlags}
+                items={activeOutput.redFlags}
+                onItemsChange={(items) =>
+                  setDraft({ ...activeOutput, redFlags: items })
+                }
               />
             </div>
 
             <div className="grid gap-3 md:grid-cols-2">
-              <SoapCard label="S" value={output.soap.subjective} />
-              <SoapCard label="O" value={output.soap.objective} />
-              <SoapCard label="A" value={output.soap.assessmentSupport} />
-              <SoapCard label="P" value={output.soap.planSupport} />
+              <SoapCard
+                label="S"
+                value={activeOutput.soap.subjective}
+                onChange={(value) =>
+                  setDraft({
+                    ...activeOutput,
+                    soap: { ...activeOutput.soap, subjective: value },
+                  })
+                }
+              />
+              <SoapCard
+                label="O"
+                value={activeOutput.soap.objective}
+                onChange={(value) =>
+                  setDraft({
+                    ...activeOutput,
+                    soap: { ...activeOutput.soap, objective: value },
+                  })
+                }
+              />
+              <SoapCard
+                label="A"
+                value={activeOutput.soap.assessmentSupport}
+                onChange={(value) =>
+                  setDraft({
+                    ...activeOutput,
+                    soap: { ...activeOutput.soap, assessmentSupport: value },
+                  })
+                }
+              />
+              <SoapCard
+                label="P"
+                value={activeOutput.soap.planSupport}
+                onChange={(value) =>
+                  setDraft({
+                    ...activeOutput,
+                    soap: { ...activeOutput.soap, planSupport: value },
+                  })
+                }
+              />
             </div>
           </div>
         ) : (
@@ -98,10 +180,12 @@ function EmptyState() {
 function InfoBlock({
   title,
   items,
+  onItemsChange,
   tone = "normal",
 }: {
   title: string;
   items: string[];
+  onItemsChange: (items: string[]) => void;
   tone?: "normal" | "danger";
 }) {
   return (
@@ -120,20 +204,40 @@ function InfoBlock({
         )}
         {title}
       </p>
-      <ul className="mt-3 space-y-2 text-slate-700 text-sm leading-6">
-        {items.map((item) => (
-          <li key={item}>• {item}</li>
-        ))}
-      </ul>
+      <Textarea
+        className="mt-3 min-h-28 text-sm"
+        value={items.join("\n")}
+        onChange={(event) =>
+          onItemsChange(
+            event.target.value
+              .split("\n")
+              .map((item) => item.trim())
+              .filter(Boolean),
+          )
+        }
+      />
     </div>
   );
 }
 
-function SoapCard({ label, value }: { label: string; value: string }) {
+function SoapCard({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
   return (
     <div className="rounded-lg border border-border bg-background p-4">
       <p className="font-black text-[#e2553d] text-xl">{label}</p>
-      <p className="mt-2 text-muted-foreground text-sm leading-6">{value}</p>
+      <Textarea
+        aria-label={`${label} SOAP note`}
+        className="mt-2 min-h-28 text-sm"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+      />
     </div>
   );
 }

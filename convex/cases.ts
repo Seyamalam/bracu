@@ -153,6 +153,66 @@ export const approveCase = mutation({
   },
 });
 
+export const updateDraft = mutation({
+  args: {
+    caseId: v.id("cases"),
+    userId: v.id("users"),
+    chiefComplaint: v.string(),
+    summary: v.string(),
+    severity: v.union(v.literal("low"), v.literal("medium"), v.literal("high")),
+    redFlags: v.array(v.string()),
+    missingQuestions: v.array(v.string()),
+    soap: v.object({
+      subjective: v.string(),
+      objective: v.string(),
+      assessmentSupport: v.string(),
+      planSupport: v.string(),
+    }),
+    doctorChecklist: v.array(v.string()),
+    patientHandout: v.object({
+      title: v.string(),
+      plainSummary: v.string(),
+      careSteps: v.array(v.string()),
+      medicineInstructions: v.array(v.string()),
+      urgentReturnWarnings: v.array(v.string()),
+    }),
+    followUp: v.object({
+      timing: v.string(),
+      message: v.string(),
+    }),
+  },
+  handler: async (ctx, args) => {
+    const caseDoc = await ctx.db.get(args.caseId);
+    if (!caseDoc || caseDoc.userId !== args.userId) {
+      throw new Error("Case not found for this user.");
+    }
+
+    await ctx.db.patch(args.caseId, {
+      chiefComplaint: args.chiefComplaint,
+      summary: args.summary,
+      severity: args.severity,
+      redFlagCount: args.redFlags.length,
+      redFlags: args.redFlags,
+      missingQuestions: args.missingQuestions,
+      soap: args.soap,
+      doctorChecklist: args.doctorChecklist,
+      patientHandout: args.patientHandout,
+      followUp: args.followUp,
+      updatedAt: Date.now(),
+    });
+
+    await ctx.db.insert("auditLogs", {
+      userId: args.userId,
+      caseId: args.caseId,
+      action: "case.edit",
+      detail: "Clinician edited and saved the AI draft.",
+      createdAt: Date.now(),
+    });
+
+    return null;
+  },
+});
+
 export const listAuditLogs = query({
   args: {
     userId: v.id("users"),

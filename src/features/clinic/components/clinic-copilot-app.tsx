@@ -10,9 +10,11 @@ import { AuthScreen } from "../../auth/components/auth-screen";
 import { useDemoAuth } from "../../auth/use-demo-auth";
 import { demoScenarios, initialIntake, uiCopy } from "../data";
 import type {
+  CaseStatus,
   CommandPlan,
   CopilotOutput,
   IntakeFormState,
+  Severity,
   UiLanguage,
 } from "../types";
 import { AuditLogViewer } from "./audit-log-viewer";
@@ -46,6 +48,9 @@ export function ClinicCopilotApp() {
     string | undefined
   >();
   const [presentationMode, setPresentationMode] = useState(false);
+  const [caseSearch, setCaseSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<CaseStatus | "all">("all");
+  const [severityFilter, setSeverityFilter] = useState<Severity | "all">("all");
   const [mode, setMode] = useState<"idle" | "demo" | "live">("idle");
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState("");
@@ -58,6 +63,7 @@ export function ClinicCopilotApp() {
   const createCase = useMutation(api.cases.createCase);
   const updateStatus = useMutation(api.cases.updateStatus);
   const approveCase = useMutation(api.cases.approveCase);
+  const updateDraft = useMutation(api.cases.updateDraft);
   const copy = uiCopy[uiLanguage];
 
   const readyScore = useMemo(() => {
@@ -73,13 +79,36 @@ export function ClinicCopilotApp() {
     () => cases?.find((caseItem) => caseItem._id === selectedCaseId),
     [cases, selectedCaseId],
   );
+  const filteredCases = useMemo(() => {
+    const query = caseSearch.trim().toLowerCase();
+    return (cases ?? []).filter((caseItem) => {
+      const matchesQuery =
+        !query ||
+        [
+          caseItem.patientName,
+          caseItem.chiefComplaint,
+          caseItem.language,
+          caseItem.status,
+          caseItem.severity,
+        ]
+          .join(" ")
+          .toLowerCase()
+          .includes(query);
+      const matchesStatus =
+        statusFilter === "all" || caseItem.status === statusFilter;
+      const matchesSeverity =
+        severityFilter === "all" || caseItem.severity === severityFilter;
+
+      return matchesQuery && matchesStatus && matchesSeverity;
+    });
+  }, [caseSearch, cases, severityFilter, statusFilter]);
   const displayOutput = selectedCase ? caseToOutput(selectedCase) : output;
 
   useEffect(() => {
-    if (!selectedCaseId && cases?.[0]) {
-      setSelectedCaseId(cases[0]._id);
+    if (!selectedCaseId && filteredCases[0]) {
+      setSelectedCaseId(filteredCases[0]._id);
     }
-  }, [cases, selectedCaseId]);
+  }, [filteredCases, selectedCaseId]);
 
   if (!auth.isReady) {
     return (
@@ -161,6 +190,27 @@ export function ClinicCopilotApp() {
     void approveCase({ caseId, userId: currentUser._id });
   }
 
+  function saveDraftEdits(nextOutput: CopilotOutput) {
+    if (!selectedCaseId) {
+      setOutput(nextOutput);
+      return;
+    }
+
+    void updateDraft({
+      caseId: selectedCaseId,
+      userId: currentUser._id,
+      chiefComplaint: nextOutput.chiefComplaint,
+      summary: nextOutput.summary,
+      severity: nextOutput.severity,
+      redFlags: nextOutput.redFlags,
+      missingQuestions: nextOutput.missingQuestions,
+      soap: nextOutput.soap,
+      doctorChecklist: nextOutput.doctorChecklist,
+      patientHandout: nextOutput.patientHandout,
+      followUp: nextOutput.followUp,
+    });
+  }
+
   async function applyCommandPlan(plan: CommandPlan) {
     let nextForm = form;
 
@@ -213,6 +263,30 @@ export function ClinicCopilotApp() {
         changeCaseStatus(selectedCaseId, action.status);
       }
 
+      if (action.type === "search_cases") {
+        setCaseSearch(action.query);
+      }
+
+      if (action.type === "filter_cases") {
+        if (action.status) {
+          setStatusFilter(action.status as CaseStatus | "all");
+        }
+        if (action.severity) {
+          setSeverityFilter(action.severity as Severity | "all");
+        }
+      }
+
+      if (action.type === "select_case") {
+        const matchingCase = cases?.find((caseItem) =>
+          caseItem.patientName
+            .toLowerCase()
+            .includes(action.patientName.toLowerCase()),
+        );
+        if (matchingCase) {
+          setSelectedCaseId(matchingCase._id);
+        }
+      }
+
       if (action.type === "approve_case") {
         approveSelectedCase();
       }
@@ -229,6 +303,9 @@ export function ClinicCopilotApp() {
 
   return (
     <main className="min-h-screen bg-[#f7f4ee] text-slate-950">
+      <a className="skip-link" href="#clinic-workspace">
+        Skip to clinic workspace
+      </a>
       {presentationMode ? (
         <PresentationMode
           caseCount={cases?.length ?? 0}
@@ -282,7 +359,10 @@ export function ClinicCopilotApp() {
         />
       </section>
 
-      <section className="mx-auto grid max-w-7xl gap-4 px-4 py-4 sm:px-6 lg:grid-cols-[380px_1fr_320px] lg:px-8">
+      <section
+        className="mx-auto grid max-w-7xl gap-4 px-4 py-4 sm:px-6 lg:grid-cols-[380px_1fr_320px] lg:px-8"
+        id="clinic-workspace"
+      >
         <aside className="space-y-4">
           <IntakePanel
             copy={copy}
@@ -298,7 +378,7 @@ export function ClinicCopilotApp() {
           <SafetyBanner title={copy.clinicianReview} body={copy.safetyBanner} />
           <ImpactSnapshot output={displayOutput} title={copy.impactTitle} />
           <CaseAssistant model={selectedModel} output={displayOutput} />
-          <DoctorConsole output={displayOutput} />
+          <DoctorConsole output={displayOutput} onSave={saveDraftEdits} />
           <PatientHandout copy={copy} output={displayOutput} />
           <MedicineSafety
             commandMedicines={commandMedicines}
@@ -310,9 +390,15 @@ export function ClinicCopilotApp() {
         <aside className="space-y-4">
           <ModelSelector value={selectedModel} onChange={setSelectedModel} />
           <CaseBoard
-            cases={cases}
+            cases={filteredCases}
+            searchQuery={caseSearch}
             selectedCaseId={selectedCaseId}
+            severityFilter={severityFilter}
+            statusFilter={statusFilter}
+            onSearchChange={setCaseSearch}
             onSelectCase={setSelectedCaseId}
+            onSeverityFilterChange={setSeverityFilter}
+            onStatusFilterChange={setStatusFilter}
             onStatusChange={changeCaseStatus}
             onApproveCase={approveSelectedCase}
           />

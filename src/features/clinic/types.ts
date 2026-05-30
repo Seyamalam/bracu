@@ -65,7 +65,14 @@ export type CommandAction =
   | { type: "approve_case" }
   | { type: "switch_language"; language: UiLanguage }
   | { type: "print_handout" }
-  | { type: "presentation_mode"; enabled: boolean };
+  | { type: "presentation_mode"; enabled: boolean }
+  | { type: "search_cases"; query: string }
+  | {
+      type: "filter_cases";
+      status?: CaseStatus | "all";
+      severity?: Severity | "all";
+    }
+  | { type: "select_case"; patientName: string };
 
 export type CommandPlan = {
   summary: string;

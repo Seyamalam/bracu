@@ -2,8 +2,10 @@ import { Radio } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import type { Id } from "../../../../convex/_generated/dataModel";
-import type { CaseStatus } from "../types";
+import type { CaseStatus, Severity } from "../types";
 import { SeverityBadge } from "./doctor-console";
 import { SectionHeading } from "./section-heading";
 
@@ -21,14 +23,26 @@ type CaseBoardItem = {
 
 export function CaseBoard({
   cases,
+  searchQuery,
   selectedCaseId,
+  severityFilter,
+  statusFilter,
+  onSearchChange,
   onSelectCase,
+  onSeverityFilterChange,
+  onStatusFilterChange,
   onStatusChange,
   onApproveCase,
 }: {
   cases: CaseBoardItem[] | undefined;
+  searchQuery: string;
   selectedCaseId?: Id<"cases">;
+  severityFilter: Severity | "all";
+  statusFilter: CaseStatus | "all";
+  onSearchChange: (query: string) => void;
   onSelectCase: (caseId: Id<"cases">) => void;
+  onSeverityFilterChange: (severity: Severity | "all") => void;
+  onStatusFilterChange: (status: CaseStatus | "all") => void;
   onStatusChange: (caseId: Id<"cases">, status: "handout" | "followup") => void;
   onApproveCase: (caseId: Id<"cases">) => void;
 }) {
@@ -42,6 +56,50 @@ export function CaseBoard({
         />
       </CardHeader>
       <CardContent>
+        <div className="mb-4 space-y-3">
+          <div>
+            <Label htmlFor="case-search">Search cases</Label>
+            <Input
+              id="case-search"
+              className="mt-1"
+              placeholder="Patient, complaint, language..."
+              value={searchQuery}
+              onChange={(event) => onSearchChange(event.target.value)}
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <select
+              className="h-10 rounded-md border border-input bg-background px-2 text-sm"
+              aria-label="Filter by status"
+              value={statusFilter}
+              onChange={(event) =>
+                onStatusFilterChange(event.target.value as CaseStatus | "all")
+              }
+            >
+              {["all", "waiting", "review", "handout", "followup"].map(
+                (item) => (
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
+                ),
+              )}
+            </select>
+            <select
+              className="h-10 rounded-md border border-input bg-background px-2 text-sm"
+              aria-label="Filter by severity"
+              value={severityFilter}
+              onChange={(event) =>
+                onSeverityFilterChange(event.target.value as Severity | "all")
+              }
+            >
+              {["all", "high", "medium", "low"].map((item) => (
+                <option key={item} value={item}>
+                  {item}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
         <div className="space-y-3">
           {(cases ?? []).map((caseItem) => (
             <div
