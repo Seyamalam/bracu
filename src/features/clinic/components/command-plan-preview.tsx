@@ -99,6 +99,7 @@ function describeAction(type: string) {
     set_status: "Move case status",
     switch_language: "Switch language",
     triage_reply: "Triage patient reply",
+    undo_last_command: "Undo last command",
   };
 
   return labels[type] ?? type.replaceAll("_", " ");
@@ -157,6 +158,9 @@ function actionDetail(action: CommandPlan["actions"][number]) {
   }
   if (action.type === "compose_referral") {
     return `Creates a ${action.documentType.replace("_", " ")} draft.`;
+  }
+  if (action.type === "undo_last_command") {
+    return "Restores the previous local workspace state.";
   }
 
   return "Runs a safe AI-assisted clinic workflow step.";

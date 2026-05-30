@@ -50,6 +50,23 @@ import { StaffHandoff } from "./staff-handoff";
 import { TrendDashboard } from "./trend-dashboard";
 import { VisitCloseout } from "./visit-closeout";
 
+type WorkspaceSnapshot = {
+  caseSearch: string;
+  commandMedicines?: string;
+  followUpChannel: "sms" | "whatsapp";
+  form: IntakeFormState;
+  label: string;
+  mode: "idle" | "demo" | "live";
+  output: CopilotOutput | null;
+  presentationMode: boolean;
+  referralDocumentType: "referral" | "visit_summary";
+  selectedCaseId?: Id<"cases">;
+  selectedModel: string;
+  severityFilter: Severity | "all";
+  statusFilter: CaseStatus | "all";
+  uiLanguage: UiLanguage;
+};
+
 export function ClinicCopilotApp() {
   const auth = useDemoAuth();
   const commandInputRef = useRef<HTMLInputElement>(null);
@@ -72,6 +89,9 @@ export function ClinicCopilotApp() {
   const [isCleaningIntake, setIsCleaningIntake] = useState(false);
   const [error, setError] = useState("");
   const [liveMessage, setLiveMessage] = useState("Clinic workspace ready.");
+  const [commandUndoStack, setCommandUndoStack] = useState<WorkspaceSnapshot[]>(
+    [],
+  );
   const [commandHistory, setCommandHistory] = useState<CommandHistoryEntry[]>(
     [],
   );
@@ -274,6 +294,58 @@ export function ClinicCopilotApp() {
     }
   }
 
+  function captureWorkspaceSnapshot(label: string): WorkspaceSnapshot {
+    return {
+      caseSearch,
+      commandMedicines,
+      followUpChannel,
+      form,
+      label,
+      mode,
+      output,
+      presentationMode,
+      referralDocumentType,
+      selectedCaseId,
+      selectedModel,
+      severityFilter,
+      statusFilter,
+      uiLanguage,
+    };
+  }
+
+  function pushUndoSnapshot(label: string) {
+    const snapshot = captureWorkspaceSnapshot(label);
+    setCommandUndoStack((stack) => [snapshot, ...stack].slice(0, 6));
+  }
+
+  function restoreSnapshot(snapshot: WorkspaceSnapshot) {
+    setCaseSearch(snapshot.caseSearch);
+    setCommandMedicines(snapshot.commandMedicines);
+    setFollowUpChannel(snapshot.followUpChannel);
+    setForm(snapshot.form);
+    setMode(snapshot.mode);
+    setOutput(snapshot.output);
+    setPresentationMode(snapshot.presentationMode);
+    setReferralDocumentType(snapshot.referralDocumentType);
+    setSelectedCaseId(snapshot.selectedCaseId);
+    setSelectedModel(snapshot.selectedModel);
+    setSeverityFilter(snapshot.severityFilter);
+    setStatusFilter(snapshot.statusFilter);
+    setUiLanguage(snapshot.uiLanguage);
+  }
+
+  function undoLastCommand() {
+    const [snapshot, ...remainingSnapshots] = commandUndoStack;
+    if (!snapshot) {
+      setLiveMessage("No previous command state to restore.");
+      return;
+    }
+
+    restoreSnapshot(snapshot);
+    setCommandUndoStack(remainingSnapshots);
+    setLiveMessage(`Restored workspace before: ${snapshot.label}`);
+  }
+
   async function runJudgeDemo(
     scenarioLabel: string = judgeRunScript.scenarioLabel,
   ) {
@@ -402,6 +474,15 @@ export function ClinicCopilotApp() {
   }
 
   async function applyCommandPlan(plan: CommandPlan) {
+    if (plan.actions.some((action) => action.type === "undo_last_command")) {
+      undoLastCommand();
+      return;
+    }
+
+    if (plan.actions.length > 0) {
+      pushUndoSnapshot(plan.summary);
+    }
+
     let nextForm = form;
 
     for (const action of plan.actions) {

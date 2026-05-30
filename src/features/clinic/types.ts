@@ -237,7 +237,8 @@ export type CommandAction =
   | { type: "schedule_followup" }
   | { type: "answer_patient_question" }
   | { type: "check_approval_readiness" }
-  | { type: "close_visit" };
+  | { type: "close_visit" }
+  | { type: "undo_last_command" };
 
 export type CommandPlan = {
   summary: string;

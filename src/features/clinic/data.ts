@@ -130,6 +130,7 @@ export const safetyPrinciples = [
 export const commandExamples = [
   "Run the full winning clinic workflow",
   "Run the winning judge demo",
+  "Undo last command",
   "Load dengue watch and generate a draft",
   "Switch to Bangla and open presentation mode",
   "Approve this case and move it to handout",
@@ -158,7 +159,7 @@ export const commandExamples = [
 export const commandPlaybook = [
   {
     label: "Operate",
-    examples: ["answer question", "triage reply", "close visit", "handoff"],
+    examples: ["answer question", "triage reply", "close visit", "undo"],
   },
   {
     label: "Navigate",
