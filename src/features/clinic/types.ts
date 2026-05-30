@@ -224,9 +224,17 @@ export type CommandAction =
   | { type: "reset_workspace"; scope: "filters" | "intake" | "all" }
   | { type: "run_judge_demo"; scenarioLabel?: string }
   | { type: "run_full_workflow"; scenarioLabel?: string }
-  | { type: "compose_followup"; channel: "sms" | "whatsapp" }
+  | {
+      type: "compose_followup";
+      channel: "sms" | "whatsapp";
+      instruction?: string;
+    }
   | { type: "edit_draft"; instruction: string }
-  | { type: "compose_referral"; documentType: "referral" | "visit_summary" }
+  | {
+      type: "compose_referral";
+      documentType: "referral" | "visit_summary";
+      instruction?: string;
+    }
   | { type: "compose_briefing" }
   | { type: "cleanup_intake" }
   | { type: "explain_risk" }

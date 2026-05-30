@@ -30,6 +30,7 @@ export async function POST(request: Request) {
     ? body.missingQuestions
     : [];
   const followUp = String(body.followUp ?? "").trim();
+  const instruction = String(body.instruction ?? "").trim();
   const requestedModel = String(body.model ?? "env");
 
   if (!caseSummary) {
@@ -71,7 +72,10 @@ Missing questions:
 ${missingQuestions.join("\n") || "None documented"}
 
 Follow-up:
-${followUp || "Not specified"}`,
+${followUp || "Not specified"}
+
+Operator instruction:
+${instruction || "No extra instruction"}`,
   });
 
   return Response.json({ output: result.output, mode: "live" });

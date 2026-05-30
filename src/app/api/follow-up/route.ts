@@ -20,6 +20,7 @@ export async function POST(request: Request) {
   const caseSummary = String(body.caseSummary ?? "").trim();
   const followUpTiming = String(body.followUpTiming ?? "").trim();
   const followUpMessage = String(body.followUpMessage ?? "").trim();
+  const instruction = String(body.instruction ?? "").trim();
   const requestedModel = String(body.model ?? "env");
 
   if (!caseSummary) {
@@ -58,7 +59,10 @@ Follow-up timing:
 ${followUpTiming || "Not specified"}
 
 Existing follow-up instruction:
-${followUpMessage || "Not specified"}`,
+${followUpMessage || "Not specified"}
+
+Operator instruction:
+${instruction || "No extra instruction"}`,
   });
 
   return Response.json({ output: result.output, mode: "live" });

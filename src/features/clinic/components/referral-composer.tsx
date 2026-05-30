@@ -9,12 +9,14 @@ import type { CopilotOutput, ReferralOutput } from "../types";
 import { SectionHeading } from "./section-heading";
 
 export function ReferralComposer({
+  commandInstruction,
   composeSignal,
   documentType,
   model,
   output,
   patientName,
 }: {
+  commandInstruction?: string;
   composeSignal: number;
   documentType: "referral" | "visit_summary";
   model: string;
@@ -85,6 +87,7 @@ export function ReferralComposer({
             redFlags: output.redFlags,
             missingQuestions: output.missingQuestions,
             followUp: output.followUp.message,
+            instruction: commandInstruction,
             model,
           }),
         });
@@ -103,7 +106,7 @@ export function ReferralComposer({
         setIsGenerating(false);
       }
     },
-    [activeType, model, output, patientName],
+    [activeType, commandInstruction, model, output, patientName],
   );
 
   useEffect(() => {

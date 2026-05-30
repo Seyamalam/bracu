@@ -151,13 +151,17 @@ function actionDetail(action: CommandPlan["actions"][number]) {
       : "Starts the default winning demo scenario.";
   }
   if (action.type === "compose_followup") {
-    return `Drafts a ${action.channel} message.`;
+    return action.instruction
+      ? `Drafts a ${action.channel} message: ${truncateText(action.instruction)}`
+      : `Drafts a ${action.channel} message.`;
   }
   if (action.type === "edit_draft") {
     return action.instruction;
   }
   if (action.type === "compose_referral") {
-    return `Creates a ${action.documentType.replace("_", " ")} draft.`;
+    return action.instruction
+      ? `Creates a ${action.documentType.replace("_", " ")} draft: ${truncateText(action.instruction)}`
+      : `Creates a ${action.documentType.replace("_", " ")} draft.`;
   }
   if (action.type === "extract_document" && action.documentText) {
     return `Extracts: ${truncateText(action.documentText)}`;

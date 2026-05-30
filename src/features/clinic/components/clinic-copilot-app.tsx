@@ -53,9 +53,11 @@ import { VisitCloseout } from "./visit-closeout";
 type WorkspaceSnapshot = {
   caseSearch: string;
   commandDocumentText?: string;
+  commandFollowUpInstruction?: string;
   commandMedicines?: string;
   commandPatientQuestion?: string;
   commandPatientReply?: string;
+  commandReferralInstruction?: string;
   followUpChannel: "sms" | "whatsapp";
   form: IntakeFormState;
   label: string;
@@ -83,6 +85,9 @@ export function ClinicCopilotApp() {
   const [commandDocumentText, setCommandDocumentText] = useState<
     string | undefined
   >();
+  const [commandFollowUpInstruction, setCommandFollowUpInstruction] = useState<
+    string | undefined
+  >();
   const [commandMedicines, setCommandMedicines] = useState<
     string | undefined
   >();
@@ -90,6 +95,9 @@ export function ClinicCopilotApp() {
     string | undefined
   >();
   const [commandPatientReply, setCommandPatientReply] = useState<
+    string | undefined
+  >();
+  const [commandReferralInstruction, setCommandReferralInstruction] = useState<
     string | undefined
   >();
   const [presentationMode, setPresentationMode] = useState(false);
@@ -311,9 +319,11 @@ export function ClinicCopilotApp() {
     return {
       caseSearch,
       commandDocumentText,
+      commandFollowUpInstruction,
       commandMedicines,
       commandPatientQuestion,
       commandPatientReply,
+      commandReferralInstruction,
       followUpChannel,
       form,
       label,
@@ -337,9 +347,11 @@ export function ClinicCopilotApp() {
   function restoreSnapshot(snapshot: WorkspaceSnapshot) {
     setCaseSearch(snapshot.caseSearch);
     setCommandDocumentText(snapshot.commandDocumentText);
+    setCommandFollowUpInstruction(snapshot.commandFollowUpInstruction);
     setCommandMedicines(snapshot.commandMedicines);
     setCommandPatientQuestion(snapshot.commandPatientQuestion);
     setCommandPatientReply(snapshot.commandPatientReply);
+    setCommandReferralInstruction(snapshot.commandReferralInstruction);
     setFollowUpChannel(snapshot.followUpChannel);
     setForm(snapshot.form);
     setMode(snapshot.mode);
@@ -604,6 +616,7 @@ export function ClinicCopilotApp() {
 
       if (action.type === "compose_followup") {
         setFollowUpChannel(action.channel);
+        setCommandFollowUpInstruction(action.instruction);
         setFollowUpComposeSignal((signal) => signal + 1);
         setLiveMessage(`Composing ${action.channel} follow-up.`);
       }
@@ -614,6 +627,7 @@ export function ClinicCopilotApp() {
 
       if (action.type === "compose_referral") {
         setReferralDocumentType(action.documentType);
+        setCommandReferralInstruction(action.instruction);
         setReferralComposeSignal((signal) => signal + 1);
         setLiveMessage(`Writing ${action.documentType} paperwork.`);
       }
@@ -904,6 +918,7 @@ export function ClinicCopilotApp() {
             patientName={selectedCase?.patientName ?? form.patientName}
           />
           <FollowUpComposer
+            commandInstruction={commandFollowUpInstruction}
             composeSignal={followUpComposeSignal}
             model={selectedModel}
             output={displayOutput}
@@ -926,6 +941,7 @@ export function ClinicCopilotApp() {
             triageSignal={replyTriageSignal}
           />
           <ReferralComposer
+            commandInstruction={commandReferralInstruction}
             composeSignal={referralComposeSignal}
             documentType={referralDocumentType}
             model={selectedModel}

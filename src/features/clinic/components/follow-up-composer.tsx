@@ -9,12 +9,14 @@ import type { CopilotOutput, FollowUpMessageOutput } from "../types";
 import { SectionHeading } from "./section-heading";
 
 export function FollowUpComposer({
+  commandInstruction,
   composeSignal,
   model,
   output,
   patientName,
   preferredChannel,
 }: {
+  commandInstruction?: string;
   composeSignal: number;
   model: string;
   output: CopilotOutput | null;
@@ -53,6 +55,7 @@ export function FollowUpComposer({
             caseSummary: output.summary,
             followUpTiming: output.followUp.timing,
             followUpMessage: output.followUp.message,
+            instruction: commandInstruction,
             model,
           }),
         });
@@ -71,7 +74,7 @@ export function FollowUpComposer({
         setIsGenerating(false);
       }
     },
-    [channel, model, output, patientName],
+    [channel, commandInstruction, model, output, patientName],
   );
 
   useEffect(() => {
