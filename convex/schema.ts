@@ -74,6 +74,8 @@ export default defineSchema({
     doctorChecklist: v.optional(v.array(v.string())),
     patientHandout: v.optional(patientHandoutValidator),
     followUp: v.optional(followUpValidator),
+    approvedAt: v.optional(v.number()),
+    approvedBy: v.optional(v.id("users")),
     updatedAt: v.number(),
   })
     .index("by_userId_and_updatedAt", ["userId", "updatedAt"])

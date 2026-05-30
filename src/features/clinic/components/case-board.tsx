@@ -16,6 +16,7 @@ type CaseBoardItem = {
   chiefComplaint: string;
   severity: "low" | "medium" | "high";
   status: CaseStatus;
+  approvedAt?: number;
 };
 
 export function CaseBoard({
@@ -23,11 +24,13 @@ export function CaseBoard({
   selectedCaseId,
   onSelectCase,
   onStatusChange,
+  onApproveCase,
 }: {
   cases: CaseBoardItem[] | undefined;
   selectedCaseId?: Id<"cases">;
   onSelectCase: (caseId: Id<"cases">) => void;
   onStatusChange: (caseId: Id<"cases">, status: "handout" | "followup") => void;
+  onApproveCase: (caseId: Id<"cases">) => void;
 }) {
   return (
     <Card>
@@ -65,13 +68,20 @@ export function CaseBoard({
                   <SeverityBadge severity={caseItem.severity} />
                 </div>
                 <Badge className="mt-2 capitalize" variant="outline">
-                  {caseItem.status}
+                  {caseItem.approvedAt ? "approved" : caseItem.status}
                 </Badge>
                 <p className="mt-2 line-clamp-2 text-muted-foreground text-sm">
                   {caseItem.chiefComplaint}
                 </p>
               </button>
-              <div className="mt-3 grid grid-cols-2 gap-2">
+              <div className="mt-3 grid grid-cols-3 gap-2">
+                <Button
+                  type="button"
+                  variant={caseItem.approvedAt ? "secondary" : "outline"}
+                  onClick={() => onApproveCase(caseItem._id)}
+                >
+                  Approve
+                </Button>
                 <Button
                   type="button"
                   variant="outline"

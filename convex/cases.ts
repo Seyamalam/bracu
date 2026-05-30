@@ -121,3 +121,47 @@ export const updateStatus = mutation({
     return null;
   },
 });
+
+export const approveCase = mutation({
+  args: {
+    caseId: v.id("cases"),
+    userId: v.id("users"),
+  },
+  handler: async (ctx, args) => {
+    const caseDoc = await ctx.db.get(args.caseId);
+    if (!caseDoc || caseDoc.userId !== args.userId) {
+      throw new Error("Case not found for this user.");
+    }
+
+    const now = Date.now();
+    await ctx.db.patch(args.caseId, {
+      approvedAt: now,
+      approvedBy: args.userId,
+      status: "handout",
+      updatedAt: now,
+    });
+
+    await ctx.db.insert("auditLogs", {
+      userId: args.userId,
+      caseId: args.caseId,
+      action: "case.approve",
+      detail: "Clinician approved the AI draft for handout use.",
+      createdAt: now,
+    });
+
+    return null;
+  },
+});
+
+export const listAuditLogs = query({
+  args: {
+    userId: v.id("users"),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("auditLogs")
+      .withIndex("by_userId_and_createdAt", (q) => q.eq("userId", args.userId))
+      .order("desc")
+      .take(20);
+  },
+});

@@ -49,3 +49,25 @@ export type MedicineSafetyOutput = {
   clarifyingQuestions: string[];
   patientInstructions: string[];
 };
+
+export type CommandAction =
+  | {
+      type: "fill_intake";
+      patientName?: string;
+      age?: string;
+      sex?: Sex;
+      intake?: string;
+    }
+  | { type: "load_scenario"; scenarioLabel: string }
+  | { type: "generate_draft" }
+  | { type: "check_medicine"; medicines?: string }
+  | { type: "set_status"; status: "handout" | "followup" }
+  | { type: "approve_case" }
+  | { type: "switch_language"; language: UiLanguage }
+  | { type: "print_handout" }
+  | { type: "presentation_mode"; enabled: boolean };
+
+export type CommandPlan = {
+  summary: string;
+  actions: CommandAction[];
+};

@@ -8,10 +8,19 @@ import { api } from "../../../../convex/_generated/api";
 import type { Doc, Id } from "../../../../convex/_generated/dataModel";
 import { AuthScreen } from "../../auth/components/auth-screen";
 import { useDemoAuth } from "../../auth/use-demo-auth";
-import { initialIntake, uiCopy } from "../data";
-import type { CopilotOutput, IntakeFormState, UiLanguage } from "../types";
+import { demoScenarios, initialIntake, uiCopy } from "../data";
+import type {
+  CommandPlan,
+  CopilotOutput,
+  IntakeFormState,
+  UiLanguage,
+} from "../types";
+import { AuditLogViewer } from "./audit-log-viewer";
+import { CaseAssistant } from "./case-assistant";
 import { CaseBoard } from "./case-board";
+import { CommandCopilot } from "./command-copilot";
 import { DoctorConsole } from "./doctor-console";
+import { FollowUpPanel } from "./follow-up-panel";
 import { ImpactSnapshot } from "./impact-snapshot";
 import { IntakePanel } from "./intake-panel";
 import { JudgeDemoPanel } from "./judge-demo-panel";
@@ -19,6 +28,7 @@ import { MedicineSafety } from "./medicine-safety";
 import { Metric } from "./metric";
 import { ModelSelector } from "./model-selector";
 import { PatientHandout } from "./patient-handout";
+import { PresentationMode } from "./presentation-mode";
 import { SafetyBanner } from "./safety-banner";
 import { SafetyFrame } from "./safety-frame";
 import { TrendDashboard } from "./trend-dashboard";
@@ -32,13 +42,22 @@ export function ClinicCopilotApp() {
     Id<"cases"> | undefined
   >();
   const [selectedModel, setSelectedModel] = useState("gemini-2.5-flash");
+  const [commandMedicines, setCommandMedicines] = useState<
+    string | undefined
+  >();
+  const [presentationMode, setPresentationMode] = useState(false);
   const [mode, setMode] = useState<"idle" | "demo" | "live">("idle");
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState("");
 
   const cases = useQuery(api.cases.listRecent, { userId: auth.user?._id });
+  const auditLogs = useQuery(
+    api.cases.listAuditLogs,
+    auth.user ? { userId: auth.user._id } : "skip",
+  );
   const createCase = useMutation(api.cases.createCase);
   const updateStatus = useMutation(api.cases.updateStatus);
+  const approveCase = useMutation(api.cases.approveCase);
   const copy = uiCopy[uiLanguage];
 
   const readyScore = useMemo(() => {
@@ -76,7 +95,7 @@ export function ClinicCopilotApp() {
 
   const currentUser = auth.user;
 
-  async function generate() {
+  async function generate(nextForm = form) {
     setIsGenerating(true);
     setError("");
 
@@ -85,10 +104,10 @@ export function ClinicCopilotApp() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          patientName: form.patientName,
-          age: Number(form.age),
-          sex: form.sex,
-          intake: form.intake,
+          patientName: nextForm.patientName,
+          age: Number(nextForm.age),
+          sex: nextForm.sex,
+          intake: nextForm.intake,
           model: selectedModel,
         }),
       });
@@ -104,11 +123,11 @@ export function ClinicCopilotApp() {
 
       const caseId = await createCase({
         userId: currentUser._id,
-        patientName: form.patientName,
-        age: Number(form.age) || 0,
+        patientName: nextForm.patientName,
+        age: Number(nextForm.age) || 0,
         language: generated.languageDetected,
-        sex: form.sex,
-        intake: form.intake,
+        sex: nextForm.sex,
+        intake: nextForm.intake,
         chiefComplaint: generated.chiefComplaint,
         summary: generated.summary,
         severity: generated.severity,
@@ -135,8 +154,89 @@ export function ClinicCopilotApp() {
     void updateStatus({ caseId, userId: currentUser._id, status });
   }
 
+  function approveSelectedCase(caseId = selectedCaseId) {
+    if (!caseId) {
+      return;
+    }
+    void approveCase({ caseId, userId: currentUser._id });
+  }
+
+  async function applyCommandPlan(plan: CommandPlan) {
+    let nextForm = form;
+
+    for (const action of plan.actions) {
+      if (action.type === "fill_intake") {
+        nextForm = {
+          patientName: action.patientName ?? nextForm.patientName,
+          age: action.age ?? nextForm.age,
+          sex: action.sex ?? nextForm.sex,
+          intake: action.intake
+            ? `${nextForm.intake}\n\n${action.intake}`
+            : nextForm.intake,
+        };
+        setForm(nextForm);
+      }
+
+      if (action.type === "load_scenario") {
+        const scenario = demoScenarios.find((item) =>
+          item.label
+            .toLowerCase()
+            .includes(action.scenarioLabel.toLowerCase().split(" ")[0]),
+        );
+        if (scenario) {
+          nextForm = {
+            patientName: scenario.patientName,
+            age: scenario.age,
+            sex: scenario.sex,
+            intake: scenario.intake,
+          };
+          setForm(nextForm);
+        }
+      }
+
+      if (action.type === "switch_language") {
+        setUiLanguage(action.language);
+      }
+
+      if (action.type === "presentation_mode") {
+        setPresentationMode(action.enabled);
+      }
+
+      if (action.type === "check_medicine") {
+        setCommandMedicines(
+          action.medicines ??
+            "Paracetamol 500mg\nAntibiotic twice daily\nORS as needed",
+        );
+      }
+
+      if (action.type === "set_status" && selectedCaseId) {
+        changeCaseStatus(selectedCaseId, action.status);
+      }
+
+      if (action.type === "approve_case") {
+        approveSelectedCase();
+      }
+
+      if (action.type === "print_handout") {
+        window.print();
+      }
+
+      if (action.type === "generate_draft") {
+        await generate(nextForm);
+      }
+    }
+  }
+
   return (
     <main className="min-h-screen bg-[#f7f4ee] text-slate-950">
+      {presentationMode ? (
+        <PresentationMode
+          caseCount={cases?.length ?? 0}
+          clinicName={currentUser.clinicName}
+          output={displayOutput}
+          onClose={() => setPresentationMode(false)}
+        />
+      ) : null}
       <section className="border-slate-900 border-b bg-[#12332c] text-white">
         <div className="mx-auto grid max-w-7xl gap-6 px-4 py-5 sm:px-6 lg:grid-cols-[1fr_auto] lg:px-8">
           <div className="flex items-center gap-3">
@@ -170,6 +270,10 @@ export function ClinicCopilotApp() {
       </section>
 
       <section className="mx-auto max-w-7xl px-4 pt-4 sm:px-6 lg:px-8">
+        <CommandCopilot model={selectedModel} onApplyPlan={applyCommandPlan} />
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 pt-4 sm:px-6 lg:px-8">
         <JudgeDemoPanel
           copy={copy}
           language={uiLanguage}
@@ -186,16 +290,21 @@ export function ClinicCopilotApp() {
             error={error}
             isGenerating={isGenerating}
             onChange={setForm}
-            onGenerate={generate}
+            onGenerate={() => void generate()}
           />
         </aside>
 
         <section className="space-y-4">
           <SafetyBanner title={copy.clinicianReview} body={copy.safetyBanner} />
           <ImpactSnapshot output={displayOutput} title={copy.impactTitle} />
+          <CaseAssistant model={selectedModel} output={displayOutput} />
           <DoctorConsole output={displayOutput} />
           <PatientHandout copy={copy} output={displayOutput} />
-          <MedicineSafety model={selectedModel} output={displayOutput} />
+          <MedicineSafety
+            commandMedicines={commandMedicines}
+            model={selectedModel}
+            output={displayOutput}
+          />
         </section>
 
         <aside className="space-y-4">
@@ -205,8 +314,11 @@ export function ClinicCopilotApp() {
             selectedCaseId={selectedCaseId}
             onSelectCase={setSelectedCaseId}
             onStatusChange={changeCaseStatus}
+            onApproveCase={approveSelectedCase}
           />
+          <FollowUpPanel cases={cases} onSelectCase={setSelectedCaseId} />
           <TrendDashboard cases={cases} />
+          <AuditLogViewer logs={auditLogs} />
           <SafetyFrame />
         </aside>
       </section>

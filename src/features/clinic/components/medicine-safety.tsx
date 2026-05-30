@@ -1,7 +1,7 @@
 "use client";
 
 import { Pill, ShieldAlert } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -11,9 +11,11 @@ import type { CopilotOutput, MedicineSafetyOutput } from "../types";
 import { SectionHeading } from "./section-heading";
 
 export function MedicineSafety({
+  commandMedicines,
   model,
   output,
 }: {
+  commandMedicines?: string;
   model: string;
   output: CopilotOutput | null;
 }) {
@@ -24,32 +26,42 @@ export function MedicineSafety({
   const [isChecking, setIsChecking] = useState(false);
   const [error, setError] = useState("");
 
-  async function checkSafety() {
-    setIsChecking(true);
-    setError("");
-    try {
-      const response = await fetch("/api/medicine-safety", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          medicines,
-          caseSummary: output?.summary ?? "",
-          model,
-        }),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error ?? "Medicine check failed.");
+  const checkSafety = useCallback(
+    async (nextMedicines = medicines) => {
+      setIsChecking(true);
+      setError("");
+      try {
+        const response = await fetch("/api/medicine-safety", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            medicines: nextMedicines,
+            caseSummary: output?.summary ?? "",
+            model,
+          }),
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error ?? "Medicine check failed.");
+        }
+        setResult(data.output as MedicineSafetyOutput);
+      } catch (caught) {
+        setError(
+          caught instanceof Error ? caught.message : "Medicine check failed.",
+        );
+      } finally {
+        setIsChecking(false);
       }
-      setResult(data.output as MedicineSafetyOutput);
-    } catch (caught) {
-      setError(
-        caught instanceof Error ? caught.message : "Medicine check failed.",
-      );
-    } finally {
-      setIsChecking(false);
+    },
+    [medicines, model, output?.summary],
+  );
+
+  useEffect(() => {
+    if (commandMedicines) {
+      setMedicines(commandMedicines);
+      void checkSafety(commandMedicines);
     }
-  }
+  }, [commandMedicines, checkSafety]);
 
   return (
     <Card>
@@ -73,7 +85,7 @@ export function MedicineSafety({
           type="button"
           variant="outline"
           disabled={isChecking}
-          onClick={checkSafety}
+          onClick={() => void checkSafety()}
         >
           <ShieldAlert size={17} aria-hidden="true" />
           Check medicine safety

@@ -12,6 +12,8 @@ Clinic Copilot BD is not a diagnosis or prescription engine. It is a clinical wo
 
 - Temporary email/password clinic access
 - Judge demo mode with a 3-minute story rail
+- Natural-language Command Copilot for operating the app by typing
+- Current-case AI Q&A assistant
 - Reception intake in Bangla or English
 - AI generated chief complaint, timeline, severity, missing questions, and red flags
 - Doctor console with SOAP note, checklist, and safety framing
@@ -21,6 +23,9 @@ Clinic Copilot BD is not a diagnosis or prescription engine. It is a clinical wo
 - Realtime case board powered by Convex
 - Clinic trend dashboard for anonymized severity/follow-up signals
 - Impact snapshot for time saved, missing questions found, and red flags caught
+- Clinician approval workflow and audit log viewer
+- Follow-up due panel
+- Full-screen presentation mode
 - Responsive mobile-first interface for clinic desks and phones
 
 ## Stack
@@ -112,6 +117,15 @@ it with production authentication before handling real users or real patient dat
 6. Move the case to handout or follow-up from the live queue.
 7. Show the anonymized trend dashboard.
 8. Close on the impact snapshot: minutes saved, questions found, red flags caught.
+
+Command Copilot examples:
+
+```txt
+Load dengue watch and generate a draft
+Switch to Bangla and open presentation mode
+Approve this case and move it to handout
+Check medicine safety for paracetamol 500mg and antibiotic twice daily
+```
 
 ## Deployment Checklist
 

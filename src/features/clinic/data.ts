@@ -114,6 +114,15 @@ export const safetyPrinciples = [
   "Patient copy prioritizes plain language and return warnings.",
 ];
 
+export const commandExamples = [
+  "Load dengue watch and generate a draft",
+  "Switch to Bangla and open presentation mode",
+  "Approve this case and move it to handout",
+  "Mark this patient for follow-up",
+  "Create a 52 year old male chest pain intake",
+  "Check medicine safety for paracetamol 500mg and antibiotic twice daily",
+];
+
 export const uiCopy = {
   en: {
     appTitle: "AI clinical documentation, built for Bangla-first care.",

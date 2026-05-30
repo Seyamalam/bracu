@@ -35,4 +35,9 @@
 - [x] Add Bangla/English UI toggle for key workflow surfaces.
 - [x] Add polished printable clinic-slip handout styling.
 - [x] Add six-case Bangladesh-native seed board.
+- [x] Add natural-language command copilot for operating the workflow by typing.
+- [x] Add current-case AI Q&A assistant.
+- [x] Add clinician approval action and audit log viewer.
+- [x] Add follow-up due panel.
+- [x] Add presentation mode overlay.
 - [ ] Deploy to Vercel/production Convex.
