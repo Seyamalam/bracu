@@ -8,6 +8,7 @@ import type {
   IntakeFormState,
   MedicineSafetyOutput,
   NextStepOutput,
+  PatientReplyTriageOutput,
   ReferralOutput,
   RiskExplanationOutput,
   StaffHandoffOutput,
@@ -132,6 +133,7 @@ export const commandExamples = [
   "Use the fastest model and clear filters",
   "Mark this patient for follow-up",
   "Compose a WhatsApp follow-up for this patient",
+  "Triage this patient reply",
   "Write a referral letter for this patient",
   "Create a visit summary for the family",
   "Brief me on today's clinic queue",
@@ -148,7 +150,7 @@ export const commandExamples = [
 export const commandPlaybook = [
   {
     label: "Operate",
-    examples: ["next steps", "referral", "handoff", "print handout"],
+    examples: ["next steps", "triage reply", "referral", "handoff"],
   },
   {
     label: "Navigate",
@@ -524,3 +526,38 @@ export const demoDocumentExtractionOutput = {
     "Create a nurse handoff and receptionist task list",
   ],
 } satisfies DocumentExtractionOutput;
+
+export const demoPatientReply =
+  "জ্বর এখনো আছে, মাথা ঘুরছে, প্রস্রাব কম হচ্ছে। ওষুধ খেয়েছি কিন্তু খুব দুর্বল লাগছে।";
+
+export const demoPatientReplyTriageOutput = {
+  urgency: "high",
+  replySummary:
+    "Patient reports persistent fever with dizziness, low urine, and marked weakness after taking medicine.",
+  detectedLanguage: "bn",
+  concerningSignals: [
+    "Dizziness and marked weakness may indicate worsening condition.",
+    "Reduced urine can suggest dehydration or other urgent concern.",
+    "Symptoms persist despite taking medicine.",
+  ],
+  reassuringSignals: [
+    "No direct report of chest pain or breathing difficulty.",
+  ],
+  staffActions: [
+    "Call the patient now and confirm location, consciousness, breathing, bleeding, and urine output.",
+    "Escalate to the clinician before sending routine reassurance.",
+    "Advise urgent in-person review or emergency care if symptoms are worsening or danger signs are present.",
+  ],
+  clinicianEscalation:
+    "High-priority callback: persistent fever plus dizziness, low urine, and weakness. Clinician review is needed before routine follow-up closure.",
+  responseBn:
+    "আপনার উত্তর দেখে মনে হচ্ছে দ্রুত কথা বলা দরকার। দয়া করে এখনই ক্লিনিকে ফোন করুন/আসুন, অথবা অবস্থা খারাপ হলে জরুরি সেবায় যান। শ্বাসকষ্ট, অজ্ঞানভাব, রক্তপাত, খুব কম প্রস্রাব বা বেশি দুর্বলতা হলে দেরি করবেন না।",
+  responseEn:
+    "Your reply suggests we should speak with you urgently. Please call or come to the clinic now, or seek emergency care if you are worsening. Do not delay for breathing difficulty, fainting, bleeding, very low urine, or severe weakness.",
+  suggestedCommands: [
+    "Create a nurse handoff and receptionist task list",
+    "Explain why this case is risky",
+    "Write a referral letter for this patient",
+    "Mark this patient for follow-up",
+  ],
+} satisfies PatientReplyTriageOutput;

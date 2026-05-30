@@ -138,6 +138,19 @@ export type DocumentExtractionOutput = {
   suggestedCommands: string[];
 };
 
+export type PatientReplyTriageOutput = {
+  urgency: Severity;
+  replySummary: string;
+  detectedLanguage: Language;
+  concerningSignals: string[];
+  reassuringSignals: string[];
+  staffActions: string[];
+  clinicianEscalation: string;
+  responseBn: string;
+  responseEn: string;
+  suggestedCommands: string[];
+};
+
 export type CommandAction =
   | {
       type: "fill_intake";
@@ -173,7 +186,8 @@ export type CommandAction =
   | { type: "explain_risk" }
   | { type: "compose_handoff" }
   | { type: "plan_next_steps" }
-  | { type: "extract_document" };
+  | { type: "extract_document" }
+  | { type: "triage_reply" };
 
 export type CommandPlan = {
   summary: string;

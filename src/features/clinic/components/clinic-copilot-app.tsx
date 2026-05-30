@@ -38,6 +38,7 @@ import { NextStepNavigator } from "./next-step-navigator";
 import { PatientHandout } from "./patient-handout";
 import { PresentationMode } from "./presentation-mode";
 import { ReferralComposer } from "./referral-composer";
+import { ReplyTriage } from "./reply-triage";
 import { RiskExplainer } from "./risk-explainer";
 import { SafetyBanner } from "./safety-banner";
 import { SafetyFrame } from "./safety-frame";
@@ -83,6 +84,7 @@ export function ClinicCopilotApp() {
   const [handoffSignal, setHandoffSignal] = useState(0);
   const [nextStepSignal, setNextStepSignal] = useState(0);
   const [documentExtractSignal, setDocumentExtractSignal] = useState(0);
+  const [replyTriageSignal, setReplyTriageSignal] = useState(0);
 
   const cases = useQuery(api.cases.listRecent, { userId: auth.user?._id });
   const auditLogs = useQuery(
@@ -297,6 +299,7 @@ export function ClinicCopilotApp() {
     setHandoffSignal((signal) => signal + 1);
     setNextStepSignal((signal) => signal + 1);
     setDocumentExtractSignal((signal) => signal + 1);
+    setReplyTriageSignal((signal) => signal + 1);
     setReferralComposeSignal((signal) => signal + 1);
     setFollowUpComposeSignal((signal) => signal + 1);
     setBriefingSignal((signal) => signal + 1);
@@ -531,6 +534,11 @@ export function ClinicCopilotApp() {
         setLiveMessage("Extracting attached document text.");
       }
 
+      if (action.type === "triage_reply") {
+        setReplyTriageSignal((signal) => signal + 1);
+        setLiveMessage("Triaging patient follow-up reply.");
+      }
+
       if (action.type === "approve_case") {
         approveSelectedCase();
       }
@@ -706,6 +714,12 @@ export function ClinicCopilotApp() {
             output={displayOutput}
             patientName={selectedCase?.patientName ?? form.patientName}
             preferredChannel={followUpChannel}
+          />
+          <ReplyTriage
+            model={selectedModel}
+            output={displayOutput}
+            patientName={selectedCase?.patientName ?? form.patientName}
+            triageSignal={replyTriageSignal}
           />
           <ReferralComposer
             composeSignal={referralComposeSignal}
