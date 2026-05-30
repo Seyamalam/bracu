@@ -31,7 +31,7 @@ export function PresentationMode({
 
         <div className="mt-8 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
           <div className="rounded-lg bg-white p-6 text-slate-950">
-            <p className="font-semibold text-primary text-sm">Winning flow</p>
+            <p className="font-semibold text-primary text-sm">Clinic flow</p>
             <ol className="mt-4 grid gap-3 text-xl">
               <li>1. Capture Bangla-English intake at reception.</li>
               <li>2. AI finds missing questions and urgent red flags.</li>
@@ -61,7 +61,7 @@ export function PresentationMode({
           </p>
           <p className="mt-3 max-w-3xl text-white/80 leading-7">
             {output?.summary ??
-              "Use the command copilot or judge demo scripts to drive the presentation."}
+              "Use the command copilot or guided workflow controls to drive the presentation."}
           </p>
         </div>
       </div>

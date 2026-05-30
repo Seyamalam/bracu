@@ -20,7 +20,7 @@ export function ImpactSnapshot({
         <SectionHeading
           icon={<TimerReset size={18} aria-hidden="true" />}
           title={title}
-          subtitle="Operational proof points judges can repeat"
+          subtitle="Operational proof points the clinic can act on"
         />
       </CardHeader>
       <CardContent>

@@ -13,7 +13,7 @@ const briefingSchema = z.object({
   followUpActions: z.array(z.string()),
   paperworkGaps: z.array(z.string()),
   nextBestActions: z.array(z.string()),
-  judgePitch: z.string(),
+  operatorSummary: z.string(),
 });
 
 const clinicCaseSchema = z.object({
@@ -67,7 +67,7 @@ export async function POST(request: Request) {
       output: Output.object({ schema: briefingSchema }),
       temperature: 0.1,
       system:
-        "You summarize a Bangladesh primary-care clinic queue for operational use. You do not diagnose or prescribe. Prioritize safety review, follow-up closure, paperwork gaps, and next actions. Keep it concise and useful for a hackathon judge demo.",
+        "You summarize a Bangladesh primary-care clinic queue for operational use. You do not diagnose or prescribe. Prioritize safety review, follow-up closure, paperwork gaps, and next actions. Keep it concise and useful for a product demo.",
       prompt: `Clinic: ${clinicName}
 Current queue JSON:
 ${JSON.stringify(cases.data)}`,

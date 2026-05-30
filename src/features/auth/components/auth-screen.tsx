@@ -59,7 +59,7 @@ export function AuthScreen({
         </div>
         <p className="mt-4 text-muted-foreground text-sm leading-6">
           Temporary demo access. Use the seeded login or create a clinic session
-          for the hackathon run.
+          for the demo workspace.
         </p>
 
         <div className="mt-4 grid grid-cols-2 gap-2 rounded-lg bg-muted p-1">

@@ -92,7 +92,7 @@ function describeAction(type: string) {
     print_handout: "Print handout",
     reset_workspace: "Reset workspace",
     run_full_workflow: "Run full workflow",
-    run_judge_demo: "Run judge demo",
+    run_guided_demo: "Run guided workflow",
     schedule_followup: "Schedule follow-up",
     search_cases: "Search cases",
     select_case: "Select case",
@@ -151,7 +151,7 @@ function actionDetail(action: CommandPlan["actions"][number]) {
   }
   if (action.type === "presentation_mode") {
     return action.enabled
-      ? "Opens judge presentation view."
+      ? "Opens presentation view."
       : "Closes presentation view.";
   }
   if (action.type === "search_cases") {
@@ -169,10 +169,13 @@ function actionDetail(action: CommandPlan["actions"][number]) {
   if (action.type === "reset_workspace") {
     return `Clears ${action.scope}.`;
   }
-  if (action.type === "run_judge_demo" || action.type === "run_full_workflow") {
+  if (
+    action.type === "run_guided_demo" ||
+    action.type === "run_full_workflow"
+  ) {
     return action.scenarioLabel
       ? `Starts from ${action.scenarioLabel}.`
-      : "Starts the default winning demo scenario.";
+      : "Starts the default guided scenario.";
   }
   if (action.type === "compose_followup") {
     return action.instruction

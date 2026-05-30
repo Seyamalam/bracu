@@ -110,7 +110,7 @@ export const pitchBeats = [
   "Small clinics lose time translating messy intake into safe clinical documentation.",
   "Clinic Copilot BD converts intake into structured workflow: draft, safety review, handout, follow-up, and closeout.",
   "The product is Bangladesh-native: Bangla-first, mobile-friendly, printable, low-literacy aware, and built for follow-up calls.",
-  "The demo proves viability with seed cases, audit logs, queue operations, safety guardrails, and judge-ready progress surfaces.",
+  "The demo proves viability with seed cases, audit logs, queue operations, safety guardrails, and product-ready progress surfaces.",
 ] as const;
 
 export const pitchScorecards = [
@@ -127,7 +127,7 @@ export const pitchScorecards = [
   },
   {
     label: "Demo confidence",
-    value: "3-minute judge rail",
+    value: "3-minute guided rail",
     proof:
       "Scripted cases, command copilot, safety review, handout, follow-up.",
   },
@@ -156,7 +156,7 @@ export const audienceCards = [
   },
   {
     icon: ClipboardCheck,
-    title: "For judges",
+    title: "For product review",
     body: "A complete product story: public site, auth, live AI, Convex persistence, operational dashboard, and safety framing.",
   },
 ] as const;
@@ -245,9 +245,9 @@ export const featureCatalog = [
     group: "Demo polish",
     icon: BadgeCheck,
     items: [
-      "3-minute judge demo mode",
+      "3-minute guided workflow",
       "Six seeded Bangladesh case stories",
-      "Win Readiness scorecard",
+      "Readiness scorecard",
       "Presentation mode",
       "Impact snapshot",
       "Audit log viewer",
@@ -298,7 +298,7 @@ export const demoRunbook = [
   {
     icon: PlayCircle,
     time: "0:00",
-    title: "Open the judge rail",
+    title: "Open the guided rail",
     body: "Load a dengue-watch or child-dehydration case and show the mixed-language intake.",
   },
   {
@@ -378,7 +378,7 @@ export const pitchDifferentiators = [
   },
   {
     icon: AlarmClockCheck,
-    title: "Judge-ready story",
+    title: "Presentation-ready story",
     body: "A three-minute guided route proves the product without needing perfect live data.",
   },
   {

@@ -100,7 +100,7 @@ export function ClinicBriefing({
         "Next best actions",
         ...briefing.nextBestActions.map((item) => `- ${item}`),
         "",
-        briefing.judgePitch,
+        briefing.operatorSummary,
       ].join("\n"),
     );
   }
@@ -153,7 +153,7 @@ export function ClinicBriefing({
               title="Next best actions"
             />
             <div className="rounded-md bg-[#fff7df] p-3 text-sm">
-              {briefing.judgePitch}
+              {briefing.operatorSummary}
             </div>
             <Button
               className="w-full"

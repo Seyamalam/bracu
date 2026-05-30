@@ -117,7 +117,7 @@ function HomePage({ authSlot }: { authSlot?: React.ReactNode }) {
               <Button asChild size="lg" variant="secondary">
                 <Link href="/login">
                   <PlayCircle size={19} aria-hidden="true" />
-                  Launch hackathon demo
+                  Launch clinic demo
                 </Link>
               </Button>
               <Button
@@ -202,7 +202,7 @@ function PitchPage() {
   return (
     <>
       <PageHero
-        eyebrow="Winning pitch"
+        eyebrow="Product pitch"
         title="A real product story in one clinic workflow."
         body="The demo starts with a locally relevant case and ends with a safer handoff, printable instruction, and operational proof."
       />
@@ -224,7 +224,7 @@ function PitchPage() {
         image={marketingImages.operations}
         kicker="Final proof"
         title="Close the demo on operational evidence."
-        body="After the AI draft, the judge can see queue state, follow-up ownership, trend signals, audit history, and readiness scoring. That is the difference between a clever prompt and a viable product."
+        body="After the AI draft, the team can see queue state, follow-up ownership, trend signals, audit history, and readiness scoring. That is the difference between a clever prompt and a viable product."
       />
     </>
   );
@@ -267,7 +267,7 @@ function CommandPreview() {
             The public pitch hints at the product magic.
           </h2>
           <p className="mt-4 text-muted-foreground text-lg leading-8">
-            Judges should understand before logging in that this is a
+            Reviewers should understand before logging in that this is a
             commandable workflow. The real app lets staff operate major clinic
             actions through natural language while keeping review boundaries
             visible.
@@ -480,7 +480,7 @@ function InteractionBand() {
       <div className="grid gap-6 lg:grid-cols-[0.65fr_1.35fr]">
         <div>
           <p className="font-semibold text-primary text-sm uppercase tracking-[0.16em]">
-            Interactions judges can feel
+            Interactions reviewers can feel
           </p>
           <h2 className="mt-3 font-black text-3xl tracking-normal sm:text-5xl">
             Every click moves the clinic forward.
@@ -575,7 +575,7 @@ function ProductImageBand() {
     <ImageStory
       image={marketingImages.product}
       kicker="Responsive clinic OS"
-      title="Dense enough for staff. Clear enough for judges."
+      title="Dense enough for staff. Clear enough for review."
       body="The authenticated app combines queue pressure, visit progress, safety review, handout, teach-back, referral, follow-up, and audit surfaces in one operational workspace."
     />
   );
@@ -609,7 +609,7 @@ function PitchScoreboard() {
     <section className="bg-[#12332c] text-white">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <p className="font-semibold text-[#f2c14e] text-sm uppercase tracking-[0.16em]">
-          Judge score map
+          Product score map
         </p>
         <h2 className="mt-3 max-w-3xl font-black text-3xl tracking-normal sm:text-5xl">
           The pitch is built around proof, not vibes.
@@ -667,7 +667,7 @@ function DemoRunbook() {
           Demo runbook
         </p>
         <h2 className="mt-3 max-w-3xl font-black text-3xl tracking-normal sm:text-5xl">
-          A crisp three-minute story the judges can follow.
+          A crisp three-minute story the team can follow.
         </h2>
         <div className="mt-8 grid gap-3 lg:grid-cols-5">
           {demoRunbook.map((step) => {

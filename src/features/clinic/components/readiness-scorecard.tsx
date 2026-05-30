@@ -45,7 +45,7 @@ export function ReadinessScorecard({
   );
 
   const scoreLabel =
-    score >= 85 ? "Demo ready" : score >= 70 ? "Nearly ready" : "Build up";
+    score >= 85 ? "Clinic ready" : score >= 70 ? "Nearly ready" : "Build up";
   const badgeVariant = score >= 85 ? "success" : "warning";
 
   const metrics = [
@@ -67,8 +67,8 @@ export function ReadinessScorecard({
       <CardHeader>
         <SectionHeading
           icon={<Rocket size={18} aria-hidden="true" />}
-          title="Win Readiness"
-          subtitle="Safety, access, workflow, and judge proof"
+          title="Readiness"
+          subtitle="Safety, access, workflow, and operating proof"
         />
       </CardHeader>
       <CardContent>
@@ -77,7 +77,7 @@ export function ReadinessScorecard({
             <div>
               <p className="font-black text-3xl text-primary">{score}%</p>
               <p className="text-muted-foreground text-xs">
-                Hackathon viability score
+                Clinic workflow readiness
               </p>
             </div>
             <Badge variant={badgeVariant}>{scoreLabel}</Badge>
@@ -121,7 +121,7 @@ export function ReadinessScorecard({
         <div className="mt-3 rounded-md bg-[#f7f4ee] p-3">
           <div className="flex items-center gap-2">
             <Languages size={15} aria-hidden="true" />
-            <p className="font-semibold text-xs">What to say to judges</p>
+            <p className="font-semibold text-xs">Proof points</p>
           </div>
           <ul className="mt-2 space-y-1 text-muted-foreground text-xs leading-5">
             {readinessSignals.map((signal) => (

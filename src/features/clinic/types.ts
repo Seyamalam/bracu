@@ -80,7 +80,7 @@ export type ClinicBriefingOutput = {
   followUpActions: string[];
   paperworkGaps: string[];
   nextBestActions: string[];
-  judgePitch: string;
+  operatorSummary: string;
 };
 
 export type IntakeCleanupOutput = {
@@ -222,7 +222,7 @@ export type CommandAction =
   | { type: "select_case"; patientName: string }
   | { type: "set_model"; model: string }
   | { type: "reset_workspace"; scope: "filters" | "intake" | "all" }
-  | { type: "run_judge_demo"; scenarioLabel?: string }
+  | { type: "run_guided_demo"; scenarioLabel?: string }
   | { type: "run_full_workflow"; scenarioLabel?: string }
   | { type: "ask_case_assistant"; question?: string }
   | {

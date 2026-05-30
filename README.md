@@ -2,7 +2,7 @@
 
 AI clinical documentation and patient communication assistant for low-resource clinics in Bangladesh.
 
-This is the hackathon build for CloudCamp's Infinity AI BuildFest: a fast, bilingual clinic workflow that turns Bengali/English intake notes into structured visit summaries, doctor checklists, patient-friendly discharge instructions, and follow-up tasks.
+This is a fast, bilingual clinic workflow that turns Bengali/English intake notes into structured visit summaries, doctor checklists, patient-friendly discharge instructions, and follow-up tasks.
 
 ## Product Positioning
 
@@ -12,14 +12,14 @@ Clinic Copilot BD is not a diagnosis or prescription engine. It is a clinical wo
 
 - Public landing site with feature, mission, pitch, and login pages
 - Interactive public homepage with command preview, proof stats, feature catalog, and generated clinic visuals
-- Expanded pitch page with judge score map, differentiators, demo runbook, and operational proof
+- Expanded pitch page with product score map, differentiators, demo runbook, and operational proof
 - Generated product visuals and custom Clinic Copilot BD logo
 - Authenticated clinic workspace with desktop sidebar and mobile workspace rail
 - Temporary email/password clinic access
-- Judge demo mode with a 3-minute story rail
+- Guided demo mode with a 3-minute story rail
 - Natural-language Command Copilot for operating the app by typing
 - Current-case AI Q&A assistant
-- Win Readiness scorecard for safety, accessibility, workflow coverage, and judge proof
+- Readiness scorecard for safety, accessibility, workflow coverage, and operating proof
 - Clinic Display accessibility controls for large text, high contrast, and calm motion
 - Reception intake in Bangla or English
 - AI generated chief complaint, timeline, severity, missing questions, and red flags
@@ -82,7 +82,7 @@ In a second terminal, run Convex when changing backend functions:
 npx convex dev
 ```
 
-Seed a judge-friendly demo account:
+Seed a product demo account:
 
 ```bash
 bunx convex run seed:demo
@@ -104,7 +104,7 @@ Public product pages:
 /          Landing page and demo entry
 /features  Complete workflow overview
 /mission   Mission, vision, and care principles
-/pitch     Judge-ready product pitch
+/pitch     Product pitch
 /login     Demo authentication
 ```
 
@@ -126,19 +126,19 @@ bun run validate
 
 ## Temporary Auth
 
-The current hackathon build uses a deliberately simple email/password flow stored
+The current prototype uses a deliberately simple email/password flow stored
 in Convex. This is only for demo gating and per-user workspace separation. Replace
 it with production authentication before handling real users or real patient data.
 
 ## Demo Checklist
 
 1. Create a temporary clinic account.
-2. Pick a judge demo script from the intake panel.
+2. Pick a guided demo script from the intake panel.
 3. Generate the clinical draft and review red flags.
 4. Copy or print the patient handout.
 5. Run the medicine safety checker.
 6. Move the case to handout or follow-up from the live queue.
-7. Show the Win Readiness card, anonymized trend dashboard, and audit log.
+7. Show the Readiness card, anonymized trend dashboard, and audit log.
 8. Close on the impact snapshot: minutes saved, questions found, red flags caught.
 
 Command Copilot examples:

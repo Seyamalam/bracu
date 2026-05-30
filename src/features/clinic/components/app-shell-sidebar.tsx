@@ -10,21 +10,58 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BrandMark } from "@/features/marketing/components/brand-mark";
+import { cn } from "@/lib/utils";
 
-const workspaceNav = [
-  { href: "#clinic-overview", icon: Home, label: "Overview" },
-  { href: "#intake", icon: ClipboardList, label: "Intake" },
-  { href: "#clinical-review", icon: ShieldCheck, label: "Review" },
-  { href: "#patient-comms", icon: Printer, label: "Patient" },
-  { href: "#operations", icon: Activity, label: "Ops" },
+export type WorkspacePage =
+  | "intake"
+  | "operations"
+  | "overview"
+  | "patient"
+  | "review";
+
+export const workspaceNav = [
+  {
+    description: "Command center, guided flow, safety snapshot",
+    icon: Home,
+    id: "overview",
+    label: "Overview",
+  },
+  {
+    description: "Reception notes, scenario loading, documents",
+    icon: ClipboardList,
+    id: "intake",
+    label: "Intake",
+  },
+  {
+    description: "Clinical draft, risks, handoff, approval",
+    icon: ShieldCheck,
+    id: "review",
+    label: "Review",
+  },
+  {
+    description: "Handout, teach-back, follow-up, referral",
+    icon: Printer,
+    id: "patient",
+    label: "Patient",
+  },
+  {
+    description: "Queue, model, accessibility, audit, trends",
+    icon: Activity,
+    id: "operations",
+    label: "Ops",
+  },
 ] as const;
 
 export function AppShellSidebar({
+  activePage,
   clinicName,
-  role,
+  onPageChange,
   onLogout,
+  role,
 }: {
+  activePage: WorkspacePage;
   clinicName: string;
+  onPageChange: (page: WorkspacePage) => void;
   onLogout: () => void;
   role: string;
 }) {
@@ -43,15 +80,32 @@ export function AppShellSidebar({
         <nav className="flex-1 space-y-1 p-3" aria-label="Workspace">
           {workspaceNav.map((item) => {
             const Icon = item.icon;
+            const isActive = activePage === item.id;
             return (
-              <a
-                className="flex items-center gap-3 rounded-md px-3 py-2.5 font-semibold text-sm transition hover:bg-[#eaf6f1]"
-                href={item.href}
-                key={item.href}
+              <button
+                aria-current={isActive ? "page" : undefined}
+                className={cn(
+                  "flex w-full items-start gap-3 rounded-md px-3 py-2.5 text-left transition hover:bg-[#eaf6f1]",
+                  isActive && "bg-[#eaf6f1] text-primary",
+                )}
+                key={item.id}
+                type="button"
+                onClick={() => onPageChange(item.id)}
               >
-                <Icon className="text-primary" size={18} aria-hidden="true" />
-                {item.label}
-              </a>
+                <Icon
+                  className="mt-0.5 text-primary"
+                  size={18}
+                  aria-hidden="true"
+                />
+                <span>
+                  <span className="block font-semibold text-sm">
+                    {item.label}
+                  </span>
+                  <span className="mt-0.5 block text-muted-foreground text-xs leading-4">
+                    {item.description}
+                  </span>
+                </span>
+              </button>
             );
           })}
         </nav>
@@ -82,15 +136,21 @@ export function AppShellSidebar({
         >
           {workspaceNav.map((item) => {
             const Icon = item.icon;
+            const isActive = activePage === item.id;
             return (
-              <a
-                className="flex shrink-0 items-center gap-2 rounded-md border border-border bg-background px-3 py-2 font-semibold text-xs"
-                href={item.href}
-                key={item.href}
+              <button
+                aria-current={isActive ? "page" : undefined}
+                className={cn(
+                  "flex shrink-0 items-center gap-2 rounded-md border border-border bg-background px-3 py-2 font-semibold text-xs",
+                  isActive && "border-primary bg-[#eaf6f1] text-primary",
+                )}
+                key={item.id}
+                type="button"
+                onClick={() => onPageChange(item.id)}
               >
                 <Icon size={15} aria-hidden="true" />
                 {item.label}
-              </a>
+              </button>
             );
           })}
         </nav>

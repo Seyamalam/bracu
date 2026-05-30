@@ -1,29 +1,29 @@
 import { MonitorPlay, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { demoScenarios, judgeRunScript } from "../data";
+import { demoScenarios, guidedWorkflowScript } from "../data";
 import type { IntakeFormState, UiLanguage } from "../types";
 import { SectionHeading } from "./section-heading";
 
 const steps = ["demoStep1", "demoStep2", "demoStep3", "demoStep4"] as const;
 
-type JudgeCopy = Record<
-  (typeof steps)[number] | "judgeMode" | "judgeSubtitle",
+type GuidedWorkflowCopy = Record<
+  (typeof steps)[number] | "guidedMode" | "guidedSubtitle",
   string
 >;
 
-export function JudgeDemoPanel({
+export function GuidedWorkflowPanel({
   copy,
   language,
   onLanguageChange,
   onLoadScenario,
-  onRunJudgeDemo,
+  onRunGuidedWorkflow,
 }: {
-  copy: JudgeCopy;
+  copy: GuidedWorkflowCopy;
   language: UiLanguage;
   onLanguageChange: (language: UiLanguage) => void;
   onLoadScenario: (scenario: IntakeFormState) => void;
-  onRunJudgeDemo: () => void;
+  onRunGuidedWorkflow: () => void;
 }) {
   return (
     <Card className="border-primary/30 bg-[#fff7df]">
@@ -31,8 +31,8 @@ export function JudgeDemoPanel({
         <div className="flex flex-wrap items-start justify-between gap-3">
           <SectionHeading
             icon={<MonitorPlay size={18} aria-hidden="true" />}
-            title={copy.judgeMode}
-            subtitle={copy.judgeSubtitle}
+            title={copy.guidedMode}
+            subtitle={copy.guidedSubtitle}
           />
           <div className="grid grid-cols-2 gap-1 rounded-md bg-white p-1">
             {(["en", "bn"] as const).map((option) => (
@@ -83,21 +83,21 @@ export function JudgeDemoPanel({
           <Button
             className="h-auto justify-start gap-3 px-4 py-3 text-left"
             type="button"
-            onClick={onRunJudgeDemo}
+            onClick={onRunGuidedWorkflow}
           >
             <Play size={17} aria-hidden="true" />
             <span>
               <span className="block font-semibold">
-                {judgeRunScript.command}
+                {guidedWorkflowScript.command}
               </span>
               <span className="block font-normal text-primary-foreground/80 text-xs">
-                Load, generate, check medicine, open pitch view
+                Load, generate, check medicine, open presentation view
               </span>
             </span>
           </Button>
         </div>
         <div className="mt-3 grid gap-2 sm:grid-cols-4">
-          {judgeRunScript.pitchBeats.map((beat, index) => (
+          {guidedWorkflowScript.pitchBeats.map((beat, index) => (
             <div
               className="rounded-md border border-primary/15 bg-white px-3 py-2 text-sm"
               key={beat}

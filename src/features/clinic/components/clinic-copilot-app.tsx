@@ -7,7 +7,12 @@ import { api } from "../../../../convex/_generated/api";
 import type { Doc, Id } from "../../../../convex/_generated/dataModel";
 import { AuthScreen } from "../../auth/components/auth-screen";
 import { useDemoAuth } from "../../auth/use-demo-auth";
-import { demoScenarios, initialIntake, judgeRunScript, uiCopy } from "../data";
+import {
+  demoScenarios,
+  guidedWorkflowScript,
+  initialIntake,
+  uiCopy,
+} from "../data";
 import type {
   CaseStatus,
   CommandHistoryEntry,
@@ -22,7 +27,11 @@ import {
   AccessibilityControls,
   type AccessibilitySettings,
 } from "./accessibility-controls";
-import { AppShellSidebar } from "./app-shell-sidebar";
+import {
+  AppShellSidebar,
+  type WorkspacePage,
+  workspaceNav,
+} from "./app-shell-sidebar";
 import { ApprovalReadiness } from "./approval-readiness";
 import { AuditLogViewer } from "./audit-log-viewer";
 import { CaseAssistant } from "./case-assistant";
@@ -34,9 +43,9 @@ import { DocumentExtractor } from "./document-extractor";
 import { FollowUpComposer } from "./follow-up-composer";
 import { FollowUpPanel } from "./follow-up-panel";
 import { FollowUpScheduler } from "./follow-up-scheduler";
+import { GuidedWorkflowPanel } from "./guided-workflow-panel";
 import { ImpactSnapshot } from "./impact-snapshot";
 import { IntakePanel } from "./intake-panel";
-import { JudgeDemoPanel } from "./judge-demo-panel";
 import { MedicineSafety } from "./medicine-safety";
 import { Metric } from "./metric";
 import { ModelSelector } from "./model-selector";
@@ -143,6 +152,8 @@ export function ClinicCopilotApp() {
       highContrast: false,
       largeText: false,
     });
+  const [activeWorkspacePage, setActiveWorkspacePage] =
+    useState<WorkspacePage>("overview");
   const [presentationMode, setPresentationMode] = useState(false);
   const [caseSearch, setCaseSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<CaseStatus | "all">("all");
@@ -449,8 +460,8 @@ export function ClinicCopilotApp() {
     setLiveMessage(`Restored workspace before: ${snapshot.label}`);
   }
 
-  async function runJudgeDemo(
-    scenarioLabel: string = judgeRunScript.scenarioLabel,
+  async function runGuidedWorkflow(
+    scenarioLabel: string = guidedWorkflowScript.scenarioLabel,
   ) {
     const scenario =
       demoScenarios.find((item) =>
@@ -466,16 +477,16 @@ export function ClinicCopilotApp() {
     resetWorkspace("filters");
     setUiLanguage("bn");
     setForm(nextForm);
-    setCommandMedicines(judgeRunScript.medicines);
-    setLiveMessage("Running the judge demo: scenario loaded.");
+    setCommandMedicines(guidedWorkflowScript.medicines);
+    setLiveMessage("Running guided workflow: scenario loaded.");
     await generate(nextForm);
     setPresentationMode(true);
   }
 
   async function runFullClinicWorkflow(
-    scenarioLabel: string = judgeRunScript.scenarioLabel,
+    scenarioLabel: string = guidedWorkflowScript.scenarioLabel,
   ) {
-    await runJudgeDemo(scenarioLabel);
+    await runGuidedWorkflow(scenarioLabel);
     setFollowUpChannel("whatsapp");
     setReferralDocumentType("referral");
     setRiskExplainSignal((signal) => signal + 1);
@@ -678,8 +689,8 @@ export function ClinicCopilotApp() {
         resetWorkspace(action.scope);
       }
 
-      if (action.type === "run_judge_demo") {
-        await runJudgeDemo(action.scenarioLabel);
+      if (action.type === "run_guided_demo") {
+        await runGuidedWorkflow(action.scenarioLabel);
       }
 
       if (action.type === "run_full_workflow") {
@@ -858,6 +869,11 @@ export function ClinicCopilotApp() {
     return <AuthScreen onLogin={auth.login} onRegister={auth.register} />;
   }
 
+  const activeWorkspace =
+    workspaceNav.find((item) => item.id === activeWorkspacePage) ??
+    workspaceNav[0];
+  const ActiveWorkspaceIcon = activeWorkspace.icon;
+
   return (
     <main
       className={cn(
@@ -882,7 +898,9 @@ export function ClinicCopilotApp() {
         />
       ) : null}
       <AppShellSidebar
+        activePage={activeWorkspacePage}
         clinicName={currentUser.clinicName}
+        onPageChange={setActiveWorkspacePage}
         role={currentUser.role}
         onLogout={auth.logout}
       />
@@ -894,9 +912,19 @@ export function ClinicCopilotApp() {
               <p className="font-semibold text-primary text-sm">
                 {currentUser.clinicName}
               </p>
-              <h1 className="mt-1 font-black text-2xl tracking-normal sm:text-4xl">
-                {copy.appTitle}
-              </h1>
+              <div className="mt-1 flex items-center gap-3">
+                <span className="hidden size-11 shrink-0 items-center justify-center rounded-md bg-[#eaf6f1] text-primary sm:flex">
+                  <ActiveWorkspaceIcon size={22} aria-hidden="true" />
+                </span>
+                <div>
+                  <h1 className="font-black text-2xl tracking-normal sm:text-4xl">
+                    {activeWorkspace.label}
+                  </h1>
+                  <p className="mt-1 text-muted-foreground text-sm">
+                    {activeWorkspace.description}
+                  </p>
+                </div>
+              </div>
             </div>
             <div className="grid grid-cols-3 gap-2 lg:min-w-96">
               <Metric label={copy.cases} value={cases?.length ?? 0} />
@@ -909,205 +937,235 @@ export function ClinicCopilotApp() {
           </div>
         </header>
 
-        <section className="mx-auto max-w-[1680px] px-4 pt-4 sm:px-6 lg:px-8">
-          <CommandCopilot
-            ref={commandInputRef}
-            history={commandHistory}
-            model={selectedModel}
-            onCommandComplete={recordCommand}
-            onApplyPlan={applyCommandPlan}
-          />
-        </section>
-
-        <section className="mx-auto max-w-[1680px] px-4 pt-4 sm:px-6 lg:px-8">
-          <JudgeDemoPanel
-            copy={copy}
-            language={uiLanguage}
-            onLanguageChange={setUiLanguage}
-            onLoadScenario={setForm}
-            onRunJudgeDemo={() => void runJudgeDemo()}
-          />
-        </section>
-
         <section
-          className="mx-auto grid max-w-[1680px] gap-4 px-4 py-4 sm:px-6 xl:grid-cols-[360px_minmax(0,1fr)_340px] lg:px-8"
+          className="mx-auto max-w-[1680px] px-4 py-4 sm:px-6 lg:px-8"
           id="clinic-workspace"
         >
-          <aside className="space-y-4" id="intake">
-            <IntakePanel
-              copy={copy}
-              form={form}
-              error={error}
-              isGenerating={isGenerating}
-              isCleaningIntake={isCleaningIntake}
-              onChange={setForm}
-              onCleanIntake={() => void cleanIntakeWithAi()}
-              onGenerate={() => void generate()}
-            />
-          </aside>
-
-          <section className="space-y-4">
-            <div className="space-y-4 scroll-mt-4" id="clinic-overview">
-              <SafetyBanner
-                title={copy.clinicianReview}
-                body={copy.safetyBanner}
-              />
-              <ImpactSnapshot output={displayOutput} title={copy.impactTitle} />
-              <VisitJourney
-                form={form}
-                output={displayOutput}
-                status={selectedCase?.status}
-              />
+          {activeWorkspacePage === "overview" ? (
+            <div className="grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_420px]">
+              <div className="space-y-4">
+                <CommandCopilot
+                  ref={commandInputRef}
+                  history={commandHistory}
+                  model={selectedModel}
+                  onCommandComplete={recordCommand}
+                  onApplyPlan={applyCommandPlan}
+                />
+                <GuidedWorkflowPanel
+                  copy={copy}
+                  language={uiLanguage}
+                  onLanguageChange={setUiLanguage}
+                  onLoadScenario={setForm}
+                  onRunGuidedWorkflow={() => void runGuidedWorkflow()}
+                />
+              </div>
+              <div className="space-y-4">
+                <SafetyBanner
+                  title={copy.clinicianReview}
+                  body={copy.safetyBanner}
+                />
+                <ImpactSnapshot
+                  output={displayOutput}
+                  title={copy.impactTitle}
+                />
+                <VisitJourney
+                  form={form}
+                  output={displayOutput}
+                  status={selectedCase?.status}
+                />
+              </div>
             </div>
+          ) : null}
 
-            <div className="space-y-4 scroll-mt-4" id="clinical-review">
-              <NextStepNavigator
-                commandInstruction={commandNextStepInstruction}
-                model={selectedModel}
-                onRunCommand={runSuggestedCommand}
-                output={displayOutput}
-                patientName={selectedCase?.patientName ?? form.patientName}
-                planSignal={nextStepSignal}
-              />
-              <DocumentExtractor
-                commandDocumentText={commandDocumentText}
-                documentText={form.intake}
-                extractSignal={documentExtractSignal}
-                model={selectedModel}
-                onRunCommand={runSuggestedCommand}
-                onApplyAddendum={(addendum) =>
-                  setForm((currentForm) => ({
-                    ...currentForm,
-                    intake: `${currentForm.intake}\n\nDocument addendum:\n${addendum}`,
-                  }))
-                }
-              />
-              <RiskExplainer
-                commandInstruction={commandRiskInstruction}
-                explainSignal={riskExplainSignal}
-                model={selectedModel}
-                output={displayOutput}
-              />
-              <StaffHandoff
-                commandInstruction={commandHandoffInstruction}
-                handoffSignal={handoffSignal}
-                model={selectedModel}
-                output={displayOutput}
-                patientName={selectedCase?.patientName ?? form.patientName}
-              />
-              <ApprovalReadiness
-                checkSignal={approvalCheckSignal}
-                commandInstruction={commandApprovalInstruction}
-                model={selectedModel}
-                onRunCommand={runSuggestedCommand}
-                output={displayOutput}
-              />
-              <VisitCloseout
-                closeoutSignal={visitCloseoutSignal}
-                commandInstruction={commandCloseoutInstruction}
-                model={selectedModel}
-                onRunCommand={runSuggestedCommand}
-                output={displayOutput}
-                patientName={selectedCase?.patientName ?? form.patientName}
-              />
-              <CaseAssistant
-                askSignal={caseAssistantAskSignal}
-                commandQuestion={commandCaseQuestion}
-                model={selectedModel}
-                output={displayOutput}
-              />
-              <DoctorConsole output={displayOutput} onSave={saveDraftEdits} />
+          {activeWorkspacePage === "intake" ? (
+            <div className="grid gap-4 xl:grid-cols-[420px_minmax(0,1fr)]">
+              <div className="space-y-4">
+                <IntakePanel
+                  copy={copy}
+                  form={form}
+                  error={error}
+                  isGenerating={isGenerating}
+                  isCleaningIntake={isCleaningIntake}
+                  onChange={setForm}
+                  onCleanIntake={() => void cleanIntakeWithAi()}
+                  onGenerate={() => void generate()}
+                />
+              </div>
+              <div className="space-y-4">
+                <DocumentExtractor
+                  commandDocumentText={commandDocumentText}
+                  documentText={form.intake}
+                  extractSignal={documentExtractSignal}
+                  model={selectedModel}
+                  onRunCommand={runSuggestedCommand}
+                  onApplyAddendum={(addendum) =>
+                    setForm((currentForm) => ({
+                      ...currentForm,
+                      intake: `${currentForm.intake}\n\nDocument addendum:\n${addendum}`,
+                    }))
+                  }
+                />
+                <NextStepNavigator
+                  commandInstruction={commandNextStepInstruction}
+                  model={selectedModel}
+                  onRunCommand={runSuggestedCommand}
+                  output={displayOutput}
+                  patientName={selectedCase?.patientName ?? form.patientName}
+                  planSignal={nextStepSignal}
+                />
+              </div>
             </div>
+          ) : null}
 
-            <div className="space-y-4 scroll-mt-4" id="patient-comms">
-              <PatientHandout copy={copy} output={displayOutput} />
-              <TeachBackCheck output={displayOutput} />
-              <PatientQuestionAnswer
-                answerSignal={patientQuestionSignal}
-                commandQuestion={commandPatientQuestion}
-                model={selectedModel}
-                onRunCommand={runSuggestedCommand}
-                output={displayOutput}
-                patientName={selectedCase?.patientName ?? form.patientName}
-              />
-              <FollowUpComposer
-                commandInstruction={commandFollowUpInstruction}
-                composeSignal={followUpComposeSignal}
-                model={selectedModel}
-                output={displayOutput}
-                patientName={selectedCase?.patientName ?? form.patientName}
-                preferredChannel={followUpChannel}
-              />
-              <FollowUpScheduler
-                commandInstruction={commandFollowUpScheduleInstruction}
-                model={selectedModel}
-                onRunCommand={runSuggestedCommand}
-                output={displayOutput}
-                patientName={selectedCase?.patientName ?? form.patientName}
-                scheduleSignal={followUpScheduleSignal}
-              />
-              <ReplyTriage
-                commandReplyText={commandPatientReply}
-                model={selectedModel}
-                onRunCommand={runSuggestedCommand}
-                output={displayOutput}
-                patientName={selectedCase?.patientName ?? form.patientName}
-                triageSignal={replyTriageSignal}
-              />
-              <ReferralComposer
-                commandInstruction={commandReferralInstruction}
-                composeSignal={referralComposeSignal}
-                documentType={referralDocumentType}
-                model={selectedModel}
-                output={displayOutput}
-                patientName={selectedCase?.patientName ?? form.patientName}
-              />
-              <MedicineSafety
-                commandMedicines={commandMedicines}
-                medicineCheckSignal={medicineCheckSignal}
-                model={selectedModel}
-                output={displayOutput}
-              />
+          {activeWorkspacePage === "review" ? (
+            <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_420px]">
+              <div className="space-y-4">
+                <RiskExplainer
+                  commandInstruction={commandRiskInstruction}
+                  explainSignal={riskExplainSignal}
+                  model={selectedModel}
+                  output={displayOutput}
+                />
+                <StaffHandoff
+                  commandInstruction={commandHandoffInstruction}
+                  handoffSignal={handoffSignal}
+                  model={selectedModel}
+                  output={displayOutput}
+                  patientName={selectedCase?.patientName ?? form.patientName}
+                />
+                <CaseAssistant
+                  askSignal={caseAssistantAskSignal}
+                  commandQuestion={commandCaseQuestion}
+                  model={selectedModel}
+                  output={displayOutput}
+                />
+                <DoctorConsole output={displayOutput} onSave={saveDraftEdits} />
+              </div>
+              <div className="space-y-4">
+                <ApprovalReadiness
+                  checkSignal={approvalCheckSignal}
+                  commandInstruction={commandApprovalInstruction}
+                  model={selectedModel}
+                  onRunCommand={runSuggestedCommand}
+                  output={displayOutput}
+                />
+                <VisitCloseout
+                  closeoutSignal={visitCloseoutSignal}
+                  commandInstruction={commandCloseoutInstruction}
+                  model={selectedModel}
+                  onRunCommand={runSuggestedCommand}
+                  output={displayOutput}
+                  patientName={selectedCase?.patientName ?? form.patientName}
+                />
+              </div>
             </div>
-          </section>
+          ) : null}
 
-          <aside className="space-y-4 scroll-mt-4" id="operations">
-            <ModelSelector value={selectedModel} onChange={setSelectedModel} />
-            <AccessibilityControls
-              settings={accessibilitySettings}
-              onChange={setAccessibilitySettings}
-            />
-            <ReadinessScorecard
-              auditCount={auditLogs?.length ?? 0}
-              cases={cases}
-              output={displayOutput}
-            />
-            <OperationsPulse cases={cases} />
-            <CaseBoard
-              cases={filteredCases}
-              searchQuery={caseSearch}
-              selectedCaseId={selectedCaseId}
-              severityFilter={severityFilter}
-              statusFilter={statusFilter}
-              onSearchChange={setCaseSearch}
-              onSelectCase={setSelectedCaseId}
-              onSeverityFilterChange={setSeverityFilter}
-              onStatusFilterChange={setStatusFilter}
-              onStatusChange={changeCaseStatus}
-              onApproveCase={approveSelectedCase}
-            />
-            <FollowUpPanel cases={cases} onSelectCase={setSelectedCaseId} />
-            <TrendDashboard cases={cases} />
-            <ClinicBriefing
-              briefingSignal={briefingSignal}
-              cases={cases}
-              clinicName={currentUser.clinicName}
-              model={selectedModel}
-            />
-            <AuditLogViewer logs={auditLogs} />
-            <ShortcutHelp />
-            <SafetyFrame />
-          </aside>
+          {activeWorkspacePage === "patient" ? (
+            <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_420px]">
+              <div className="space-y-4">
+                <PatientHandout copy={copy} output={displayOutput} />
+                <TeachBackCheck output={displayOutput} />
+                <PatientQuestionAnswer
+                  answerSignal={patientQuestionSignal}
+                  commandQuestion={commandPatientQuestion}
+                  model={selectedModel}
+                  onRunCommand={runSuggestedCommand}
+                  output={displayOutput}
+                  patientName={selectedCase?.patientName ?? form.patientName}
+                />
+                <FollowUpComposer
+                  commandInstruction={commandFollowUpInstruction}
+                  composeSignal={followUpComposeSignal}
+                  model={selectedModel}
+                  output={displayOutput}
+                  patientName={selectedCase?.patientName ?? form.patientName}
+                  preferredChannel={followUpChannel}
+                />
+              </div>
+              <div className="space-y-4">
+                <FollowUpScheduler
+                  commandInstruction={commandFollowUpScheduleInstruction}
+                  model={selectedModel}
+                  onRunCommand={runSuggestedCommand}
+                  output={displayOutput}
+                  patientName={selectedCase?.patientName ?? form.patientName}
+                  scheduleSignal={followUpScheduleSignal}
+                />
+                <ReplyTriage
+                  commandReplyText={commandPatientReply}
+                  model={selectedModel}
+                  onRunCommand={runSuggestedCommand}
+                  output={displayOutput}
+                  patientName={selectedCase?.patientName ?? form.patientName}
+                  triageSignal={replyTriageSignal}
+                />
+                <ReferralComposer
+                  commandInstruction={commandReferralInstruction}
+                  composeSignal={referralComposeSignal}
+                  documentType={referralDocumentType}
+                  model={selectedModel}
+                  output={displayOutput}
+                  patientName={selectedCase?.patientName ?? form.patientName}
+                />
+                <MedicineSafety
+                  commandMedicines={commandMedicines}
+                  medicineCheckSignal={medicineCheckSignal}
+                  model={selectedModel}
+                  output={displayOutput}
+                />
+              </div>
+            </div>
+          ) : null}
+
+          {activeWorkspacePage === "operations" ? (
+            <div className="grid gap-4 xl:grid-cols-[360px_minmax(0,1fr)_360px]">
+              <div className="space-y-4">
+                <ModelSelector
+                  value={selectedModel}
+                  onChange={setSelectedModel}
+                />
+                <AccessibilityControls
+                  settings={accessibilitySettings}
+                  onChange={setAccessibilitySettings}
+                />
+                <ReadinessScorecard
+                  auditCount={auditLogs?.length ?? 0}
+                  cases={cases}
+                  output={displayOutput}
+                />
+                <OperationsPulse cases={cases} />
+              </div>
+              <div className="space-y-4">
+                <CaseBoard
+                  cases={filteredCases}
+                  searchQuery={caseSearch}
+                  selectedCaseId={selectedCaseId}
+                  severityFilter={severityFilter}
+                  statusFilter={statusFilter}
+                  onSearchChange={setCaseSearch}
+                  onSelectCase={setSelectedCaseId}
+                  onSeverityFilterChange={setSeverityFilter}
+                  onStatusFilterChange={setStatusFilter}
+                  onStatusChange={changeCaseStatus}
+                  onApproveCase={approveSelectedCase}
+                />
+                <FollowUpPanel cases={cases} onSelectCase={setSelectedCaseId} />
+                <TrendDashboard cases={cases} />
+              </div>
+              <div className="space-y-4">
+                <ClinicBriefing
+                  briefingSignal={briefingSignal}
+                  cases={cases}
+                  clinicName={currentUser.clinicName}
+                  model={selectedModel}
+                />
+                <AuditLogViewer logs={auditLogs} />
+                <ShortcutHelp />
+                <SafetyFrame />
+              </div>
+            </div>
+          ) : null}
         </section>
       </div>
     </main>

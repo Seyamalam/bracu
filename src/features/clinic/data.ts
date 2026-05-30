@@ -64,7 +64,7 @@ export const readinessPillars = [
   },
   {
     key: "demo",
-    label: "Judge demo proof",
+    label: "Workflow proof",
     description: "Seed cases, impact metrics, presentation mode, and live AI.",
   },
 ] as const;
@@ -256,8 +256,8 @@ export const safetyPrinciples = [
 ];
 
 export const commandExamples = [
-  "Run the full winning clinic workflow",
-  "Run the winning judge demo",
+  "Run the full clinic workflow",
+  "Run the guided clinic workflow",
   "Undo last command",
   "Load dengue watch and generate a draft",
   "Switch to Bangla and open presentation mode",
@@ -295,7 +295,7 @@ export const commandPlaybook = [
   },
   {
     label: "Demo",
-    examples: ["full workflow", "run judge demo", "open presentation"],
+    examples: ["full workflow", "guided workflow", "open presentation"],
   },
   {
     label: "AI setup",
@@ -303,8 +303,8 @@ export const commandPlaybook = [
   },
 ] as const;
 
-export const judgeRunScript = {
-  command: "Run the winning judge demo",
+export const guidedWorkflowScript = {
+  command: "Run guided clinic workflow",
   scenarioLabel: "Pregnancy fever",
   medicines:
     "Paracetamol 500mg\nORS as needed\nUnknown antibiotic from prior visit",
@@ -323,8 +323,8 @@ export const uiCopy = {
     mode: "Mode",
     cases: "Cases",
     ready: "Ready",
-    judgeMode: "Judge Demo Mode",
-    judgeSubtitle: "One clear story for a 3-minute winning pitch",
+    guidedMode: "Guided Workflow",
+    guidedSubtitle: "One clear clinic story in three minutes",
     demoStep1: "Load scenario",
     demoStep2: "Generate draft",
     demoStep3: "Review safety",
@@ -336,7 +336,7 @@ export const uiCopy = {
     age: "Age",
     sex: "Sex",
     rawIntake: "Raw intake",
-    scripts: "Judge demo scripts",
+    scripts: "Demo scenarios",
     voice: "Voice intake",
     listening: "Listening...",
     attach: "Attach prescription/lab text",
@@ -353,8 +353,8 @@ export const uiCopy = {
     mode: "মোড",
     cases: "কেস",
     ready: "প্রস্তুত",
-    judgeMode: "জাজ ডেমো মোড",
-    judgeSubtitle: "৩ মিনিটের শক্তিশালী পিচের জন্য এক পরিষ্কার গল্প",
+    guidedMode: "গাইডেড ওয়ার্কফ্লো",
+    guidedSubtitle: "তিন মিনিটে একটি পরিষ্কার ক্লিনিক গল্প",
     demoStep1: "সিনারিও নিন",
     demoStep2: "ড্রাফট তৈরি",
     demoStep3: "সেফটি রিভিউ",
@@ -366,7 +366,7 @@ export const uiCopy = {
     age: "বয়স",
     sex: "লিঙ্গ",
     rawIntake: "ইনটেক নোট",
-    scripts: "জাজ ডেমো স্ক্রিপ্ট",
+    scripts: "ডেমো সিনারিও",
     voice: "ভয়েস ইনটেক",
     listening: "শোনা হচ্ছে...",
     attach: "প্রেসক্রিপশন/ল্যাব টেক্সট যোগ করুন",
@@ -527,7 +527,7 @@ export const demoClinicBriefing = {
     "Generate or refresh missing clinical drafts.",
     "Run medicine safety checks for unclear prescriptions.",
   ],
-  judgePitch:
+  operatorSummary:
     "This turns a small clinic queue into an AI-guided operating dashboard: triage, paperwork, follow-up, and safety review from one command box.",
 } satisfies ClinicBriefingOutput;
 
