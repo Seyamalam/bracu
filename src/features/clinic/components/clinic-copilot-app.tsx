@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery } from "convex/react";
 import { LogOut, Stethoscope } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { api } from "../../../../convex/_generated/api";
 import type { Doc, Id } from "../../../../convex/_generated/dataModel";
@@ -33,10 +33,12 @@ import { PatientHandout } from "./patient-handout";
 import { PresentationMode } from "./presentation-mode";
 import { SafetyBanner } from "./safety-banner";
 import { SafetyFrame } from "./safety-frame";
+import { ShortcutHelp } from "./shortcut-help";
 import { TrendDashboard } from "./trend-dashboard";
 
 export function ClinicCopilotApp() {
   const auth = useDemoAuth();
+  const commandInputRef = useRef<HTMLInputElement>(null);
   const [uiLanguage, setUiLanguage] = useState<UiLanguage>("en");
   const [form, setForm] = useState<IntakeFormState>(initialIntake);
   const [output, setOutput] = useState<CopilotOutput | null>(null);
@@ -54,6 +56,7 @@ export function ClinicCopilotApp() {
   const [mode, setMode] = useState<"idle" | "demo" | "live">("idle");
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState("");
+  const [liveMessage, setLiveMessage] = useState("Clinic workspace ready.");
 
   const cases = useQuery(api.cases.listRecent, { userId: auth.user?._id });
   const auditLogs = useQuery(
@@ -110,21 +113,13 @@ export function ClinicCopilotApp() {
     }
   }, [filteredCases, selectedCaseId]);
 
-  if (!auth.isReady) {
-    return (
-      <main className="flex min-h-screen items-center justify-center bg-[#12332c] text-white">
-        Loading clinic workspace...
-      </main>
-    );
-  }
-
-  if (!auth.user) {
-    return <AuthScreen onLogin={auth.login} onRegister={auth.register} />;
-  }
-
   const currentUser = auth.user;
 
   async function generate(nextForm = form) {
+    if (!currentUser) {
+      return;
+    }
+
     setIsGenerating(true);
     setError("");
 
@@ -149,6 +144,7 @@ export function ClinicCopilotApp() {
       const generated = data.output as CopilotOutput;
       setOutput(generated);
       setMode(data.mode ?? "live");
+      setLiveMessage(`Generated draft for ${nextForm.patientName}.`);
 
       const caseId = await createCase({
         userId: currentUser._id,
@@ -180,17 +176,27 @@ export function ClinicCopilotApp() {
     caseId: Id<"cases">,
     status: "handout" | "followup",
   ) {
+    if (!currentUser) {
+      return;
+    }
+
     void updateStatus({ caseId, userId: currentUser._id, status });
+    setLiveMessage(`Moved selected case to ${status}.`);
   }
 
   function approveSelectedCase(caseId = selectedCaseId) {
-    if (!caseId) {
+    if (!(caseId && currentUser)) {
       return;
     }
     void approveCase({ caseId, userId: currentUser._id });
+    setLiveMessage("Clinician approval saved.");
   }
 
   function saveDraftEdits(nextOutput: CopilotOutput) {
+    if (!currentUser) {
+      return;
+    }
+
     if (!selectedCaseId) {
       setOutput(nextOutput);
       return;
@@ -246,10 +252,16 @@ export function ClinicCopilotApp() {
 
       if (action.type === "switch_language") {
         setUiLanguage(action.language);
+        setLiveMessage(`Language switched to ${action.language}.`);
       }
 
       if (action.type === "presentation_mode") {
         setPresentationMode(action.enabled);
+        setLiveMessage(
+          action.enabled
+            ? "Presentation mode opened."
+            : "Presentation mode closed.",
+        );
       }
 
       if (action.type === "check_medicine") {
@@ -265,6 +277,7 @@ export function ClinicCopilotApp() {
 
       if (action.type === "search_cases") {
         setCaseSearch(action.query);
+        setLiveMessage(`Searching cases for ${action.query}.`);
       }
 
       if (action.type === "filter_cases") {
@@ -301,8 +314,47 @@ export function ClinicCopilotApp() {
     }
   }
 
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      const isModifier = event.metaKey || event.ctrlKey;
+      if (isModifier && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        commandInputRef.current?.focus();
+      }
+      if (isModifier && event.key.toLowerCase() === "g") {
+        event.preventDefault();
+        void generate();
+      }
+      if (isModifier && event.key.toLowerCase() === "p") {
+        event.preventDefault();
+        setPresentationMode(true);
+      }
+      if (event.key === "Escape") {
+        setPresentationMode(false);
+      }
+    }
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  });
+
+  if (!auth.isReady) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[#12332c] text-white">
+        Loading clinic workspace...
+      </main>
+    );
+  }
+
+  if (!currentUser) {
+    return <AuthScreen onLogin={auth.login} onRegister={auth.register} />;
+  }
+
   return (
     <main className="min-h-screen bg-[#f7f4ee] text-slate-950">
+      <div className="sr-only" aria-live="polite">
+        {liveMessage}
+      </div>
       <a className="skip-link" href="#clinic-workspace">
         Skip to clinic workspace
       </a>
@@ -347,7 +399,11 @@ export function ClinicCopilotApp() {
       </section>
 
       <section className="mx-auto max-w-7xl px-4 pt-4 sm:px-6 lg:px-8">
-        <CommandCopilot model={selectedModel} onApplyPlan={applyCommandPlan} />
+        <CommandCopilot
+          ref={commandInputRef}
+          model={selectedModel}
+          onApplyPlan={applyCommandPlan}
+        />
       </section>
 
       <section className="mx-auto max-w-7xl px-4 pt-4 sm:px-6 lg:px-8">
@@ -405,6 +461,7 @@ export function ClinicCopilotApp() {
           <FollowUpPanel cases={cases} onSelectCase={setSelectedCaseId} />
           <TrendDashboard cases={cases} />
           <AuditLogViewer logs={auditLogs} />
+          <ShortcutHelp />
           <SafetyFrame />
         </aside>
       </section>
