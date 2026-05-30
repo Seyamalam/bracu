@@ -4,6 +4,7 @@ import type {
   DemoScenario,
   DocumentExtractionOutput,
   FollowUpMessageOutput,
+  FollowUpPlanOutput,
   IntakeCleanupOutput,
   IntakeFormState,
   MedicineSafetyOutput,
@@ -132,6 +133,7 @@ export const commandExamples = [
   "Search for Farzana and show high priority cases",
   "Use the fastest model and clear filters",
   "Mark this patient for follow-up",
+  "Schedule follow-up for this patient",
   "Compose a WhatsApp follow-up for this patient",
   "Triage this patient reply",
   "Write a referral letter for this patient",
@@ -561,3 +563,32 @@ export const demoPatientReplyTriageOutput = {
     "Mark this patient for follow-up",
   ],
 } satisfies PatientReplyTriageOutput;
+
+export const demoFollowUpPlan = {
+  priority: "medium",
+  timing: "Call within 24 hours, sooner if red-flag symptoms are present.",
+  channel: "phone",
+  staffOwner: "Follow-up desk or nurse, with clinician escalation available.",
+  callbackScript:
+    "Confirm current fever, breathing, urine output, dizziness, bleeding, medicine use, and whether the patient understands urgent return signs.",
+  reminders: [
+    "Record callback attempt time and patient response.",
+    "Try WhatsApp/SMS if the first phone call is missed.",
+    "Ask the patient to keep prescriptions and lab reports ready for review.",
+  ],
+  escalationRules: [
+    "Escalate immediately for breathing difficulty, chest pain, fainting, bleeding, severe weakness, very low urine, or worsening symptoms.",
+    "Escalate if pregnancy, child dehydration, diabetes wound, or chest pain concerns appear in the reply.",
+  ],
+  closureCriteria: [
+    "Clinician-approved advice was communicated.",
+    "Patient or caregiver repeated urgent return signs.",
+    "Follow-up status and next contact timing were documented.",
+  ],
+  suggestedCommands: [
+    "Compose a WhatsApp follow-up for this patient",
+    "Triage this patient reply",
+    "Create a nurse handoff and receptionist task list",
+    "Mark this patient for follow-up",
+  ],
+} satisfies FollowUpPlanOutput;

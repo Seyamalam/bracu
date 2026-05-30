@@ -151,6 +151,18 @@ export type PatientReplyTriageOutput = {
   suggestedCommands: string[];
 };
 
+export type FollowUpPlanOutput = {
+  priority: Severity;
+  timing: string;
+  channel: "sms" | "whatsapp" | "phone";
+  staffOwner: string;
+  callbackScript: string;
+  reminders: string[];
+  escalationRules: string[];
+  closureCriteria: string[];
+  suggestedCommands: string[];
+};
+
 export type CommandAction =
   | {
       type: "fill_intake";
@@ -187,7 +199,8 @@ export type CommandAction =
   | { type: "compose_handoff" }
   | { type: "plan_next_steps" }
   | { type: "extract_document" }
-  | { type: "triage_reply" };
+  | { type: "triage_reply" }
+  | { type: "schedule_followup" };
 
 export type CommandPlan = {
   summary: string;

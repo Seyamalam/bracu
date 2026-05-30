@@ -28,6 +28,7 @@ import { DoctorConsole } from "./doctor-console";
 import { DocumentExtractor } from "./document-extractor";
 import { FollowUpComposer } from "./follow-up-composer";
 import { FollowUpPanel } from "./follow-up-panel";
+import { FollowUpScheduler } from "./follow-up-scheduler";
 import { ImpactSnapshot } from "./impact-snapshot";
 import { IntakePanel } from "./intake-panel";
 import { JudgeDemoPanel } from "./judge-demo-panel";
@@ -85,6 +86,7 @@ export function ClinicCopilotApp() {
   const [nextStepSignal, setNextStepSignal] = useState(0);
   const [documentExtractSignal, setDocumentExtractSignal] = useState(0);
   const [replyTriageSignal, setReplyTriageSignal] = useState(0);
+  const [followUpScheduleSignal, setFollowUpScheduleSignal] = useState(0);
 
   const cases = useQuery(api.cases.listRecent, { userId: auth.user?._id });
   const auditLogs = useQuery(
@@ -300,6 +302,7 @@ export function ClinicCopilotApp() {
     setNextStepSignal((signal) => signal + 1);
     setDocumentExtractSignal((signal) => signal + 1);
     setReplyTriageSignal((signal) => signal + 1);
+    setFollowUpScheduleSignal((signal) => signal + 1);
     setReferralComposeSignal((signal) => signal + 1);
     setFollowUpComposeSignal((signal) => signal + 1);
     setBriefingSignal((signal) => signal + 1);
@@ -539,6 +542,11 @@ export function ClinicCopilotApp() {
         setLiveMessage("Triaging patient follow-up reply.");
       }
 
+      if (action.type === "schedule_followup") {
+        setFollowUpScheduleSignal((signal) => signal + 1);
+        setLiveMessage("Scheduling follow-up callback workflow.");
+      }
+
       if (action.type === "approve_case") {
         approveSelectedCase();
       }
@@ -714,6 +722,12 @@ export function ClinicCopilotApp() {
             output={displayOutput}
             patientName={selectedCase?.patientName ?? form.patientName}
             preferredChannel={followUpChannel}
+          />
+          <FollowUpScheduler
+            model={selectedModel}
+            output={displayOutput}
+            patientName={selectedCase?.patientName ?? form.patientName}
+            scheduleSignal={followUpScheduleSignal}
           />
           <ReplyTriage
             model={selectedModel}
