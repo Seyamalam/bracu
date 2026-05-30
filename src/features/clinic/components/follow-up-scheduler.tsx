@@ -10,12 +10,14 @@ import { SectionHeading } from "./section-heading";
 import { SuggestedCommandButton } from "./suggested-command-button";
 
 export function FollowUpScheduler({
+  commandInstruction,
   model,
   onRunCommand,
   output,
   patientName,
   scheduleSignal,
 }: {
+  commandInstruction?: string;
   model: string;
   onRunCommand: (command: string) => void | Promise<void>;
   output: CopilotOutput | null;
@@ -44,6 +46,7 @@ export function FollowUpScheduler({
           severity: output.severity,
           followUpTiming: output.followUp.timing,
           followUpMessage: output.followUp.message,
+          instruction: commandInstruction,
           redFlags: output.redFlags,
           model,
         }),
@@ -62,7 +65,7 @@ export function FollowUpScheduler({
     } finally {
       setIsScheduling(false);
     }
-  }, [model, output, patientName]);
+  }, [commandInstruction, model, output, patientName]);
 
   useEffect(() => {
     if (scheduleSignal > 0) {

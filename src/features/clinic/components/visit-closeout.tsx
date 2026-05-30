@@ -11,12 +11,14 @@ import { SuggestedCommandButton } from "./suggested-command-button";
 
 export function VisitCloseout({
   closeoutSignal,
+  commandInstruction,
   model,
   onRunCommand,
   output,
   patientName,
 }: {
   closeoutSignal: number;
+  commandInstruction?: string;
   model: string;
   onRunCommand: (command: string) => void | Promise<void>;
   output: CopilotOutput | null;
@@ -45,6 +47,7 @@ export function VisitCloseout({
           redFlags: output.redFlags,
           missingQuestions: output.missingQuestions,
           followUp: `${output.followUp.timing}: ${output.followUp.message}`,
+          instruction: commandInstruction,
           model,
         }),
       });
@@ -60,7 +63,7 @@ export function VisitCloseout({
     } finally {
       setIsClosing(false);
     }
-  }, [model, output, patientName]);
+  }, [commandInstruction, model, output, patientName]);
 
   useEffect(() => {
     if (closeoutSignal > 0) {

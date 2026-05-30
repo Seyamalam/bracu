@@ -11,11 +11,13 @@ import { SuggestedCommandButton } from "./suggested-command-button";
 
 export function ApprovalReadiness({
   checkSignal,
+  commandInstruction,
   model,
   onRunCommand,
   output,
 }: {
   checkSignal: number;
+  commandInstruction?: string;
   model: string;
   onRunCommand: (command: string) => void | Promise<void>;
   output: CopilotOutput | null;
@@ -38,7 +40,11 @@ export function ApprovalReadiness({
       const response = await fetch("/api/approval-check", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ draft: output, model }),
+        body: JSON.stringify({
+          draft: output,
+          instruction: commandInstruction,
+          model,
+        }),
       });
       const data = await response.json();
       if (!response.ok) {
@@ -54,7 +60,7 @@ export function ApprovalReadiness({
     } finally {
       setIsChecking(false);
     }
-  }, [model, output]);
+  }, [commandInstruction, model, output]);
 
   useEffect(() => {
     if (checkSignal > 0) {

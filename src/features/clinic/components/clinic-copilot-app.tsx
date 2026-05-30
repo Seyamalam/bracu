@@ -52,9 +52,12 @@ import { VisitCloseout } from "./visit-closeout";
 
 type WorkspaceSnapshot = {
   caseSearch: string;
+  commandApprovalInstruction?: string;
+  commandCloseoutInstruction?: string;
   commandDocumentText?: string;
   commandCaseQuestion?: string;
   commandFollowUpInstruction?: string;
+  commandFollowUpScheduleInstruction?: string;
   commandHandoffInstruction?: string;
   commandMedicines?: string;
   commandPatientQuestion?: string;
@@ -89,12 +92,22 @@ export function ClinicCopilotApp() {
   const [commandDocumentText, setCommandDocumentText] = useState<
     string | undefined
   >();
+  const [commandApprovalInstruction, setCommandApprovalInstruction] = useState<
+    string | undefined
+  >();
+  const [commandCloseoutInstruction, setCommandCloseoutInstruction] = useState<
+    string | undefined
+  >();
   const [commandCaseQuestion, setCommandCaseQuestion] = useState<
     string | undefined
   >();
   const [commandFollowUpInstruction, setCommandFollowUpInstruction] = useState<
     string | undefined
   >();
+  const [
+    commandFollowUpScheduleInstruction,
+    setCommandFollowUpScheduleInstruction,
+  ] = useState<string | undefined>();
   const [commandHandoffInstruction, setCommandHandoffInstruction] = useState<
     string | undefined
   >();
@@ -327,7 +340,19 @@ export function ClinicCopilotApp() {
     if (scope === "intake" || scope === "all") {
       setForm(initialIntake);
       setOutput(null);
+      setCommandApprovalInstruction(undefined);
+      setCommandCaseQuestion(undefined);
+      setCommandCloseoutInstruction(undefined);
+      setCommandDocumentText(undefined);
+      setCommandFollowUpInstruction(undefined);
+      setCommandFollowUpScheduleInstruction(undefined);
+      setCommandHandoffInstruction(undefined);
       setCommandMedicines(undefined);
+      setCommandNextStepInstruction(undefined);
+      setCommandPatientQuestion(undefined);
+      setCommandPatientReply(undefined);
+      setCommandReferralInstruction(undefined);
+      setCommandRiskInstruction(undefined);
       setLiveMessage("Intake workspace reset.");
     }
   }
@@ -335,9 +360,12 @@ export function ClinicCopilotApp() {
   function captureWorkspaceSnapshot(label: string): WorkspaceSnapshot {
     return {
       caseSearch,
+      commandApprovalInstruction,
       commandCaseQuestion,
+      commandCloseoutInstruction,
       commandDocumentText,
       commandFollowUpInstruction,
+      commandFollowUpScheduleInstruction,
       commandHandoffInstruction,
       commandMedicines,
       commandNextStepInstruction,
@@ -367,9 +395,14 @@ export function ClinicCopilotApp() {
 
   function restoreSnapshot(snapshot: WorkspaceSnapshot) {
     setCaseSearch(snapshot.caseSearch);
+    setCommandApprovalInstruction(snapshot.commandApprovalInstruction);
     setCommandCaseQuestion(snapshot.commandCaseQuestion);
+    setCommandCloseoutInstruction(snapshot.commandCloseoutInstruction);
     setCommandDocumentText(snapshot.commandDocumentText);
     setCommandFollowUpInstruction(snapshot.commandFollowUpInstruction);
+    setCommandFollowUpScheduleInstruction(
+      snapshot.commandFollowUpScheduleInstruction,
+    );
     setCommandHandoffInstruction(snapshot.commandHandoffInstruction);
     setCommandMedicines(snapshot.commandMedicines);
     setCommandNextStepInstruction(snapshot.commandNextStepInstruction);
@@ -703,6 +736,7 @@ export function ClinicCopilotApp() {
       }
 
       if (action.type === "schedule_followup") {
+        setCommandFollowUpScheduleInstruction(action.instruction);
         setFollowUpScheduleSignal((signal) => signal + 1);
         setLiveMessage("Scheduling follow-up callback workflow.");
       }
@@ -714,11 +748,13 @@ export function ClinicCopilotApp() {
       }
 
       if (action.type === "check_approval_readiness") {
+        setCommandApprovalInstruction(action.instruction);
         setApprovalCheckSignal((signal) => signal + 1);
         setLiveMessage("Checking draft approval readiness.");
       }
 
       if (action.type === "close_visit") {
+        setCommandCloseoutInstruction(action.instruction);
         setVisitCloseoutSignal((signal) => signal + 1);
         setLiveMessage("Preparing safe visit closeout packet.");
       }
@@ -932,12 +968,14 @@ export function ClinicCopilotApp() {
           />
           <ApprovalReadiness
             checkSignal={approvalCheckSignal}
+            commandInstruction={commandApprovalInstruction}
             model={selectedModel}
             onRunCommand={runSuggestedCommand}
             output={displayOutput}
           />
           <VisitCloseout
             closeoutSignal={visitCloseoutSignal}
+            commandInstruction={commandCloseoutInstruction}
             model={selectedModel}
             onRunCommand={runSuggestedCommand}
             output={displayOutput}
@@ -968,6 +1006,7 @@ export function ClinicCopilotApp() {
             preferredChannel={followUpChannel}
           />
           <FollowUpScheduler
+            commandInstruction={commandFollowUpScheduleInstruction}
             model={selectedModel}
             onRunCommand={runSuggestedCommand}
             output={displayOutput}

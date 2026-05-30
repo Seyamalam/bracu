@@ -243,10 +243,10 @@ export type CommandAction =
   | { type: "plan_next_steps"; instruction?: string }
   | { type: "extract_document"; documentText?: string }
   | { type: "triage_reply"; replyText?: string }
-  | { type: "schedule_followup" }
+  | { type: "schedule_followup"; instruction?: string }
   | { type: "answer_patient_question"; question?: string }
-  | { type: "check_approval_readiness" }
-  | { type: "close_visit" }
+  | { type: "check_approval_readiness"; instruction?: string }
+  | { type: "close_visit"; instruction?: string }
   | { type: "undo_last_command" };
 
 export type CommandPlan = {

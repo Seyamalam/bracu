@@ -19,6 +19,7 @@ const approvalReadinessSchema = z.object({
 export async function POST(request: Request) {
   const body = await request.json();
   const draft = body.draft;
+  const instruction = String(body.instruction ?? "").trim();
   const requestedModel = String(body.model ?? "env");
 
   if (!draft?.summary) {
@@ -47,7 +48,10 @@ export async function POST(request: Request) {
       system:
         "You review whether an AI-generated clinic documentation draft is operationally ready for clinician signoff. Do not approve care, diagnose, or prescribe. Identify blockers, missing checks, ready signals, a signoff checklist, and short suggested Clinic Copilot commands. Be conservative: high-risk, unclear medicine, missing vitals, or unresolved red flags should require review or block approval.",
       prompt: `Draft JSON for approval-readiness review:
-${JSON.stringify(draft, null, 2)}`,
+${JSON.stringify(draft, null, 2)}
+
+Operator instruction:
+${instruction || "Use standard approval-readiness review."}`,
     });
 
     return Response.json({ output: result.output, mode: "live" });

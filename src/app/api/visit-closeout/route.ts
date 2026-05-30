@@ -21,6 +21,7 @@ export async function POST(request: Request) {
   const body = await request.json();
   const patientName = String(body.patientName ?? "Selected patient").trim();
   const caseSummary = String(body.caseSummary ?? "").trim();
+  const instruction = String(body.instruction ?? "").trim();
   const requestedModel = String(body.model ?? "env");
 
   if (caseSummary.length < 10) {
@@ -53,7 +54,9 @@ Case summary: ${caseSummary}
 Severity: ${String(body.severity ?? "medium")}
 Red flags: ${JSON.stringify(body.redFlags ?? [])}
 Missing questions: ${JSON.stringify(body.missingQuestions ?? [])}
-Follow-up: ${String(body.followUp ?? "")}`,
+Follow-up: ${String(body.followUp ?? "")}
+Operator instruction:
+${instruction || "Use standard safe visit closeout."}`,
     });
 
     return Response.json({ output: result.output, mode: "live" });

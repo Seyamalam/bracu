@@ -24,6 +24,7 @@ export async function POST(request: Request) {
   const severity = String(body.severity ?? "medium");
   const followUpTiming = String(body.followUpTiming ?? "").trim();
   const followUpMessage = String(body.followUpMessage ?? "").trim();
+  const instruction = String(body.instruction ?? "").trim();
   const redFlags = Array.isArray(body.redFlags) ? body.redFlags : [];
   const requestedModel = String(body.model ?? "env");
 
@@ -64,7 +65,10 @@ Follow-up message from draft:
 ${followUpMessage || "Not specified"}
 
 Red flags:
-${redFlags.join("\n") || "None provided"}`,
+${redFlags.join("\n") || "None provided"}
+
+Operator instruction:
+${instruction || "Use standard safe follow-up planning."}`,
     });
 
     return Response.json({ output: result.output, mode: "live" });

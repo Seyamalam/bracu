@@ -134,6 +134,15 @@ function actionDetail(action: CommandPlan["actions"][number]) {
   if (action.type === "plan_next_steps" && action.instruction) {
     return `Plans next steps with focus: ${truncateText(action.instruction)}`;
   }
+  if (action.type === "check_approval_readiness" && action.instruction) {
+    return `Checks approval with focus: ${truncateText(action.instruction)}`;
+  }
+  if (action.type === "schedule_followup" && action.instruction) {
+    return `Schedules follow-up with focus: ${truncateText(action.instruction)}`;
+  }
+  if (action.type === "close_visit" && action.instruction) {
+    return `Closes visit with focus: ${truncateText(action.instruction)}`;
+  }
   if (action.type === "set_status") {
     return `Moves the selected case to ${action.status}.`;
   }
