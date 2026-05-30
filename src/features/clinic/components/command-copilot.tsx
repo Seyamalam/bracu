@@ -1,12 +1,20 @@
 "use client";
 
-import { Bot, CornerDownLeft, History, Wand2 } from "lucide-react";
+import {
+  Bot,
+  CheckCircle2,
+  CornerDownLeft,
+  Eye,
+  History,
+  Wand2,
+} from "lucide-react";
 import { forwardRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { commandExamples, commandPlaybook } from "../data";
 import type { CommandHistoryEntry, CommandPlan } from "../types";
+import { CommandPlanPreview } from "./command-plan-preview";
 import { SectionHeading } from "./section-heading";
 
 type CommandCopilotProps = {
@@ -25,38 +33,106 @@ export const CommandCopilot = forwardRef<HTMLInputElement, CommandCopilotProps>(
       "Load dengue watch and generate a draft",
     );
     const [lastPlan, setLastPlan] = useState<CommandPlan | null>(null);
+    const [lastPlanCommand, setLastPlanCommand] = useState("");
+    const [lastPlanMode, setLastPlanMode] =
+      useState<CommandHistoryEntry["mode"]>("live");
+    const [lastPlanState, setLastPlanState] = useState<
+      "preview" | "running" | "completed"
+    >("preview");
     const [isRunning, setIsRunning] = useState(false);
+    const [isPreviewing, setIsPreviewing] = useState(false);
     const [error, setError] = useState("");
 
-    async function runCommand(commandOverride = command) {
+    async function buildPlan(commandOverride = command) {
       const nextCommand = commandOverride.trim();
       if (!nextCommand) {
         setError("Type a command first.");
+        return null;
+      }
+
+      setError("");
+      setCommand(nextCommand);
+      const response = await fetch("/api/command", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ command: nextCommand, model }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error ?? "Command failed.");
+      }
+      return {
+        command: nextCommand,
+        mode: data.mode ?? "live",
+        plan: data.output as CommandPlan,
+      };
+    }
+
+    async function previewCommand(commandOverride = command) {
+      setIsPreviewing(true);
+      try {
+        const planned = await buildPlan(commandOverride);
+        if (!planned) {
+          return;
+        }
+        setLastPlan(planned.plan);
+        setLastPlanCommand(planned.command);
+        setLastPlanMode(planned.mode);
+        setLastPlanState("preview");
+      } catch (caught) {
+        setError(caught instanceof Error ? caught.message : "Preview failed.");
+      } finally {
+        setIsPreviewing(false);
+      }
+    }
+
+    async function runPlannedCommand() {
+      if (!lastPlan) {
+        await runCommand();
         return;
       }
 
       setIsRunning(true);
       setError("");
-      setCommand(nextCommand);
+      setLastPlanState("running");
       try {
-        const response = await fetch("/api/command", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ command: nextCommand, model }),
-        });
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.error ?? "Command failed.");
-        }
-        const plan = data.output as CommandPlan;
-        setLastPlan(plan);
-        await onApplyPlan(plan);
+        await onApplyPlan(lastPlan);
+        setLastPlanState("completed");
         onCommandComplete({
           id: crypto.randomUUID(),
-          command: nextCommand,
-          summary: plan.summary,
-          actions: plan.actions.map((action) => action.type),
-          mode: data.mode ?? "live",
+          command: lastPlanCommand || command,
+          summary: lastPlan.summary,
+          actions: lastPlan.actions.map((action) => action.type),
+          mode: lastPlanMode,
+          createdAt: Date.now(),
+        });
+      } catch (caught) {
+        setError(caught instanceof Error ? caught.message : "Command failed.");
+      } finally {
+        setIsRunning(false);
+      }
+    }
+
+    async function runCommand(commandOverride = command) {
+      setIsRunning(true);
+      setError("");
+      try {
+        const planned = await buildPlan(commandOverride);
+        if (!planned) {
+          return;
+        }
+        setLastPlan(planned.plan);
+        setLastPlanCommand(planned.command);
+        setLastPlanMode(planned.mode);
+        setLastPlanState("running");
+        await onApplyPlan(planned.plan);
+        setLastPlanState("completed");
+        onCommandComplete({
+          id: crypto.randomUUID(),
+          command: planned.command,
+          summary: planned.plan.summary,
+          actions: planned.plan.actions.map((action) => action.type),
+          mode: planned.mode,
           createdAt: Date.now(),
         });
       } catch (caught) {
@@ -76,7 +152,7 @@ export const CommandCopilot = forwardRef<HTMLInputElement, CommandCopilotProps>(
           />
         </CardHeader>
         <CardContent>
-          <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
+          <div className="grid gap-2 lg:grid-cols-[1fr_auto_auto]">
             <Input
               aria-label="Command Copilot input"
               ref={ref}
@@ -88,6 +164,15 @@ export const CommandCopilot = forwardRef<HTMLInputElement, CommandCopilotProps>(
                 }
               }}
             />
+            <Button
+              type="button"
+              disabled={isPreviewing || isRunning}
+              variant="outline"
+              onClick={() => void previewCommand()}
+            >
+              <Eye size={17} aria-hidden="true" />
+              {isPreviewing ? "Previewing..." : "Preview"}
+            </Button>
             <Button
               type="button"
               disabled={isRunning}
@@ -129,13 +214,13 @@ export const CommandCopilot = forwardRef<HTMLInputElement, CommandCopilotProps>(
           </div>
 
           {lastPlan ? (
-            <div className="mt-3 rounded-md bg-[#f7f4ee] p-3 text-sm">
-              <p className="font-semibold">{lastPlan.summary}</p>
-              <p className="mt-1 text-muted-foreground">
-                Actions:{" "}
-                {lastPlan.actions.map((action) => action.type).join(", ")}
-              </p>
-            </div>
+            <CommandPlanPreview
+              command={lastPlanCommand}
+              isRunning={isRunning}
+              plan={lastPlan}
+              state={lastPlanState}
+              onRunPlan={runPlannedCommand}
+            />
           ) : null}
           {error ? (
             <p className="mt-3 text-destructive text-sm">{error}</p>
@@ -160,6 +245,10 @@ export const CommandCopilot = forwardRef<HTMLInputElement, CommandCopilotProps>(
                     </span>
                     <span className="mt-1 block text-muted-foreground text-xs">
                       {entry.mode} · {entry.actions.join(", ")}
+                    </span>
+                    <span className="mt-2 flex items-center gap-1 text-primary text-xs">
+                      <CheckCircle2 size={13} aria-hidden="true" />
+                      Run again
                     </span>
                   </button>
                 ))}
