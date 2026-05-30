@@ -14,6 +14,7 @@ import type {
   CommandHistoryEntry,
   CommandPlan,
   CopilotOutput,
+  IntakeCleanupOutput,
   IntakeFormState,
   Severity,
   UiLanguage,
@@ -59,6 +60,7 @@ export function ClinicCopilotApp() {
   const [severityFilter, setSeverityFilter] = useState<Severity | "all">("all");
   const [mode, setMode] = useState<"idle" | "demo" | "live">("idle");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isCleaningIntake, setIsCleaningIntake] = useState(false);
   const [error, setError] = useState("");
   const [liveMessage, setLiveMessage] = useState("Clinic workspace ready.");
   const [commandHistory, setCommandHistory] = useState<CommandHistoryEntry[]>(
@@ -308,6 +310,56 @@ export function ClinicCopilotApp() {
     }
   }
 
+  async function cleanIntakeWithAi() {
+    setIsCleaningIntake(true);
+    setError("");
+    setLiveMessage("Cleaning intake with AI.");
+    try {
+      const response = await fetch("/api/intake-cleanup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          intake: form.intake,
+          model: selectedModel,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error ?? "Intake cleanup failed.");
+      }
+      const cleaned = data.output as IntakeCleanupOutput;
+      setForm({
+        patientName: cleaned.patientName ?? form.patientName,
+        age: cleaned.age ?? form.age,
+        sex: cleaned.sex ?? form.sex,
+        intake: [
+          cleaned.cleanedIntake,
+          cleaned.extractedVitals.length
+            ? `Vitals extracted:\n${cleaned.extractedVitals.join("\n")}`
+            : "",
+          cleaned.extractedMedicines.length
+            ? `Medicines extracted:\n${cleaned.extractedMedicines.join("\n")}`
+            : "",
+          cleaned.possibleRedFlags.length
+            ? `Possible red flags to confirm:\n${cleaned.possibleRedFlags.join("\n")}`
+            : "",
+          cleaned.missingInfo.length
+            ? `Missing info:\n${cleaned.missingInfo.join("\n")}`
+            : "",
+        ]
+          .filter(Boolean)
+          .join("\n\n"),
+      });
+      setLiveMessage("Intake cleaned and structured.");
+    } catch (caught) {
+      setError(
+        caught instanceof Error ? caught.message : "Intake cleanup failed.",
+      );
+    } finally {
+      setIsCleaningIntake(false);
+    }
+  }
+
   async function applyCommandPlan(plan: CommandPlan) {
     let nextForm = form;
 
@@ -423,6 +475,10 @@ export function ClinicCopilotApp() {
       if (action.type === "compose_briefing") {
         setBriefingSignal((signal) => signal + 1);
         setLiveMessage("Briefing the clinic queue.");
+      }
+
+      if (action.type === "cleanup_intake") {
+        await cleanIntakeWithAi();
       }
 
       if (action.type === "approve_case") {
@@ -553,7 +609,9 @@ export function ClinicCopilotApp() {
             form={form}
             error={error}
             isGenerating={isGenerating}
+            isCleaningIntake={isCleaningIntake}
             onChange={setForm}
+            onCleanIntake={() => void cleanIntakeWithAi()}
             onGenerate={() => void generate()}
           />
         </aside>

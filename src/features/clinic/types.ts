@@ -83,6 +83,18 @@ export type ClinicBriefingOutput = {
   judgePitch: string;
 };
 
+export type IntakeCleanupOutput = {
+  patientName?: string;
+  age?: string;
+  sex?: Sex;
+  cleanedIntake: string;
+  extractedVitals: string[];
+  extractedMedicines: string[];
+  possibleRedFlags: string[];
+  missingInfo: string[];
+  languageDetected: Language;
+};
+
 export type CommandAction =
   | {
       type: "fill_intake";
@@ -112,7 +124,8 @@ export type CommandAction =
   | { type: "compose_followup"; channel: "sms" | "whatsapp" }
   | { type: "edit_draft"; instruction: string }
   | { type: "compose_referral"; documentType: "referral" | "visit_summary" }
-  | { type: "compose_briefing" };
+  | { type: "compose_briefing" }
+  | { type: "cleanup_intake" };
 
 export type CommandPlan = {
   summary: string;

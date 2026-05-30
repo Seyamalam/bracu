@@ -3,6 +3,7 @@ import type {
   CopilotOutput,
   DemoScenario,
   FollowUpMessageOutput,
+  IntakeCleanupOutput,
   IntakeFormState,
   MedicineSafetyOutput,
   ReferralOutput,
@@ -129,6 +130,7 @@ export const commandExamples = [
   "Write a referral letter for this patient",
   "Create a visit summary for the family",
   "Brief me on today's clinic queue",
+  "Clean this intake and extract vitals",
   "Add a bleeding red flag and simplify the Bangla handout",
   "Create a 52 year old male chest pain intake",
   "Check medicine safety for paracetamol 500mg and antibiotic twice daily",
@@ -149,7 +151,7 @@ export const commandPlaybook = [
   },
   {
     label: "AI setup",
-    examples: ["use fastest model", "check medicines", "load dengue watch"],
+    examples: ["clean intake", "check medicines", "load dengue watch"],
   },
 ] as const;
 
@@ -380,3 +382,23 @@ export const demoClinicBriefing = {
   judgePitch:
     "This turns a small clinic queue into an AI-guided operating dashboard: triage, paperwork, follow-up, and safety review from one command box.",
 } satisfies ClinicBriefingOutput;
+
+export const demoIntakeCleanupOutput = {
+  patientName: "Nusrat Akter",
+  age: "29",
+  sex: "female",
+  cleanedIntake:
+    "Patient reports fever, dry cough, and body ache for three days. Fever is worse at night. No shortness of breath was reported. Appetite is reduced. Allergy history is unknown and should be confirmed.",
+  extractedVitals: ["No measured vitals documented."],
+  extractedMedicines: ["No current medicines documented."],
+  possibleRedFlags: [
+    "Confirm breathing difficulty, persistent high fever, dehydration, confusion, chest pain, pregnancy status, and oxygen saturation concern.",
+  ],
+  missingInfo: [
+    "Measured temperature and vital signs",
+    "Allergy and current medicine history",
+    "Pregnancy status if relevant",
+    "Exposure history and danger signs",
+  ],
+  languageDetected: "mixed",
+} satisfies IntakeCleanupOutput;

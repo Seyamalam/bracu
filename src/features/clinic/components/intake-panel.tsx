@@ -45,7 +45,9 @@ export function IntakePanel({
   form,
   onChange,
   onGenerate,
+  onCleanIntake,
   isGenerating,
+  isCleaningIntake,
   error,
 }: {
   copy: {
@@ -64,7 +66,9 @@ export function IntakePanel({
   form: IntakeFormState;
   onChange: (nextForm: IntakeFormState) => void;
   onGenerate: () => void;
+  onCleanIntake: () => void;
   isGenerating: boolean;
+  isCleaningIntake: boolean;
   error: string;
 }) {
   const [isListening, setIsListening] = useState(false);
@@ -214,6 +218,21 @@ export function IntakePanel({
         >
           <Mic size={17} aria-hidden="true" />
           {isListening ? copy.listening : copy.voice}
+        </Button>
+
+        <Button
+          className="mb-3 w-full"
+          type="button"
+          variant="outline"
+          disabled={isCleaningIntake}
+          onClick={onCleanIntake}
+        >
+          {isCleaningIntake ? (
+            <Loader2 className="animate-spin" size={17} aria-hidden="true" />
+          ) : (
+            <Sparkles size={17} aria-hidden="true" />
+          )}
+          Clean intake with AI
         </Button>
 
         <Label htmlFor="intake-file">{copy.attach}</Label>
