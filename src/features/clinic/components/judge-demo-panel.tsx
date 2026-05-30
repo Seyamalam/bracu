@@ -1,7 +1,7 @@
-import { MonitorPlay } from "lucide-react";
+import { MonitorPlay, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { demoScenarios } from "../data";
+import { demoScenarios, judgeRunScript } from "../data";
 import type { IntakeFormState, UiLanguage } from "../types";
 import { SectionHeading } from "./section-heading";
 
@@ -17,11 +17,13 @@ export function JudgeDemoPanel({
   language,
   onLanguageChange,
   onLoadScenario,
+  onRunJudgeDemo,
 }: {
   copy: JudgeCopy;
   language: UiLanguage;
   onLanguageChange: (language: UiLanguage) => void;
   onLoadScenario: (scenario: IntakeFormState) => void;
+  onRunJudgeDemo: () => void;
 }) {
   return (
     <Card className="border-primary/30 bg-[#fff7df]">
@@ -78,6 +80,32 @@ export function JudgeDemoPanel({
               </Button>
             ))}
           </div>
+          <Button
+            className="h-auto justify-start gap-3 px-4 py-3 text-left"
+            type="button"
+            onClick={onRunJudgeDemo}
+          >
+            <Play size={17} aria-hidden="true" />
+            <span>
+              <span className="block font-semibold">
+                {judgeRunScript.command}
+              </span>
+              <span className="block font-normal text-primary-foreground/80 text-xs">
+                Load, generate, check medicine, open pitch view
+              </span>
+            </span>
+          </Button>
+        </div>
+        <div className="mt-3 grid gap-2 sm:grid-cols-4">
+          {judgeRunScript.pitchBeats.map((beat, index) => (
+            <div
+              className="rounded-md border border-primary/15 bg-white px-3 py-2 text-sm"
+              key={beat}
+            >
+              <span className="font-black text-primary">{index + 1}</span>
+              <p className="mt-1 text-muted-foreground text-xs">{beat}</p>
+            </div>
+          ))}
         </div>
       </CardContent>
     </Card>

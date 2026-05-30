@@ -8,9 +8,10 @@ import { api } from "../../../../convex/_generated/api";
 import type { Doc, Id } from "../../../../convex/_generated/dataModel";
 import { AuthScreen } from "../../auth/components/auth-screen";
 import { useDemoAuth } from "../../auth/use-demo-auth";
-import { demoScenarios, initialIntake, uiCopy } from "../data";
+import { demoScenarios, initialIntake, judgeRunScript, uiCopy } from "../data";
 import type {
   CaseStatus,
+  CommandHistoryEntry,
   CommandPlan,
   CopilotOutput,
   IntakeFormState,
@@ -57,6 +58,9 @@ export function ClinicCopilotApp() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState("");
   const [liveMessage, setLiveMessage] = useState("Clinic workspace ready.");
+  const [commandHistory, setCommandHistory] = useState<CommandHistoryEntry[]>(
+    [],
+  );
 
   const cases = useQuery(api.cases.listRecent, { userId: auth.user?._id });
   const auditLogs = useQuery(
@@ -217,6 +221,50 @@ export function ClinicCopilotApp() {
     });
   }
 
+  function recordCommand(entry: CommandHistoryEntry) {
+    setCommandHistory((history) => [entry, ...history].slice(0, 8));
+    setLiveMessage(`Command complete: ${entry.summary}`);
+  }
+
+  function resetWorkspace(scope: "filters" | "intake" | "all") {
+    if (scope === "filters" || scope === "all") {
+      setCaseSearch("");
+      setStatusFilter("all");
+      setSeverityFilter("all");
+      setLiveMessage("Case filters cleared.");
+    }
+
+    if (scope === "intake" || scope === "all") {
+      setForm(initialIntake);
+      setOutput(null);
+      setCommandMedicines(undefined);
+      setLiveMessage("Intake workspace reset.");
+    }
+  }
+
+  async function runJudgeDemo(
+    scenarioLabel: string = judgeRunScript.scenarioLabel,
+  ) {
+    const scenario =
+      demoScenarios.find((item) =>
+        item.label.toLowerCase().includes(scenarioLabel.toLowerCase()),
+      ) ?? demoScenarios[4];
+
+    const nextForm = {
+      patientName: scenario.patientName,
+      age: scenario.age,
+      sex: scenario.sex,
+      intake: scenario.intake,
+    };
+    resetWorkspace("filters");
+    setUiLanguage("bn");
+    setForm(nextForm);
+    setCommandMedicines(judgeRunScript.medicines);
+    setLiveMessage("Running the judge demo: scenario loaded.");
+    await generate(nextForm);
+    setPresentationMode(true);
+  }
+
   async function applyCommandPlan(plan: CommandPlan) {
     let nextForm = form;
 
@@ -298,6 +346,19 @@ export function ClinicCopilotApp() {
         if (matchingCase) {
           setSelectedCaseId(matchingCase._id);
         }
+      }
+
+      if (action.type === "set_model") {
+        setSelectedModel(action.model);
+        setLiveMessage(`Model changed to ${action.model}.`);
+      }
+
+      if (action.type === "reset_workspace") {
+        resetWorkspace(action.scope);
+      }
+
+      if (action.type === "run_judge_demo") {
+        await runJudgeDemo(action.scenarioLabel);
       }
 
       if (action.type === "approve_case") {
@@ -401,7 +462,9 @@ export function ClinicCopilotApp() {
       <section className="mx-auto max-w-7xl px-4 pt-4 sm:px-6 lg:px-8">
         <CommandCopilot
           ref={commandInputRef}
+          history={commandHistory}
           model={selectedModel}
+          onCommandComplete={recordCommand}
           onApplyPlan={applyCommandPlan}
         />
       </section>
@@ -412,6 +475,7 @@ export function ClinicCopilotApp() {
           language={uiLanguage}
           onLanguageChange={setUiLanguage}
           onLoadScenario={setForm}
+          onRunJudgeDemo={() => void runJudgeDemo()}
         />
       </section>
 

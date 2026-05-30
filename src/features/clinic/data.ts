@@ -115,14 +115,48 @@ export const safetyPrinciples = [
 ];
 
 export const commandExamples = [
+  "Run the winning judge demo",
   "Load dengue watch and generate a draft",
   "Switch to Bangla and open presentation mode",
   "Approve this case and move it to handout",
   "Search for Farzana and show high priority cases",
+  "Use the fastest model and clear filters",
   "Mark this patient for follow-up",
   "Create a 52 year old male chest pain intake",
   "Check medicine safety for paracetamol 500mg and antibiotic twice daily",
 ];
+
+export const commandPlaybook = [
+  {
+    label: "Operate",
+    examples: ["generate", "approve", "move to follow-up", "print handout"],
+  },
+  {
+    label: "Navigate",
+    examples: ["search Farzana", "show high priority", "clear filters"],
+  },
+  {
+    label: "Demo",
+    examples: ["run judge demo", "open presentation", "switch to Bangla"],
+  },
+  {
+    label: "AI setup",
+    examples: ["use fastest model", "check medicines", "load dengue watch"],
+  },
+] as const;
+
+export const judgeRunScript = {
+  command: "Run the winning judge demo",
+  scenarioLabel: "Pregnancy fever",
+  medicines:
+    "Paracetamol 500mg\nORS as needed\nUnknown antibiotic from prior visit",
+  pitchBeats: [
+    "Load a locally relevant red-flag case.",
+    "Generate bilingual clinical documentation.",
+    "Surface missing questions and safety gaps.",
+    "Prepare handout, follow-up, and presentation view.",
+  ],
+} as const;
 
 export const uiCopy = {
   en: {

@@ -54,6 +54,18 @@ const commandPlanSchema = z.object({
         type: z.literal("select_case"),
         patientName: z.string(),
       }),
+      z.object({
+        type: z.literal("set_model"),
+        model: z.enum(["gemini-2.5-flash", "gemini-2.5-flash-lite", "env"]),
+      }),
+      z.object({
+        type: z.literal("reset_workspace"),
+        scope: z.enum(["filters", "intake", "all"]),
+      }),
+      z.object({
+        type: z.literal("run_judge_demo"),
+        scenarioLabel: z.string().optional(),
+      }),
     ]),
   ),
 });
@@ -87,7 +99,7 @@ export async function POST(request: Request) {
       output: Output.object({ schema: commandPlanSchema }),
       temperature: 0,
       system:
-        "You translate natural-language clinic operator commands into safe UI actions for Clinic Copilot BD. Only use these exact action type strings: fill_intake, load_scenario, generate_draft, check_medicine, set_status, approve_case, switch_language, print_handout, presentation_mode, search_cases, filter_cases, select_case. For Bangla use switch_language with language bn. For scenarios use load_scenario with scenarioLabel. Never use language_switch, scenario_name, set_ui_mode, diagnosis, or prescribe actions. Keep the summary short.",
+        "You translate natural-language clinic operator commands into safe UI actions for Clinic Copilot BD. Only use these exact action type strings: fill_intake, load_scenario, generate_draft, check_medicine, set_status, approve_case, switch_language, print_handout, presentation_mode, search_cases, filter_cases, select_case, set_model, reset_workspace, run_judge_demo. For Bangla use switch_language with language bn. For scenarios use load_scenario with scenarioLabel. For a request to run a judge demo, winning demo, pitch flow, or full demo, prefer run_judge_demo. Never use language_switch, scenario_name, set_ui_mode, diagnosis, or prescribe actions. Keep the summary short.",
       prompt: `Available scenarios: ${demoScenarios.map((scenario) => scenario.label).join(", ")}
 
 Command:
@@ -104,8 +116,30 @@ function fallbackPlan(command: string) {
   const normalized = command.toLowerCase();
   const actions = [];
 
+  if (
+    normalized.includes("judge demo") ||
+    normalized.includes("winning demo") ||
+    normalized.includes("pitch flow") ||
+    normalized.includes("full demo")
+  ) {
+    actions.push({ type: "run_judge_demo", scenarioLabel: "Pregnancy fever" });
+  }
   if (normalized.includes("bangla") || normalized.includes("বাংলা")) {
     actions.push({ type: "switch_language", language: "bn" });
+  }
+  if (
+    normalized.includes("fastest model") ||
+    normalized.includes("flash lite") ||
+    normalized.includes("low cost")
+  ) {
+    actions.push({ type: "set_model", model: "gemini-2.5-flash-lite" });
+  }
+  if (
+    normalized.includes("best model") ||
+    normalized.includes("flash model") ||
+    normalized.includes("balanced model")
+  ) {
+    actions.push({ type: "set_model", model: "gemini-2.5-flash" });
   }
   if (normalized.includes("presentation")) {
     actions.push({ type: "presentation_mode", enabled: true });
@@ -130,8 +164,19 @@ function fallbackPlan(command: string) {
   if (normalized.includes("low priority")) {
     actions.push({ type: "filter_cases", severity: "low" });
   }
-  if (normalized.includes("clear filter") || normalized.includes("all cases")) {
+  if (
+    normalized.includes("clear filter") ||
+    normalized.includes("reset filter") ||
+    normalized.includes("all cases")
+  ) {
     actions.push({ type: "filter_cases", severity: "all", status: "all" });
+    actions.push({ type: "reset_workspace", scope: "filters" });
+  }
+  if (
+    normalized.includes("reset intake") ||
+    normalized.includes("clear form")
+  ) {
+    actions.push({ type: "reset_workspace", scope: "intake" });
   }
   if (normalized.includes("approve")) {
     actions.push({ type: "approve_case" });

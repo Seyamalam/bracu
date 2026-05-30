@@ -72,9 +72,21 @@ export type CommandAction =
       status?: CaseStatus | "all";
       severity?: Severity | "all";
     }
-  | { type: "select_case"; patientName: string };
+  | { type: "select_case"; patientName: string }
+  | { type: "set_model"; model: string }
+  | { type: "reset_workspace"; scope: "filters" | "intake" | "all" }
+  | { type: "run_judge_demo"; scenarioLabel?: string };
 
 export type CommandPlan = {
   summary: string;
   actions: CommandAction[];
+};
+
+export type CommandHistoryEntry = {
+  id: string;
+  command: string;
+  summary: string;
+  actions: string[];
+  mode: "live" | "demo" | "fallback";
+  createdAt: number;
 };
