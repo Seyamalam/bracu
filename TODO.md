@@ -43,4 +43,5 @@
 - [x] Add Win Readiness scorecard for safety, accessibility, workflow, and judge proof.
 - [x] Add Clinic Display accessibility controls for large text, high contrast, and calm motion.
 - [x] Add patient teach-back checklist before discharge.
+- [x] Add Visit Journey progress rail from intake through follow-up.
 - [ ] Deploy to Vercel/production Convex.

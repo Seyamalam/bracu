@@ -56,6 +56,7 @@ import { StaffHandoff } from "./staff-handoff";
 import { TeachBackCheck } from "./teach-back-check";
 import { TrendDashboard } from "./trend-dashboard";
 import { VisitCloseout } from "./visit-closeout";
+import { VisitJourney } from "./visit-journey";
 
 type WorkspaceSnapshot = {
   caseSearch: string;
@@ -952,6 +953,11 @@ export function ClinicCopilotApp() {
         <section className="space-y-4">
           <SafetyBanner title={copy.clinicianReview} body={copy.safetyBanner} />
           <ImpactSnapshot output={displayOutput} title={copy.impactTitle} />
+          <VisitJourney
+            form={form}
+            output={displayOutput}
+            status={selectedCase?.status}
+          />
           <NextStepNavigator
             commandInstruction={commandNextStepInstruction}
             model={selectedModel}

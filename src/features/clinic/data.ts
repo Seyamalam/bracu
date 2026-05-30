@@ -105,6 +105,56 @@ export const teachBackCopy = {
   ],
 } as const;
 
+export const visitJourneyCopy = {
+  title: "Visit Journey",
+  subtitle: "One glance from intake to closeout",
+  nextMoveLabel: "Next move",
+  steps: [
+    {
+      key: "intake",
+      label: "Intake",
+      waiting: "Capture patient, age, and story.",
+      active: "Finish enough intake detail for AI support.",
+      done: "Reception intake is ready.",
+    },
+    {
+      key: "draft",
+      label: "AI draft",
+      waiting: "Generate draft documentation.",
+      active: "Create the clinician-review draft.",
+      done: "Draft, handout, and checklist are generated.",
+    },
+    {
+      key: "safety",
+      label: "Safety review",
+      waiting: "Review missing questions and red flags.",
+      active: "Clinician reviews risks and missing checks.",
+      done: "Safety signals are visible for clinician review.",
+    },
+    {
+      key: "handout",
+      label: "Handout",
+      waiting: "Prepare patient-facing instructions.",
+      active: "Clinician approves wording before sharing.",
+      done: "Patient handout is ready to share.",
+    },
+    {
+      key: "teachBack",
+      label: "Teach-back",
+      waiting: "Confirm the family understood.",
+      active: "Ask the family to repeat the plan.",
+      done: "Understanding is confirmed by staff.",
+    },
+    {
+      key: "followup",
+      label: "Follow-up",
+      waiting: "Assign callback or closeout.",
+      active: "Schedule callback and closure owner.",
+      done: "Follow-up workflow is queued.",
+    },
+  ],
+} as const;
+
 export const demoScenarios = [
   {
     label: "Fever desk",

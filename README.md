@@ -29,6 +29,7 @@ Clinic Copilot BD is not a diagnosis or prescription engine. It is a clinical wo
 - Realtime case board powered by Convex
 - Clinic trend dashboard for anonymized severity/follow-up signals
 - Impact snapshot for time saved, missing questions found, and red flags caught
+- Visit Journey progress rail from intake through follow-up
 - Clinician approval workflow and audit log viewer
 - Follow-up due panel
 - Full-screen presentation mode
