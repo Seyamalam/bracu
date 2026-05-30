@@ -18,6 +18,18 @@ export const sampleIntakes = [
     label: "Child follow-up",
     text: "৮ বছরের শিশু। গতকাল থেকে পাতলা পায়খানা, দুইবার বমি, জ্বর নেই। পানি কম খাচ্ছে। মা বলছেন শিশুটি দুর্বল লাগছে।",
   },
+  {
+    label: "Dengue watch",
+    text: "২৪ বছরের রোগী। চার দিন ধরে জ্বর, মাথা ব্যথা, চোখের পেছনে ব্যথা, শরীর ব্যথা। আজ প্লেটলেট রিপোর্ট এনেছে কিন্তু রিসেপশনে পরিষ্কার বোঝা যাচ্ছে না। র‍্যাশ নেই বলেছে।",
+  },
+  {
+    label: "Pregnancy fever",
+    text: "Patient is 26 weeks pregnant with fever since yesterday, burning urination, and lower abdominal discomfort. No bleeding. She looks anxious and has not eaten well.",
+  },
+  {
+    label: "Diabetes follow-up",
+    text: "৬১ বছরের রোগী, ডায়াবেটিস আছে। পায়ে ছোট ক্ষত হয়েছে ৫ দিন আগে, ব্যথা ও লালচে ভাব বাড়ছে। রক্তে সুগার বেশি থাকে। আগের ওষুধের নাম মনে নেই।",
+  },
 ] as const;
 
 export const demoScenarios = [
@@ -44,6 +56,30 @@ export const demoScenarios = [
     age: "8",
     sex: "unknown",
     intake: sampleIntakes[2].text,
+  },
+  {
+    label: "Dengue watch",
+    focus: "Local outbreak-aware missing questions",
+    patientName: "Tanvir Hasan",
+    age: "24",
+    sex: "male",
+    intake: sampleIntakes[3].text,
+  },
+  {
+    label: "Pregnancy fever",
+    focus: "Sensitive escalation with safety language",
+    patientName: "Farzana Islam",
+    age: "31",
+    sex: "female",
+    intake: sampleIntakes[4].text,
+  },
+  {
+    label: "Diabetes wound",
+    focus: "Chronic-care follow-up workflow",
+    patientName: "Anwar Hossain",
+    age: "61",
+    sex: "male",
+    intake: sampleIntakes[5].text,
   },
 ] satisfies DemoScenario[];
 
@@ -77,6 +113,69 @@ export const safetyPrinciples = [
   "No diagnosis claims. No autonomous prescribing.",
   "Patient copy prioritizes plain language and return warnings.",
 ];
+
+export const uiCopy = {
+  en: {
+    appTitle: "AI clinical documentation, built for Bangla-first care.",
+    signOut: "Sign out",
+    mode: "Mode",
+    cases: "Cases",
+    ready: "Ready",
+    judgeMode: "Judge Demo Mode",
+    judgeSubtitle: "One clear story for a 3-minute winning pitch",
+    demoStep1: "Load scenario",
+    demoStep2: "Generate draft",
+    demoStep3: "Review safety",
+    demoStep4: "Print handout",
+    impactTitle: "Impact Snapshot",
+    intakeTitle: "Reception Intake",
+    intakeSubtitle: "Bangla, English, or mixed",
+    patient: "Patient",
+    age: "Age",
+    sex: "Sex",
+    rawIntake: "Raw intake",
+    scripts: "Judge demo scripts",
+    voice: "Voice intake",
+    listening: "Listening...",
+    attach: "Attach prescription/lab text",
+    generate: "Generate Clinical Draft",
+    clinicianReview: "Clinician review required",
+    safetyBanner:
+      "This is draft documentation support only. It does not diagnose, prescribe, or replace clinical judgment.",
+    handoutTitle: "Patient Handout",
+    handoutSubtitle: "Printable clinic slip with safety-net language",
+  },
+  bn: {
+    appTitle: "বাংলা-প্রথম সেবার জন্য AI ক্লিনিক ডকুমেন্টেশন।",
+    signOut: "সাইন আউট",
+    mode: "মোড",
+    cases: "কেস",
+    ready: "প্রস্তুত",
+    judgeMode: "জাজ ডেমো মোড",
+    judgeSubtitle: "৩ মিনিটের শক্তিশালী পিচের জন্য এক পরিষ্কার গল্প",
+    demoStep1: "সিনারিও নিন",
+    demoStep2: "ড্রাফট তৈরি",
+    demoStep3: "সেফটি রিভিউ",
+    demoStep4: "হ্যান্ডআউট প্রিন্ট",
+    impactTitle: "ইমপ্যাক্ট স্ন্যাপশট",
+    intakeTitle: "রিসেপশন ইনটেক",
+    intakeSubtitle: "বাংলা, ইংরেজি বা মিশ্র",
+    patient: "রোগী",
+    age: "বয়স",
+    sex: "লিঙ্গ",
+    rawIntake: "ইনটেক নোট",
+    scripts: "জাজ ডেমো স্ক্রিপ্ট",
+    voice: "ভয়েস ইনটেক",
+    listening: "শোনা হচ্ছে...",
+    attach: "প্রেসক্রিপশন/ল্যাব টেক্সট যোগ করুন",
+    generate: "ক্লিনিক্যাল ড্রাফট তৈরি করুন",
+    clinicianReview: "ক্লিনিশিয়ান রিভিউ প্রয়োজন",
+    safetyBanner:
+      "এটি শুধু ড্রাফট ডকুমেন্টেশন সহায়তা। এটি রোগ নির্ণয়, প্রেসক্রিপশন বা ক্লিনিক্যাল সিদ্ধান্তের বিকল্প নয়।",
+    handoutTitle: "রোগীর হ্যান্ডআউট",
+    handoutSubtitle: "সেফটি নির্দেশনাসহ প্রিন্টযোগ্য ক্লিনিক স্লিপ",
+  },
+} as const;
 
 export const trendLabels = {
   high: "High priority",

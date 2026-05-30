@@ -11,6 +11,7 @@ Clinic Copilot BD is not a diagnosis or prescription engine. It is a clinical wo
 ## Core Demo
 
 - Temporary email/password clinic access
+- Judge demo mode with a 3-minute story rail
 - Reception intake in Bangla or English
 - AI generated chief complaint, timeline, severity, missing questions, and red flags
 - Doctor console with SOAP note, checklist, and safety framing
@@ -19,6 +20,7 @@ Clinic Copilot BD is not a diagnosis or prescription engine. It is a clinical wo
 - Voice intake where browser speech recognition is available
 - Realtime case board powered by Convex
 - Clinic trend dashboard for anonymized severity/follow-up signals
+- Impact snapshot for time saved, missing questions found, and red flags caught
 - Responsive mobile-first interface for clinic desks and phones
 
 ## Stack
@@ -74,6 +76,10 @@ Default seeded login:
 doctor@demo.clinic / demo1234
 ```
 
+The seed command creates six fake Bangladesh-native cases for fever, cardiac
+risk, child dehydration, dengue watch, pregnancy fever, and diabetic wound
+follow-up.
+
 Quality checks:
 
 ```bash
@@ -105,6 +111,7 @@ it with production authentication before handling real users or real patient dat
 5. Run the medicine safety checker.
 6. Move the case to handout or follow-up from the live queue.
 7. Show the anonymized trend dashboard.
+8. Close on the impact snapshot: minutes saved, questions found, red flags caught.
 
 ## Deployment Checklist
 

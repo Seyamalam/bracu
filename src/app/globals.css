@@ -73,3 +73,28 @@ button {
   -webkit-line-clamp: 2;
   overflow: hidden;
 }
+
+@media print {
+  body {
+    background: #ffffff;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  .print-slip,
+  .print-slip * {
+    visibility: visible;
+  }
+
+  .print-slip {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    border: 2px solid #111827;
+    box-shadow: none;
+    font-size: 12pt;
+  }
+}

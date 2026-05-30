@@ -4,7 +4,18 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import type { CopilotOutput } from "../types";
 import { SectionHeading } from "./section-heading";
 
-export function PatientHandout({ output }: { output: CopilotOutput | null }) {
+export function PatientHandout({
+  copy,
+  output,
+}: {
+  copy: {
+    handoutTitle: string;
+    handoutSubtitle: string;
+    clinicianReview: string;
+    safetyBanner: string;
+  };
+  output: CopilotOutput | null;
+}) {
   const handoutText = output
     ? [
         output.patientHandout.title,
@@ -28,15 +39,18 @@ export function PatientHandout({ output }: { output: CopilotOutput | null }) {
       <CardHeader>
         <SectionHeading
           icon={<Printer size={18} aria-hidden="true" />}
-          title="Patient Handout"
-          subtitle="Plain-language Bangla/English"
+          title={copy.handoutTitle}
+          subtitle={copy.handoutSubtitle}
         />
       </CardHeader>
       <CardContent>
         {output ? (
-          <div className="rounded-lg border border-border bg-background p-4">
+          <div className="print-slip rounded-lg border border-border bg-background p-4">
             <div className="flex flex-wrap items-start justify-between gap-3 border-border border-b pb-3">
               <div>
+                <p className="font-semibold text-primary text-sm">
+                  Clinic Copilot BD
+                </p>
                 <p className="font-semibold text-xl">
                   {output.patientHandout.title}
                 </p>
@@ -78,6 +92,9 @@ export function PatientHandout({ output }: { output: CopilotOutput | null }) {
                 title="Urgent return"
                 items={output.patientHandout.urgentReturnWarnings}
               />
+            </div>
+            <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-3 text-amber-950 text-xs leading-5">
+              <strong>{copy.clinicianReview}:</strong> {copy.safetyBanner}
             </div>
           </div>
         ) : (

@@ -1,5 +1,6 @@
 export type Sex = "female" | "male" | "other" | "unknown";
 export type Language = "bn" | "en" | "mixed";
+export type UiLanguage = "en" | "bn";
 export type Severity = "low" | "medium" | "high";
 export type CaseStatus = "waiting" | "review" | "handout" | "followup";
 

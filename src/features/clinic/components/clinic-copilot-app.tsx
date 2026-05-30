@@ -8,20 +8,24 @@ import { api } from "../../../../convex/_generated/api";
 import type { Doc, Id } from "../../../../convex/_generated/dataModel";
 import { AuthScreen } from "../../auth/components/auth-screen";
 import { useDemoAuth } from "../../auth/use-demo-auth";
-import { initialIntake } from "../data";
-import type { CopilotOutput, IntakeFormState } from "../types";
+import { initialIntake, uiCopy } from "../data";
+import type { CopilotOutput, IntakeFormState, UiLanguage } from "../types";
 import { CaseBoard } from "./case-board";
 import { DoctorConsole } from "./doctor-console";
+import { ImpactSnapshot } from "./impact-snapshot";
 import { IntakePanel } from "./intake-panel";
+import { JudgeDemoPanel } from "./judge-demo-panel";
 import { MedicineSafety } from "./medicine-safety";
 import { Metric } from "./metric";
 import { ModelSelector } from "./model-selector";
 import { PatientHandout } from "./patient-handout";
+import { SafetyBanner } from "./safety-banner";
 import { SafetyFrame } from "./safety-frame";
 import { TrendDashboard } from "./trend-dashboard";
 
 export function ClinicCopilotApp() {
   const auth = useDemoAuth();
+  const [uiLanguage, setUiLanguage] = useState<UiLanguage>("en");
   const [form, setForm] = useState<IntakeFormState>(initialIntake);
   const [output, setOutput] = useState<CopilotOutput | null>(null);
   const [selectedCaseId, setSelectedCaseId] = useState<
@@ -35,6 +39,7 @@ export function ClinicCopilotApp() {
   const cases = useQuery(api.cases.listRecent, { userId: auth.user?._id });
   const createCase = useMutation(api.cases.createCase);
   const updateStatus = useMutation(api.cases.updateStatus);
+  const copy = uiCopy[uiLanguage];
 
   const readyScore = useMemo(() => {
     let score = 0;
@@ -143,14 +148,14 @@ export function ClinicCopilotApp() {
                 {currentUser.clinicName}
               </p>
               <h1 className="font-semibold text-2xl tracking-normal sm:text-4xl">
-                AI clinical documentation, built for Bangla-first care.
+                {copy.appTitle}
               </h1>
             </div>
           </div>
           <div className="grid grid-cols-3 gap-2 lg:min-w-96">
-            <Metric label="Cases" value={cases?.length ?? 0} />
-            <Metric label="Ready" value={`${readyScore}%`} />
-            <Metric label="Mode" value={mode === "idle" ? "Demo" : mode} />
+            <Metric label={copy.cases} value={cases?.length ?? 0} />
+            <Metric label={copy.ready} value={`${readyScore}%`} />
+            <Metric label={copy.mode} value={mode === "idle" ? "Demo" : mode} />
           </div>
           <Button
             className="justify-self-start lg:justify-self-end"
@@ -159,14 +164,24 @@ export function ClinicCopilotApp() {
             onClick={auth.logout}
           >
             <LogOut size={17} aria-hidden="true" />
-            Sign out
+            {copy.signOut}
           </Button>
         </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 pt-4 sm:px-6 lg:px-8">
+        <JudgeDemoPanel
+          copy={copy}
+          language={uiLanguage}
+          onLanguageChange={setUiLanguage}
+          onLoadScenario={setForm}
+        />
       </section>
 
       <section className="mx-auto grid max-w-7xl gap-4 px-4 py-4 sm:px-6 lg:grid-cols-[380px_1fr_320px] lg:px-8">
         <aside className="space-y-4">
           <IntakePanel
+            copy={copy}
             form={form}
             error={error}
             isGenerating={isGenerating}
@@ -176,8 +191,10 @@ export function ClinicCopilotApp() {
         </aside>
 
         <section className="space-y-4">
+          <SafetyBanner title={copy.clinicianReview} body={copy.safetyBanner} />
+          <ImpactSnapshot output={displayOutput} title={copy.impactTitle} />
           <DoctorConsole output={displayOutput} />
-          <PatientHandout output={displayOutput} />
+          <PatientHandout copy={copy} output={displayOutput} />
           <MedicineSafety model={selectedModel} output={displayOutput} />
         </section>
 

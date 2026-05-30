@@ -41,12 +41,26 @@ type SpeechWindow = Window &
   };
 
 export function IntakePanel({
+  copy,
   form,
   onChange,
   onGenerate,
   isGenerating,
   error,
 }: {
+  copy: {
+    intakeTitle: string;
+    intakeSubtitle: string;
+    patient: string;
+    age: string;
+    sex: string;
+    rawIntake: string;
+    scripts: string;
+    voice: string;
+    listening: string;
+    attach: string;
+    generate: string;
+  };
   form: IntakeFormState;
   onChange: (nextForm: IntakeFormState) => void;
   onGenerate: () => void;
@@ -107,13 +121,13 @@ export function IntakePanel({
       <CardHeader>
         <SectionHeading
           icon={<Languages size={18} aria-hidden="true" />}
-          title="Reception Intake"
-          subtitle="Bangla, English, or mixed"
+          title={copy.intakeTitle}
+          subtitle={copy.intakeSubtitle}
         />
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 gap-3">
-          <FormField id="patient-name" label="Patient">
+          <FormField id="patient-name" label={copy.patient}>
             <Input
               id="patient-name"
               value={form.patientName}
@@ -122,7 +136,7 @@ export function IntakePanel({
               }
             />
           </FormField>
-          <FormField id="patient-age" label="Age">
+          <FormField id="patient-age" label={copy.age}>
             <Input
               id="patient-age"
               inputMode="numeric"
@@ -133,7 +147,7 @@ export function IntakePanel({
         </div>
 
         <div className="mt-4 rounded-lg bg-[#f7f4ee] p-3">
-          <p className="font-semibold text-sm">Judge demo scripts</p>
+          <p className="font-semibold text-sm">{copy.scripts}</p>
           <div className="mt-2 grid gap-2">
             {demoScenarios.map((scenario) => (
               <Button
@@ -163,7 +177,7 @@ export function IntakePanel({
 
         <fieldset className="mt-3">
           <legend className="font-medium text-muted-foreground text-sm">
-            Sex
+            {copy.sex}
           </legend>
           <div className="mt-1 grid grid-cols-4 gap-2">
             {sexOptions.map((option) => (
@@ -183,7 +197,7 @@ export function IntakePanel({
           </div>
         </fieldset>
 
-        <FormField id="raw-intake" label="Raw intake">
+        <FormField id="raw-intake" label={copy.rawIntake}>
           <Textarea
             id="raw-intake"
             className="min-h-48 resize-none"
@@ -199,10 +213,10 @@ export function IntakePanel({
           onClick={startVoiceIntake}
         >
           <Mic size={17} aria-hidden="true" />
-          {isListening ? "Listening..." : "Voice intake"}
+          {isListening ? copy.listening : copy.voice}
         </Button>
 
-        <Label htmlFor="intake-file">Attach prescription/lab text</Label>
+        <Label htmlFor="intake-file">{copy.attach}</Label>
         <Input
           id="intake-file"
           className="mb-3 mt-1"
@@ -240,7 +254,7 @@ export function IntakePanel({
           ) : (
             <Sparkles size={18} aria-hidden="true" />
           )}
-          Generate Clinical Draft
+          {copy.generate}
         </Button>
         {error ? (
           <p className="mt-3 text-destructive text-sm">{error}</p>

@@ -26,3 +26,13 @@
 - [x] Add model/provider switcher.
 - [x] Add stronger local validation command.
 - [x] Add deployment checklist and demo seed data.
+
+## Hackathon Win Polish
+
+- [x] Add judge demo mode with a 3-minute progress rail.
+- [x] Add visible impact metrics for time saved, missing questions, and red flags.
+- [x] Add clinician-review safety banner and stronger no-diagnosis framing.
+- [x] Add Bangla/English UI toggle for key workflow surfaces.
+- [x] Add polished printable clinic-slip handout styling.
+- [x] Add six-case Bangladesh-native seed board.
+- [ ] Deploy to Vercel/production Convex.
