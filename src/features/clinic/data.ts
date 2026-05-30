@@ -121,6 +121,7 @@ export const safetyPrinciples = [
 ];
 
 export const commandExamples = [
+  "Run the full winning clinic workflow",
   "Run the winning judge demo",
   "Load dengue watch and generate a draft",
   "Switch to Bangla and open presentation mode",
@@ -151,7 +152,7 @@ export const commandPlaybook = [
   },
   {
     label: "Demo",
-    examples: ["run judge demo", "open presentation", "switch to Bangla"],
+    examples: ["full workflow", "run judge demo", "open presentation"],
   },
   {
     label: "AI setup",

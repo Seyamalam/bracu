@@ -283,6 +283,22 @@ export function ClinicCopilotApp() {
     setPresentationMode(true);
   }
 
+  async function runFullClinicWorkflow(
+    scenarioLabel: string = judgeRunScript.scenarioLabel,
+  ) {
+    await runJudgeDemo(scenarioLabel);
+    setFollowUpChannel("whatsapp");
+    setReferralDocumentType("referral");
+    setRiskExplainSignal((signal) => signal + 1);
+    setHandoffSignal((signal) => signal + 1);
+    setReferralComposeSignal((signal) => signal + 1);
+    setFollowUpComposeSignal((signal) => signal + 1);
+    setBriefingSignal((signal) => signal + 1);
+    setLiveMessage(
+      "Full clinic workflow is running: draft, risk, handoff, referral, follow-up, queue briefing, and presentation.",
+    );
+  }
+
   async function editDraftByCommand(instruction: string) {
     if (!displayOutput) {
       setError("Generate or select a draft before editing it.");
@@ -458,6 +474,10 @@ export function ClinicCopilotApp() {
 
       if (action.type === "run_judge_demo") {
         await runJudgeDemo(action.scenarioLabel);
+      }
+
+      if (action.type === "run_full_workflow") {
+        await runFullClinicWorkflow(action.scenarioLabel);
       }
 
       if (action.type === "compose_followup") {
