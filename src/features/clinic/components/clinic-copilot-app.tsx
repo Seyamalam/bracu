@@ -40,6 +40,7 @@ import { NextStepNavigator } from "./next-step-navigator";
 import { PatientHandout } from "./patient-handout";
 import { PatientQuestionAnswer } from "./patient-question-answer";
 import { PresentationMode } from "./presentation-mode";
+import { ReadinessScorecard } from "./readiness-scorecard";
 import { ReferralComposer } from "./referral-composer";
 import { ReplyTriage } from "./reply-triage";
 import { RiskExplainer } from "./risk-explainer";
@@ -1039,6 +1040,11 @@ export function ClinicCopilotApp() {
 
         <aside className="space-y-4">
           <ModelSelector value={selectedModel} onChange={setSelectedModel} />
+          <ReadinessScorecard
+            auditCount={auditLogs?.length ?? 0}
+            cases={cases}
+            output={displayOutput}
+          />
           <CaseBoard
             cases={filteredCases}
             searchQuery={caseSearch}

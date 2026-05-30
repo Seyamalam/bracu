@@ -45,6 +45,38 @@ export const sampleIntakes = [
   },
 ] as const;
 
+export const readinessPillars = [
+  {
+    key: "safety",
+    label: "Safety controls",
+    description: "Human review, red flags, medicine clarity, and audit trail.",
+  },
+  {
+    key: "accessibility",
+    label: "Access for BD clinics",
+    description:
+      "Bangla-first copy, print slips, mobile layout, and low literacy.",
+  },
+  {
+    key: "workflow",
+    label: "Workflow coverage",
+    description: "Intake, draft, handout, follow-up, referral, and closeout.",
+  },
+  {
+    key: "demo",
+    label: "Judge demo proof",
+    description: "Seed cases, impact metrics, presentation mode, and live AI.",
+  },
+] as const;
+
+export const readinessSignals = [
+  "Bilingual handout is generated for clinician review.",
+  "Safety banner and approval guard frame the AI as draft support.",
+  "Six Bangladesh-native seed cases prove the workflow beyond one happy path.",
+  "Audit log records important auth, AI, and case workflow actions.",
+  "Printable clinic slip and mobile layout support real clinic desks.",
+] as const;
+
 export const demoScenarios = [
   {
     label: "Fever desk",

@@ -14,11 +14,15 @@ Clinic Copilot BD is not a diagnosis or prescription engine. It is a clinical wo
 - Judge demo mode with a 3-minute story rail
 - Natural-language Command Copilot for operating the app by typing
 - Current-case AI Q&A assistant
+- Win Readiness scorecard for safety, accessibility, workflow coverage, and judge proof
 - Reception intake in Bangla or English
 - AI generated chief complaint, timeline, severity, missing questions, and red flags
 - Doctor console with SOAP note, checklist, and safety framing
 - Patient handout in Bangla/English with medicine schedule and return warnings
 - Medicine safety clarity checker
+- AI document extraction for prescription, lab, or OCR text
+- AI risk explanation, staff handoff, approval guard, visit closeout, and next-step navigator
+- AI referral, visit summary, patient question answer, reply triage, and follow-up scheduler
 - Voice intake where browser speech recognition is available
 - Realtime case board powered by Convex
 - Clinic trend dashboard for anonymized severity/follow-up signals
@@ -115,7 +119,7 @@ it with production authentication before handling real users or real patient dat
 4. Copy or print the patient handout.
 5. Run the medicine safety checker.
 6. Move the case to handout or follow-up from the live queue.
-7. Show the anonymized trend dashboard.
+7. Show the Win Readiness card, anonymized trend dashboard, and audit log.
 8. Close on the impact snapshot: minutes saved, questions found, red flags caught.
 
 Command Copilot examples:

@@ -40,4 +40,5 @@
 - [x] Add clinician approval action and audit log viewer.
 - [x] Add follow-up due panel.
 - [x] Add presentation mode overlay.
+- [x] Add Win Readiness scorecard for safety, accessibility, workflow, and judge proof.
 - [ ] Deploy to Vercel/production Convex.
