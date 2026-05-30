@@ -9,11 +9,13 @@ import type { CopilotOutput, StaffHandoffOutput } from "../types";
 import { SectionHeading } from "./section-heading";
 
 export function StaffHandoff({
+  commandInstruction,
   handoffSignal,
   model,
   output,
   patientName,
 }: {
+  commandInstruction?: string;
   handoffSignal: number;
   model: string;
   output: CopilotOutput | null;
@@ -49,6 +51,7 @@ export function StaffHandoff({
           redFlags: output.redFlags,
           missingQuestions: output.missingQuestions,
           followUp: followUpText,
+          instruction: commandInstruction,
           model,
         }),
       });
@@ -64,7 +67,7 @@ export function StaffHandoff({
     } finally {
       setIsGenerating(false);
     }
-  }, [followUpText, model, output, patientName]);
+  }, [commandInstruction, followUpText, model, output, patientName]);
 
   useEffect(() => {
     if (handoffSignal > 0) {

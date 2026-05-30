@@ -9,10 +9,12 @@ import type { CopilotOutput, RiskExplanationOutput } from "../types";
 import { SectionHeading } from "./section-heading";
 
 export function RiskExplainer({
+  commandInstruction,
   explainSignal,
   model,
   output,
 }: {
+  commandInstruction?: string;
   explainSignal: number;
   model: string;
   output: CopilotOutput | null;
@@ -40,6 +42,7 @@ export function RiskExplainer({
           severity: output.severity,
           redFlags: output.redFlags,
           missingQuestions: output.missingQuestions,
+          instruction: commandInstruction,
           model,
         }),
       });
@@ -55,7 +58,7 @@ export function RiskExplainer({
     } finally {
       setIsExplaining(false);
     }
-  }, [model, output]);
+  }, [commandInstruction, model, output]);
 
   useEffect(() => {
     if (explainSignal > 0) {

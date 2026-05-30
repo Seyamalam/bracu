@@ -55,10 +55,13 @@ type WorkspaceSnapshot = {
   commandDocumentText?: string;
   commandCaseQuestion?: string;
   commandFollowUpInstruction?: string;
+  commandHandoffInstruction?: string;
   commandMedicines?: string;
   commandPatientQuestion?: string;
   commandPatientReply?: string;
   commandReferralInstruction?: string;
+  commandRiskInstruction?: string;
+  commandNextStepInstruction?: string;
   followUpChannel: "sms" | "whatsapp";
   form: IntakeFormState;
   label: string;
@@ -92,6 +95,9 @@ export function ClinicCopilotApp() {
   const [commandFollowUpInstruction, setCommandFollowUpInstruction] = useState<
     string | undefined
   >();
+  const [commandHandoffInstruction, setCommandHandoffInstruction] = useState<
+    string | undefined
+  >();
   const [commandMedicines, setCommandMedicines] = useState<
     string | undefined
   >();
@@ -102,6 +108,12 @@ export function ClinicCopilotApp() {
     string | undefined
   >();
   const [commandReferralInstruction, setCommandReferralInstruction] = useState<
+    string | undefined
+  >();
+  const [commandRiskInstruction, setCommandRiskInstruction] = useState<
+    string | undefined
+  >();
+  const [commandNextStepInstruction, setCommandNextStepInstruction] = useState<
     string | undefined
   >();
   const [presentationMode, setPresentationMode] = useState(false);
@@ -326,10 +338,13 @@ export function ClinicCopilotApp() {
       commandCaseQuestion,
       commandDocumentText,
       commandFollowUpInstruction,
+      commandHandoffInstruction,
       commandMedicines,
+      commandNextStepInstruction,
       commandPatientQuestion,
       commandPatientReply,
       commandReferralInstruction,
+      commandRiskInstruction,
       followUpChannel,
       form,
       label,
@@ -355,10 +370,13 @@ export function ClinicCopilotApp() {
     setCommandCaseQuestion(snapshot.commandCaseQuestion);
     setCommandDocumentText(snapshot.commandDocumentText);
     setCommandFollowUpInstruction(snapshot.commandFollowUpInstruction);
+    setCommandHandoffInstruction(snapshot.commandHandoffInstruction);
     setCommandMedicines(snapshot.commandMedicines);
+    setCommandNextStepInstruction(snapshot.commandNextStepInstruction);
     setCommandPatientQuestion(snapshot.commandPatientQuestion);
     setCommandPatientReply(snapshot.commandPatientReply);
     setCommandReferralInstruction(snapshot.commandReferralInstruction);
+    setCommandRiskInstruction(snapshot.commandRiskInstruction);
     setFollowUpChannel(snapshot.followUpChannel);
     setForm(snapshot.form);
     setMode(snapshot.mode);
@@ -655,16 +673,19 @@ export function ClinicCopilotApp() {
       }
 
       if (action.type === "explain_risk") {
+        setCommandRiskInstruction(action.instruction);
         setRiskExplainSignal((signal) => signal + 1);
         setLiveMessage("Explaining selected case risk.");
       }
 
       if (action.type === "compose_handoff") {
+        setCommandHandoffInstruction(action.instruction);
         setHandoffSignal((signal) => signal + 1);
         setLiveMessage("Creating staff handoff.");
       }
 
       if (action.type === "plan_next_steps") {
+        setCommandNextStepInstruction(action.instruction);
         setNextStepSignal((signal) => signal + 1);
         setLiveMessage("Planning next steps for the selected case.");
       }
@@ -876,6 +897,7 @@ export function ClinicCopilotApp() {
           <SafetyBanner title={copy.clinicianReview} body={copy.safetyBanner} />
           <ImpactSnapshot output={displayOutput} title={copy.impactTitle} />
           <NextStepNavigator
+            commandInstruction={commandNextStepInstruction}
             model={selectedModel}
             onRunCommand={runSuggestedCommand}
             output={displayOutput}
@@ -896,11 +918,13 @@ export function ClinicCopilotApp() {
             }
           />
           <RiskExplainer
+            commandInstruction={commandRiskInstruction}
             explainSignal={riskExplainSignal}
             model={selectedModel}
             output={displayOutput}
           />
           <StaffHandoff
+            commandInstruction={commandHandoffInstruction}
             handoffSignal={handoffSignal}
             model={selectedModel}
             output={displayOutput}

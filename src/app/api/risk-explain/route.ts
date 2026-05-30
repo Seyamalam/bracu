@@ -23,6 +23,7 @@ export async function POST(request: Request) {
   const missingQuestions = Array.isArray(body.missingQuestions)
     ? body.missingQuestions
     : [];
+  const instruction = String(body.instruction ?? "").trim();
   const requestedModel = String(body.model ?? "env");
 
   if (!caseSummary) {
@@ -58,7 +59,10 @@ Red flags:
 ${redFlags.join("\n") || "None provided"}
 
 Missing questions:
-${missingQuestions.join("\n") || "None provided"}`,
+${missingQuestions.join("\n") || "None provided"}
+
+Operator instruction:
+${instruction || "No extra instruction"}`,
     });
 
     return Response.json({ output: result.output, mode: "live" });

@@ -238,9 +238,9 @@ export type CommandAction =
     }
   | { type: "compose_briefing" }
   | { type: "cleanup_intake" }
-  | { type: "explain_risk" }
-  | { type: "compose_handoff" }
-  | { type: "plan_next_steps" }
+  | { type: "explain_risk"; instruction?: string }
+  | { type: "compose_handoff"; instruction?: string }
+  | { type: "plan_next_steps"; instruction?: string }
   | { type: "extract_document"; documentText?: string }
   | { type: "triage_reply"; replyText?: string }
   | { type: "schedule_followup" }

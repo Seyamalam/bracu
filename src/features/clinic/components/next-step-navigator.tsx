@@ -10,12 +10,14 @@ import { SectionHeading } from "./section-heading";
 import { SuggestedCommandButton } from "./suggested-command-button";
 
 export function NextStepNavigator({
+  commandInstruction,
   model,
   output,
   patientName,
   planSignal,
   onRunCommand,
 }: {
+  commandInstruction?: string;
   model: string;
   onRunCommand: (command: string) => void | Promise<void>;
   output: CopilotOutput | null;
@@ -52,6 +54,7 @@ export function NextStepNavigator({
           redFlags: output.redFlags,
           missingQuestions: output.missingQuestions,
           followUp: followUpText,
+          instruction: commandInstruction,
           model,
         }),
       });
@@ -67,7 +70,7 @@ export function NextStepNavigator({
     } finally {
       setIsPlanning(false);
     }
-  }, [followUpText, model, output, patientName]);
+  }, [commandInstruction, followUpText, model, output, patientName]);
 
   useEffect(() => {
     if (planSignal > 0) {

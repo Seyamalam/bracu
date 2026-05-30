@@ -125,6 +125,15 @@ function actionDetail(action: CommandPlan["actions"][number]) {
       ? `Asks: ${truncateText(action.question)}`
       : "Asks the selected-case assistant.";
   }
+  if (action.type === "explain_risk" && action.instruction) {
+    return `Explains with focus: ${truncateText(action.instruction)}`;
+  }
+  if (action.type === "compose_handoff" && action.instruction) {
+    return `Creates handoff with focus: ${truncateText(action.instruction)}`;
+  }
+  if (action.type === "plan_next_steps" && action.instruction) {
+    return `Plans next steps with focus: ${truncateText(action.instruction)}`;
+  }
   if (action.type === "set_status") {
     return `Moves the selected case to ${action.status}.`;
   }
