@@ -1,36 +1,74 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Clinic Copilot BD
 
-## Getting Started
+AI clinical documentation and patient communication assistant for low-resource clinics in Bangladesh.
 
-First, run the development server:
+This is the hackathon build for CloudCamp's Infinity AI BuildFest: a fast, bilingual clinic workflow that turns Bengali/English intake notes into structured visit summaries, doctor checklists, patient-friendly discharge instructions, and follow-up tasks.
+
+## Product Positioning
+
+Clinic Copilot BD is not a diagnosis or prescription engine. It is a clinical workflow copilot that helps trained clinicians document visits faster, ask better intake questions, communicate clearly with patients, and spot safety red flags.
+
+## Core Demo
+
+- Reception intake in Bangla or English
+- AI generated chief complaint, timeline, severity, missing questions, and red flags
+- Doctor console with SOAP note, checklist, and safety framing
+- Patient handout in Bangla/English with medicine schedule and return warnings
+- Realtime case board powered by Convex
+- Responsive mobile-first interface for clinic desks and phones
+
+## Stack
+
+- Next.js 16 App Router
+- React 19
+- Tailwind CSS 4
+- Convex backend
+- Vercel AI SDK 6
+- Google Gemini provider through `@ai-sdk/google`
+- Biome for linting and formatting
+
+## Environment
+
+Convex is already configured in `.env.local`.
+
+Add a Gemini key for live AI generation:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+GOOGLE_GENERATIVE_AI_API_KEY=your_key_here
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Optional model override:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+GOOGLE_GENERATIVE_AI_MODEL=gemini-2.5-flash
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Without an API key, the app uses a polished demo response so the UI remains fully presentable.
 
-## Learn More
+## Development
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+bun install
+bun run dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+In a second terminal, run Convex when changing backend functions:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npx convex dev
+```
 
-## Deploy on Vercel
+Quality checks:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+bun run lint
+bun run build
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Safety Principles
+
+- AI output is marked as draft clinical documentation.
+- The product avoids diagnosis claims.
+- Clinicians remain responsible for medical decisions.
+- Patient-facing output uses plain language and urgent-return warnings.
+- Demo data should be fake or anonymized.
