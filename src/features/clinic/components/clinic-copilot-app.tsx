@@ -125,6 +125,7 @@ export function ClinicCopilotApp() {
   const [patientQuestionSignal, setPatientQuestionSignal] = useState(0);
   const [approvalCheckSignal, setApprovalCheckSignal] = useState(0);
   const [visitCloseoutSignal, setVisitCloseoutSignal] = useState(0);
+  const [medicineCheckSignal, setMedicineCheckSignal] = useState(0);
 
   const cases = useQuery(api.cases.listRecent, { userId: auth.user?._id });
   const auditLogs = useQuery(
@@ -552,6 +553,7 @@ export function ClinicCopilotApp() {
           action.medicines ??
             "Paracetamol 500mg\nAntibiotic twice daily\nORS as needed",
         );
+        setMedicineCheckSignal((signal) => signal + 1);
       }
 
       if (action.type === "set_status" && selectedCaseId) {
@@ -932,6 +934,7 @@ export function ClinicCopilotApp() {
           />
           <MedicineSafety
             commandMedicines={commandMedicines}
+            medicineCheckSignal={medicineCheckSignal}
             model={selectedModel}
             output={displayOutput}
           />

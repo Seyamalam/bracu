@@ -12,10 +12,12 @@ import { SectionHeading } from "./section-heading";
 
 export function MedicineSafety({
   commandMedicines,
+  medicineCheckSignal,
   model,
   output,
 }: {
   commandMedicines?: string;
+  medicineCheckSignal: number;
   model: string;
   output: CopilotOutput | null;
 }) {
@@ -57,11 +59,14 @@ export function MedicineSafety({
   );
 
   useEffect(() => {
-    if (commandMedicines) {
-      setMedicines(commandMedicines);
-      void checkSafety(commandMedicines);
+    if (medicineCheckSignal > 0) {
+      const nextMedicines =
+        commandMedicines ??
+        "Paracetamol 500mg\nAntibiotic twice daily\nORS as needed";
+      setMedicines(nextMedicines);
+      void checkSafety(nextMedicines);
     }
-  }, [commandMedicines, checkSafety]);
+  }, [checkSafety, commandMedicines, medicineCheckSignal]);
 
   return (
     <Card>
