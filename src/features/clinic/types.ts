@@ -163,6 +163,17 @@ export type FollowUpPlanOutput = {
   suggestedCommands: string[];
 };
 
+export type PatientQuestionOutput = {
+  urgency: Severity;
+  detectedLanguage: Language;
+  plainAnswerBn: string;
+  plainAnswerEn: string;
+  teachBackQuestion: string;
+  redFlagReminder: string[];
+  clinicianReviewNeeded: string[];
+  suggestedCommands: string[];
+};
+
 export type CommandAction =
   | {
       type: "fill_intake";
@@ -200,7 +211,8 @@ export type CommandAction =
   | { type: "plan_next_steps" }
   | { type: "extract_document" }
   | { type: "triage_reply" }
-  | { type: "schedule_followup" };
+  | { type: "schedule_followup" }
+  | { type: "answer_patient_question" };
 
 export type CommandPlan = {
   summary: string;

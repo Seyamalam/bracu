@@ -37,6 +37,7 @@ import { Metric } from "./metric";
 import { ModelSelector } from "./model-selector";
 import { NextStepNavigator } from "./next-step-navigator";
 import { PatientHandout } from "./patient-handout";
+import { PatientQuestionAnswer } from "./patient-question-answer";
 import { PresentationMode } from "./presentation-mode";
 import { ReferralComposer } from "./referral-composer";
 import { ReplyTriage } from "./reply-triage";
@@ -87,6 +88,7 @@ export function ClinicCopilotApp() {
   const [documentExtractSignal, setDocumentExtractSignal] = useState(0);
   const [replyTriageSignal, setReplyTriageSignal] = useState(0);
   const [followUpScheduleSignal, setFollowUpScheduleSignal] = useState(0);
+  const [patientQuestionSignal, setPatientQuestionSignal] = useState(0);
 
   const cases = useQuery(api.cases.listRecent, { userId: auth.user?._id });
   const auditLogs = useQuery(
@@ -303,6 +305,7 @@ export function ClinicCopilotApp() {
     setDocumentExtractSignal((signal) => signal + 1);
     setReplyTriageSignal((signal) => signal + 1);
     setFollowUpScheduleSignal((signal) => signal + 1);
+    setPatientQuestionSignal((signal) => signal + 1);
     setReferralComposeSignal((signal) => signal + 1);
     setFollowUpComposeSignal((signal) => signal + 1);
     setBriefingSignal((signal) => signal + 1);
@@ -547,6 +550,11 @@ export function ClinicCopilotApp() {
         setLiveMessage("Scheduling follow-up callback workflow.");
       }
 
+      if (action.type === "answer_patient_question") {
+        setPatientQuestionSignal((signal) => signal + 1);
+        setLiveMessage("Answering patient question for clinician review.");
+      }
+
       if (action.type === "approve_case") {
         approveSelectedCase();
       }
@@ -716,6 +724,12 @@ export function ClinicCopilotApp() {
           <CaseAssistant model={selectedModel} output={displayOutput} />
           <DoctorConsole output={displayOutput} onSave={saveDraftEdits} />
           <PatientHandout copy={copy} output={displayOutput} />
+          <PatientQuestionAnswer
+            answerSignal={patientQuestionSignal}
+            model={selectedModel}
+            output={displayOutput}
+            patientName={selectedCase?.patientName ?? form.patientName}
+          />
           <FollowUpComposer
             composeSignal={followUpComposeSignal}
             model={selectedModel}

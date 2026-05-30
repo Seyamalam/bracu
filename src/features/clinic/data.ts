@@ -9,6 +9,7 @@ import type {
   IntakeFormState,
   MedicineSafetyOutput,
   NextStepOutput,
+  PatientQuestionOutput,
   PatientReplyTriageOutput,
   ReferralOutput,
   RiskExplanationOutput,
@@ -136,6 +137,7 @@ export const commandExamples = [
   "Schedule follow-up for this patient",
   "Compose a WhatsApp follow-up for this patient",
   "Triage this patient reply",
+  "Answer this patient question in Bangla",
   "Write a referral letter for this patient",
   "Create a visit summary for the family",
   "Brief me on today's clinic queue",
@@ -152,7 +154,7 @@ export const commandExamples = [
 export const commandPlaybook = [
   {
     label: "Operate",
-    examples: ["next steps", "triage reply", "referral", "handoff"],
+    examples: ["answer question", "triage reply", "referral", "handoff"],
   },
   {
     label: "Navigate",
@@ -592,3 +594,31 @@ export const demoFollowUpPlan = {
     "Mark this patient for follow-up",
   ],
 } satisfies FollowUpPlanOutput;
+
+export const demoPatientQuestion =
+  "ডাক্তার দেখানোর আগে আমি কি অ্যান্টিবায়োটিক খেতে পারি?";
+
+export const demoPatientQuestionAnswer = {
+  urgency: "medium",
+  detectedLanguage: "bn",
+  plainAnswerBn:
+    "ডাক্তারের অনুমতি ছাড়া অ্যান্টিবায়োটিক শুরু করবেন না। ভুল অ্যান্টিবায়োটিক বা ভুল মাত্রা ক্ষতি করতে পারে। আপনার বর্তমান লক্ষণ, অ্যালার্জি, গর্ভাবস্থা/অন্যান্য রোগ, এবং আগের ওষুধ দেখে ডাক্তার সিদ্ধান্ত দেবেন।",
+  plainAnswerEn:
+    "Do not start an antibiotic without clinician approval. The wrong antibiotic or dose can be harmful. The clinician should review your symptoms, allergies, pregnancy or other conditions, and current medicines first.",
+  teachBackQuestion:
+    "Can you tell me which danger signs mean you should call or come in urgently?",
+  redFlagReminder: [
+    "Seek urgent care for breathing difficulty, chest pain, fainting, bleeding, very low urine, severe weakness, or worsening symptoms.",
+    "Bring any prescription, lab report, and current medicines to the clinic.",
+  ],
+  clinicianReviewNeeded: [
+    "Medicine changes or antibiotics need clinician approval.",
+    "The answer should be reviewed if the patient is pregnant, a child, elderly, diabetic, or has severe symptoms.",
+  ],
+  suggestedCommands: [
+    "Check medicine safety for the extracted medicines",
+    "Explain why this case is risky",
+    "Create a nurse handoff and receptionist task list",
+    "Schedule follow-up for this patient",
+  ],
+} satisfies PatientQuestionOutput;
