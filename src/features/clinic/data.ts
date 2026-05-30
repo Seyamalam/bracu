@@ -1,4 +1,5 @@
 import type {
+  ClinicBriefingOutput,
   CopilotOutput,
   DemoScenario,
   FollowUpMessageOutput,
@@ -127,6 +128,7 @@ export const commandExamples = [
   "Compose a WhatsApp follow-up for this patient",
   "Write a referral letter for this patient",
   "Create a visit summary for the family",
+  "Brief me on today's clinic queue",
   "Add a bleeding red flag and simplify the Bangla handout",
   "Create a 52 year old male chest pain intake",
   "Check medicine safety for paracetamol 500mg and antibiotic twice daily",
@@ -139,7 +141,7 @@ export const commandPlaybook = [
   },
   {
     label: "Navigate",
-    examples: ["search Farzana", "show high priority", "clear filters"],
+    examples: ["brief queue", "show high priority", "clear filters"],
   },
   {
     label: "Demo",
@@ -352,3 +354,29 @@ export const demoReferralOutput = {
     "Review red flags before sharing this document.",
   ],
 } satisfies ReferralOutput;
+
+export const demoClinicBriefing = {
+  headline: "Clinic queue needs focused review before handout.",
+  riskLevel: "medium",
+  queueSummary:
+    "Demo queue has mixed Bangla-English intakes with several cases needing clinician review, safety-net wording, and follow-up closure.",
+  priorityPatients: [
+    "Review high-priority or pregnancy-related cases before routine handouts.",
+    "Check any case with chest pain, breathing difficulty, bleeding, or dehydration warning signs.",
+  ],
+  followUpActions: [
+    "Queue follow-up messages for patients marked followup.",
+    "Confirm timing and urgent return warnings before sending callbacks.",
+  ],
+  paperworkGaps: [
+    "Create referral paperwork for high-risk presentations.",
+    "Approve edited drafts before printing patient handouts.",
+  ],
+  nextBestActions: [
+    "Start with the highest-priority selected case.",
+    "Generate or refresh missing clinical drafts.",
+    "Run medicine safety checks for unclear prescriptions.",
+  ],
+  judgePitch:
+    "This turns a small clinic queue into an AI-guided operating dashboard: triage, paperwork, follow-up, and safety review from one command box.",
+} satisfies ClinicBriefingOutput;

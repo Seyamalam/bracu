@@ -72,6 +72,17 @@ export type ReferralOutput = {
   clinicianChecklist: string[];
 };
 
+export type ClinicBriefingOutput = {
+  headline: string;
+  riskLevel: Severity;
+  queueSummary: string;
+  priorityPatients: string[];
+  followUpActions: string[];
+  paperworkGaps: string[];
+  nextBestActions: string[];
+  judgePitch: string;
+};
+
 export type CommandAction =
   | {
       type: "fill_intake";
@@ -100,7 +111,8 @@ export type CommandAction =
   | { type: "run_judge_demo"; scenarioLabel?: string }
   | { type: "compose_followup"; channel: "sms" | "whatsapp" }
   | { type: "edit_draft"; instruction: string }
-  | { type: "compose_referral"; documentType: "referral" | "visit_summary" };
+  | { type: "compose_referral"; documentType: "referral" | "visit_summary" }
+  | { type: "compose_briefing" };
 
 export type CommandPlan = {
   summary: string;

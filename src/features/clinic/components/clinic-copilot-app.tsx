@@ -21,6 +21,7 @@ import type {
 import { AuditLogViewer } from "./audit-log-viewer";
 import { CaseAssistant } from "./case-assistant";
 import { CaseBoard } from "./case-board";
+import { ClinicBriefing } from "./clinic-briefing";
 import { CommandCopilot } from "./command-copilot";
 import { DoctorConsole } from "./doctor-console";
 import { FollowUpComposer } from "./follow-up-composer";
@@ -71,6 +72,7 @@ export function ClinicCopilotApp() {
   const [referralDocumentType, setReferralDocumentType] = useState<
     "referral" | "visit_summary"
   >("referral");
+  const [briefingSignal, setBriefingSignal] = useState(0);
 
   const cases = useQuery(api.cases.listRecent, { userId: auth.user?._id });
   const auditLogs = useQuery(
@@ -418,6 +420,11 @@ export function ClinicCopilotApp() {
         setLiveMessage(`Writing ${action.documentType} paperwork.`);
       }
 
+      if (action.type === "compose_briefing") {
+        setBriefingSignal((signal) => signal + 1);
+        setLiveMessage("Briefing the clinic queue.");
+      }
+
       if (action.type === "approve_case") {
         approveSelectedCase();
       }
@@ -595,6 +602,12 @@ export function ClinicCopilotApp() {
           />
           <FollowUpPanel cases={cases} onSelectCase={setSelectedCaseId} />
           <TrendDashboard cases={cases} />
+          <ClinicBriefing
+            briefingSignal={briefingSignal}
+            cases={cases}
+            clinicName={currentUser.clinicName}
+            model={selectedModel}
+          />
           <AuditLogViewer logs={auditLogs} />
           <ShortcutHelp />
           <SafetyFrame />
