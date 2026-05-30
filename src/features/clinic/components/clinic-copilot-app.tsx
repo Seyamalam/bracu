@@ -51,6 +51,7 @@ import { Metric } from "./metric";
 import { ModelSelector } from "./model-selector";
 import { NextStepNavigator } from "./next-step-navigator";
 import { OperationsPulse } from "./operations-pulse";
+import { OverviewQuickActions } from "./overview-quick-actions";
 import { PatientHandout } from "./patient-handout";
 import { PatientQuestionAnswer } from "./patient-question-answer";
 import { PresentationMode } from "./presentation-mode";
@@ -944,6 +945,10 @@ export function ClinicCopilotApp() {
           {activeWorkspacePage === "overview" ? (
             <div className="grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_420px]">
               <div className="space-y-4">
+                <OverviewQuickActions
+                  onOpenPage={setActiveWorkspacePage}
+                  onStartGuidedWorkflow={() => void runGuidedWorkflow()}
+                />
                 <CommandCopilot
                   ref={commandInputRef}
                   history={commandHistory}

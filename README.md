@@ -41,6 +41,32 @@ Clinic Copilot BD is not a diagnosis or prescription engine. It is a clinical wo
 - Full-screen presentation mode
 - Responsive mobile-first interface for clinic desks and phones
 
+## Product Screenshots
+
+### Overview workspace
+
+![Clinic Copilot BD overview workspace](public/screenshots/clinic-workspace-overview.png)
+
+### Clinical review workspace
+
+![Clinic Copilot BD clinical review workspace](public/screenshots/clinic-workspace-review.png)
+
+### Operations workspace
+
+![Clinic Copilot BD operations workspace](public/screenshots/clinic-workspace-ops.png)
+
+### Patient communication workspace
+
+![Clinic Copilot BD patient communication workspace](public/screenshots/clinic-workspace-patient.png)
+
+### Intake workspace
+
+![Clinic Copilot BD intake workspace](public/screenshots/clinic-workspace-intake.png)
+
+### Public pitch page
+
+![Clinic Copilot BD public pitch page](public/screenshots/public-pitch-page.png)
+
 ## Stack
 
 - Next.js 16 App Router

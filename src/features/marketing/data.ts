@@ -360,6 +360,27 @@ export const productShots = [
   },
 ] as const;
 
+export const productScreenshots = [
+  {
+    body: "The first authenticated screen gives staff a clear guided-workflow start and quick jumps into intake, review, and operations.",
+    image: "/screenshots/clinic-workspace-overview.png",
+    label: "Overview",
+    title: "Start the clinic workflow from one obvious command center.",
+  },
+  {
+    body: "The review workspace keeps risk rationale, staff handoff, case Q&A, doctor notes, approval checks, and closeout work together.",
+    image: "/screenshots/clinic-workspace-review.png",
+    label: "Clinical review",
+    title: "Clinician review is a focused workspace, not a scroll target.",
+  },
+  {
+    body: "The operations workspace shows model settings, accessibility controls, readiness, live queue, follow-up, trends, briefing, and audit trail.",
+    image: "/screenshots/clinic-workspace-ops.png",
+    label: "Operations",
+    title: "The clinic can see the whole day in one operational view.",
+  },
+] as const;
+
 export const pitchDifferentiators = [
   {
     icon: Laptop,

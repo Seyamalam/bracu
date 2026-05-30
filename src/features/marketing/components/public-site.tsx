@@ -20,6 +20,7 @@ import {
   pitchBeats,
   pitchDifferentiators,
   pitchScorecards,
+  productScreenshots,
   productShots,
   proofStats,
   publicNav,
@@ -103,7 +104,7 @@ function HomePage({ authSlot }: { authSlot?: React.ReactNode }) {
         <div className="relative mx-auto grid min-h-[calc(100svh-120px)] max-w-7xl content-center gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[1.05fr_0.75fr] lg:px-8">
           <div className="max-w-3xl">
             <p className="font-semibold text-[#f2c14e] text-sm uppercase tracking-[0.16em]">
-              Built for CloudCamp Infinity AI BuildFest
+              Built for Bangla-first clinic teams
             </p>
             <h1 className="mt-4 max-w-4xl font-black text-4xl leading-[1.02] tracking-normal sm:text-6xl lg:text-7xl">
               The AI clinic cockpit for Bangla-first care.
@@ -206,6 +207,7 @@ function PitchPage() {
         title="A real product story in one clinic workflow."
         body="The demo starts with a locally relevant case and ends with a safer handoff, printable instruction, and operational proof."
       />
+      <ProductScreenshotBand />
       <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid gap-4 md:grid-cols-2">
           {pitchBeats.map((beat, index) => (
@@ -578,6 +580,58 @@ function ProductImageBand() {
       title="Dense enough for staff. Clear enough for review."
       body="The authenticated app combines queue pressure, visit progress, safety review, handout, teach-back, referral, follow-up, and audit surfaces in one operational workspace."
     />
+  );
+}
+
+function ProductScreenshotBand() {
+  return (
+    <section className="bg-white">
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="font-semibold text-primary text-sm uppercase tracking-[0.16em]">
+              Real product screens
+            </p>
+            <h2 className="mt-3 max-w-4xl font-black text-3xl tracking-normal sm:text-5xl">
+              Screenshots from the working app, not mockups.
+            </h2>
+          </div>
+          <Button asChild variant="outline">
+            <Link href="/login">
+              Open demo
+              <ArrowRight size={17} aria-hidden="true" />
+            </Link>
+          </Button>
+        </div>
+        <div className="mt-8 grid gap-6">
+          {productScreenshots.map((shot) => (
+            <article
+              className="border border-border bg-[#fbfaf6]"
+              key={shot.title}
+            >
+              <div className="relative aspect-[16/9] border-border border-b bg-white">
+                <Image
+                  alt={`${shot.label} workspace screenshot`}
+                  className="object-cover"
+                  fill
+                  sizes="(min-width: 1024px) 1152px, 100vw"
+                  src={shot.image}
+                />
+              </div>
+              <div className="p-5">
+                <p className="font-semibold text-primary text-sm uppercase tracking-[0.14em]">
+                  {shot.label}
+                </p>
+                <h3 className="mt-2 font-bold text-2xl">{shot.title}</h3>
+                <p className="mt-2 text-muted-foreground leading-7">
+                  {shot.body}
+                </p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
 
