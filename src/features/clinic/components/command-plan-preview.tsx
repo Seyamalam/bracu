@@ -72,6 +72,7 @@ function describeAction(type: string) {
   const labels: Record<string, string> = {
     answer_patient_question: "Answer patient question",
     approve_case: "Save clinician approval",
+    ask_case_assistant: "Ask case assistant",
     check_approval_readiness: "Check approval readiness",
     check_medicine: "Check medicine safety",
     cleanup_intake: "Clean intake",
@@ -118,6 +119,11 @@ function actionDetail(action: CommandPlan["actions"][number]) {
     return action.medicines
       ? `Checks: ${action.medicines}`
       : "Uses the current or demo medicine list.";
+  }
+  if (action.type === "ask_case_assistant") {
+    return action.question
+      ? `Asks: ${truncateText(action.question)}`
+      : "Asks the selected-case assistant.";
   }
   if (action.type === "set_status") {
     return `Moves the selected case to ${action.status}.`;

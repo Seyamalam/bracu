@@ -1,7 +1,7 @@
 "use client";
 
 import { MessageSquareText } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -16,9 +16,13 @@ const suggestions = [
 ];
 
 export function CaseAssistant({
+  askSignal,
+  commandQuestion,
   model,
   output,
 }: {
+  askSignal: number;
+  commandQuestion?: string;
   model: string;
   output: CopilotOutput | null;
 }) {
@@ -27,31 +31,49 @@ export function CaseAssistant({
   const [isAsking, setIsAsking] = useState(false);
   const [error, setError] = useState("");
 
-  async function ask() {
-    setIsAsking(true);
-    setError("");
-    try {
-      const response = await fetch("/api/case-assistant", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          question,
-          model,
-          caseSummary: output?.summary,
-          patientHandout: output?.patientHandout.plainSummary,
-        }),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error ?? "Assistant failed.");
+  const ask = useCallback(
+    async (questionOverride?: string) => {
+      const nextQuestion = (questionOverride ?? question).trim();
+      if (nextQuestion.length < 3) {
+        setError("Ask a question about the selected case.");
+        return;
       }
-      setAnswer(data.answer as string);
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Assistant failed.");
-    } finally {
-      setIsAsking(false);
+
+      setQuestion(nextQuestion);
+      setIsAsking(true);
+      setError("");
+      try {
+        const response = await fetch("/api/case-assistant", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            question: nextQuestion,
+            model,
+            caseSummary: output?.summary,
+            patientHandout: output?.patientHandout.plainSummary,
+          }),
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error ?? "Assistant failed.");
+        }
+        setAnswer(data.answer as string);
+      } catch (caught) {
+        setError(
+          caught instanceof Error ? caught.message : "Assistant failed.",
+        );
+      } finally {
+        setIsAsking(false);
+      }
+    },
+    [model, output, question],
+  );
+
+  useEffect(() => {
+    if (askSignal > 0) {
+      void ask(commandQuestion);
     }
-  }
+  }, [ask, askSignal, commandQuestion]);
 
   return (
     <Card>
@@ -74,7 +96,7 @@ export function CaseAssistant({
               }
             }}
           />
-          <Button type="button" disabled={isAsking} onClick={ask}>
+          <Button type="button" disabled={isAsking} onClick={() => void ask()}>
             Ask
           </Button>
         </div>

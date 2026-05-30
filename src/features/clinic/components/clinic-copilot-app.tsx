@@ -53,6 +53,7 @@ import { VisitCloseout } from "./visit-closeout";
 type WorkspaceSnapshot = {
   caseSearch: string;
   commandDocumentText?: string;
+  commandCaseQuestion?: string;
   commandFollowUpInstruction?: string;
   commandMedicines?: string;
   commandPatientQuestion?: string;
@@ -83,6 +84,9 @@ export function ClinicCopilotApp() {
   >();
   const [selectedModel, setSelectedModel] = useState("gemini-2.5-flash");
   const [commandDocumentText, setCommandDocumentText] = useState<
+    string | undefined
+  >();
+  const [commandCaseQuestion, setCommandCaseQuestion] = useState<
     string | undefined
   >();
   const [commandFollowUpInstruction, setCommandFollowUpInstruction] = useState<
@@ -134,6 +138,7 @@ export function ClinicCopilotApp() {
   const [approvalCheckSignal, setApprovalCheckSignal] = useState(0);
   const [visitCloseoutSignal, setVisitCloseoutSignal] = useState(0);
   const [medicineCheckSignal, setMedicineCheckSignal] = useState(0);
+  const [caseAssistantAskSignal, setCaseAssistantAskSignal] = useState(0);
 
   const cases = useQuery(api.cases.listRecent, { userId: auth.user?._id });
   const auditLogs = useQuery(
@@ -318,6 +323,7 @@ export function ClinicCopilotApp() {
   function captureWorkspaceSnapshot(label: string): WorkspaceSnapshot {
     return {
       caseSearch,
+      commandCaseQuestion,
       commandDocumentText,
       commandFollowUpInstruction,
       commandMedicines,
@@ -346,6 +352,7 @@ export function ClinicCopilotApp() {
 
   function restoreSnapshot(snapshot: WorkspaceSnapshot) {
     setCaseSearch(snapshot.caseSearch);
+    setCommandCaseQuestion(snapshot.commandCaseQuestion);
     setCommandDocumentText(snapshot.commandDocumentText);
     setCommandFollowUpInstruction(snapshot.commandFollowUpInstruction);
     setCommandMedicines(snapshot.commandMedicines);
@@ -612,6 +619,12 @@ export function ClinicCopilotApp() {
 
       if (action.type === "run_full_workflow") {
         await runFullClinicWorkflow(action.scenarioLabel);
+      }
+
+      if (action.type === "ask_case_assistant") {
+        setCommandCaseQuestion(action.question);
+        setCaseAssistantAskSignal((signal) => signal + 1);
+        setLiveMessage("Asking the case assistant.");
       }
 
       if (action.type === "compose_followup") {
@@ -906,7 +919,12 @@ export function ClinicCopilotApp() {
             output={displayOutput}
             patientName={selectedCase?.patientName ?? form.patientName}
           />
-          <CaseAssistant model={selectedModel} output={displayOutput} />
+          <CaseAssistant
+            askSignal={caseAssistantAskSignal}
+            commandQuestion={commandCaseQuestion}
+            model={selectedModel}
+            output={displayOutput}
+          />
           <DoctorConsole output={displayOutput} onSave={saveDraftEdits} />
           <PatientHandout copy={copy} output={displayOutput} />
           <PatientQuestionAnswer

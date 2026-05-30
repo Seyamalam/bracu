@@ -224,6 +224,7 @@ export type CommandAction =
   | { type: "reset_workspace"; scope: "filters" | "intake" | "all" }
   | { type: "run_judge_demo"; scenarioLabel?: string }
   | { type: "run_full_workflow"; scenarioLabel?: string }
+  | { type: "ask_case_assistant"; question?: string }
   | {
       type: "compose_followup";
       channel: "sms" | "whatsapp";
