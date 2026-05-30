@@ -42,6 +42,7 @@ import { MedicineSafety } from "./medicine-safety";
 import { Metric } from "./metric";
 import { ModelSelector } from "./model-selector";
 import { NextStepNavigator } from "./next-step-navigator";
+import { OperationsPulse } from "./operations-pulse";
 import { PatientHandout } from "./patient-handout";
 import { PatientQuestionAnswer } from "./patient-question-answer";
 import { PresentationMode } from "./presentation-mode";
@@ -1075,6 +1076,7 @@ export function ClinicCopilotApp() {
             cases={cases}
             output={displayOutput}
           />
+          <OperationsPulse cases={cases} />
           <CaseBoard
             cases={filteredCases}
             searchQuery={caseSearch}

@@ -44,4 +44,5 @@
 - [x] Add Clinic Display accessibility controls for large text, high contrast, and calm motion.
 - [x] Add patient teach-back checklist before discharge.
 - [x] Add Visit Journey progress rail from intake through follow-up.
+- [x] Add Operations Pulse for queue pressure and staffing focus.
 - [ ] Deploy to Vercel/production Convex.

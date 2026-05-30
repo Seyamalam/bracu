@@ -155,6 +155,24 @@ export const visitJourneyCopy = {
   ],
 } as const;
 
+export const operationsPulseCopy = {
+  title: "Operations Pulse",
+  subtitle: "Queue pressure and staffing focus",
+  pressure: {
+    low: "Steady",
+    medium: "Busy",
+    high: "Strained",
+  },
+  metrics: {
+    review: "Needs review",
+    followup: "Follow-up",
+    bangla: "Bangla/mixed",
+    redFlags: "Red flags",
+  },
+  focusTitle: "Staffing focus",
+  empty: "Seed or generate cases to see clinic pressure.",
+} as const;
+
 export const demoScenarios = [
   {
     label: "Fever desk",
