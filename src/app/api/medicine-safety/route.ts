@@ -1,7 +1,7 @@
 import { google } from "@ai-sdk/google";
 import { generateText, Output } from "ai";
 import { z } from "zod";
-import { demoMedicineSafetyOutput } from "@/features/clinic/data";
+import { demoMedicineSafetyOutput, modelOptions } from "@/features/clinic/data";
 
 export const runtime = "nodejs";
 
@@ -16,6 +16,7 @@ export async function POST(request: Request) {
   const body = await request.json();
   const medicines = String(body.medicines ?? "").trim();
   const caseSummary = String(body.caseSummary ?? "").trim();
+  const requestedModel = String(body.model ?? "env");
 
   if (medicines.length < 3) {
     return Response.json(
@@ -28,7 +29,12 @@ export async function POST(request: Request) {
     return Response.json({ output: demoMedicineSafetyOutput, mode: "demo" });
   }
 
-  const model = process.env.GOOGLE_GENERATIVE_AI_MODEL ?? "gemini-2.5-flash";
+  const allowedModels = modelOptions.map((option) => option.value);
+  const model =
+    requestedModel !== "env" &&
+    (allowedModels as readonly string[]).includes(requestedModel)
+      ? requestedModel
+      : (process.env.GOOGLE_GENERATIVE_AI_MODEL ?? "gemini-2.5-flash");
   const result = await generateText({
     model: google(model),
     output: Output.object({ schema: medicineSafetySchema }),

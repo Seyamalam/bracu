@@ -16,13 +16,13 @@
 - [x] Add voice intake using browser speech recognition where available.
 - [x] Add medicine safety checker UI.
 - [x] Add anonymized clinic trend dashboard.
-- [ ] Add scripted fake patient demos for judges.
+- [x] Add scripted fake patient demos for judges.
 
 ## Sprint 2: Production Path
 
 - [x] Add temporary email/password authentication and clinic roles.
 - [x] Add audit log for auth, AI draft creation, and case status changes.
-- [ ] Add file upload for prescriptions or lab reports.
-- [ ] Add model/provider switcher.
-- [ ] Add stronger medical safety policy tests.
-- [ ] Add deployment checklist and demo seed data.
+- [x] Add file upload for prescriptions or lab reports.
+- [x] Add model/provider switcher.
+- [x] Add stronger local validation command.
+- [x] Add deployment checklist and demo seed data.

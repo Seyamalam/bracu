@@ -37,6 +37,11 @@ export type IntakeFormState = {
   intake: string;
 };
 
+export type DemoScenario = IntakeFormState & {
+  label: string;
+  focus: string;
+};
+
 export type MedicineSafetyOutput = {
   riskLevel: Severity;
   issues: string[];

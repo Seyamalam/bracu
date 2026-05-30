@@ -1,7 +1,7 @@
 import { google } from "@ai-sdk/google";
 import { generateText, Output } from "ai";
 import { z } from "zod";
-import { demoCopilotOutput } from "@/features/clinic/data";
+import { demoCopilotOutput, modelOptions } from "@/features/clinic/data";
 
 export const runtime = "nodejs";
 
@@ -38,6 +38,7 @@ export async function POST(request: Request) {
   const patientName = String(body.patientName ?? "Patient").trim();
   const age = Number(body.age ?? 0);
   const sex = String(body.sex ?? "unknown");
+  const requestedModel = String(body.model ?? "env");
 
   if (intake.length < 12) {
     return Response.json(
@@ -50,7 +51,12 @@ export async function POST(request: Request) {
     return Response.json({ output: demoCopilotOutput, mode: "demo" });
   }
 
-  const model = process.env.GOOGLE_GENERATIVE_AI_MODEL ?? "gemini-2.5-flash";
+  const allowedModels = modelOptions.map((option) => option.value);
+  const model =
+    requestedModel !== "env" &&
+    (allowedModels as readonly string[]).includes(requestedModel)
+      ? requestedModel
+      : (process.env.GOOGLE_GENERATIVE_AI_MODEL ?? "gemini-2.5-flash");
   const result = await generateText({
     model: google(model),
     output: Output.object({ schema: copilotSchema }),

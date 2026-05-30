@@ -1,4 +1,9 @@
-import type { CopilotOutput, MedicineSafetyOutput } from "./types";
+import type {
+  CopilotOutput,
+  DemoScenario,
+  IntakeFormState,
+  MedicineSafetyOutput,
+} from "./types";
 
 export const sampleIntakes = [
   {
@@ -15,12 +20,57 @@ export const sampleIntakes = [
   },
 ] as const;
 
+export const demoScenarios = [
+  {
+    label: "Fever desk",
+    focus: "Fast Bangla fever triage",
+    patientName: "Nusrat Akter",
+    age: "29",
+    sex: "female",
+    intake: sampleIntakes[0].text,
+  },
+  {
+    label: "Cardiac risk",
+    focus: "High-priority red-flag escalation",
+    patientName: "Md. Rahman",
+    age: "52",
+    sex: "male",
+    intake: sampleIntakes[1].text,
+  },
+  {
+    label: "Child hydration",
+    focus: "Parent-friendly Bangla handout",
+    patientName: "Ayaan",
+    age: "8",
+    sex: "unknown",
+    intake: sampleIntakes[2].text,
+  },
+] satisfies DemoScenario[];
+
 export const initialIntake = {
-  patientName: "Nusrat Akter",
-  age: "29",
-  sex: "female",
-  intake: sampleIntakes[0].text,
-} as const;
+  patientName: demoScenarios[0].patientName,
+  age: demoScenarios[0].age,
+  sex: demoScenarios[0].sex,
+  intake: demoScenarios[0].intake,
+} satisfies IntakeFormState;
+
+export const modelOptions = [
+  {
+    label: "Gemini 2.5 Flash",
+    value: "gemini-2.5-flash",
+    description: "Best live-demo balance",
+  },
+  {
+    label: "Gemini 2.5 Flash Lite",
+    value: "gemini-2.5-flash-lite",
+    description: "Fastest low-cost mode",
+  },
+  {
+    label: "Environment default",
+    value: "env",
+    description: "Use server configuration",
+  },
+] as const;
 
 export const safetyPrinciples = [
   "AI drafts notes. Doctors decide care.",

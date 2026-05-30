@@ -10,7 +10,13 @@ import { Textarea } from "@/components/ui/textarea";
 import type { CopilotOutput, MedicineSafetyOutput } from "../types";
 import { SectionHeading } from "./section-heading";
 
-export function MedicineSafety({ output }: { output: CopilotOutput | null }) {
+export function MedicineSafety({
+  model,
+  output,
+}: {
+  model: string;
+  output: CopilotOutput | null;
+}) {
   const [medicines, setMedicines] = useState(
     "Paracetamol 500mg\nAntihistamine at night\nORS as needed",
   );
@@ -28,6 +34,7 @@ export function MedicineSafety({ output }: { output: CopilotOutput | null }) {
         body: JSON.stringify({
           medicines,
           caseSummary: output?.summary ?? "",
+          model,
         }),
       });
       const data = await response.json();

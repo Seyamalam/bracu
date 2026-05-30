@@ -15,6 +15,7 @@ import { DoctorConsole } from "./doctor-console";
 import { IntakePanel } from "./intake-panel";
 import { MedicineSafety } from "./medicine-safety";
 import { Metric } from "./metric";
+import { ModelSelector } from "./model-selector";
 import { PatientHandout } from "./patient-handout";
 import { SafetyFrame } from "./safety-frame";
 import { TrendDashboard } from "./trend-dashboard";
@@ -26,6 +27,7 @@ export function ClinicCopilotApp() {
   const [selectedCaseId, setSelectedCaseId] = useState<
     Id<"cases"> | undefined
   >();
+  const [selectedModel, setSelectedModel] = useState("gemini-2.5-flash");
   const [mode, setMode] = useState<"idle" | "demo" | "live">("idle");
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState("");
@@ -82,6 +84,7 @@ export function ClinicCopilotApp() {
           age: Number(form.age),
           sex: form.sex,
           intake: form.intake,
+          model: selectedModel,
         }),
       });
 
@@ -175,10 +178,11 @@ export function ClinicCopilotApp() {
         <section className="space-y-4">
           <DoctorConsole output={displayOutput} />
           <PatientHandout output={displayOutput} />
-          <MedicineSafety output={displayOutput} />
+          <MedicineSafety model={selectedModel} output={displayOutput} />
         </section>
 
         <aside className="space-y-4">
+          <ModelSelector value={selectedModel} onChange={setSelectedModel} />
           <CaseBoard
             cases={cases}
             selectedCaseId={selectedCaseId}

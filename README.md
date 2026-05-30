@@ -62,11 +62,24 @@ In a second terminal, run Convex when changing backend functions:
 npx convex dev
 ```
 
+Seed a judge-friendly demo account:
+
+```bash
+bunx convex run seed:demo
+```
+
+Default seeded login:
+
+```txt
+doctor@demo.clinic / demo1234
+```
+
 Quality checks:
 
 ```bash
 bun run lint
 bun run build
+bun run validate
 ```
 
 ## Safety Principles
@@ -82,3 +95,22 @@ bun run build
 The current hackathon build uses a deliberately simple email/password flow stored
 in Convex. This is only for demo gating and per-user workspace separation. Replace
 it with production authentication before handling real users or real patient data.
+
+## Demo Checklist
+
+1. Create a temporary clinic account.
+2. Pick a judge demo script from the intake panel.
+3. Generate the clinical draft and review red flags.
+4. Copy or print the patient handout.
+5. Run the medicine safety checker.
+6. Move the case to handout or follow-up from the live queue.
+7. Show the anonymized trend dashboard.
+
+## Deployment Checklist
+
+- Set `NEXT_PUBLIC_CONVEX_URL` for the deployed Convex project.
+- Set `GOOGLE_GENERATIVE_AI_API_KEY` in the hosting provider and Convex env.
+- Run `bunx convex deploy` for production Convex functions.
+- Optionally run `bunx convex run seed:demo` before the judging session.
+- Run `bun run validate` before creating the final demo build.
+- Replace temporary password auth before any real-world pilot.

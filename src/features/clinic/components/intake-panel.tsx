@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { sampleIntakes } from "../data";
+import { demoScenarios, sampleIntakes } from "../data";
 import type { IntakeFormState, Sex } from "../types";
 import { SectionHeading } from "./section-heading";
 
@@ -84,6 +84,24 @@ export function IntakePanel({
     recognition.start();
   }
 
+  async function attachFile(file: File | undefined) {
+    if (!file) {
+      return;
+    }
+
+    if (file.type.startsWith("text/") || file.name.endsWith(".txt")) {
+      const text = await file.text();
+      updateForm({
+        intake: `${form.intake}\n\nAttached ${file.name}:\n${text.slice(0, 2500)}`,
+      });
+      return;
+    }
+
+    updateForm({
+      intake: `${form.intake}\n\nAttached file for clinician review: ${file.name} (${file.type || "unknown type"}).`,
+    });
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -112,6 +130,35 @@ export function IntakePanel({
               onChange={(event) => updateForm({ age: event.target.value })}
             />
           </FormField>
+        </div>
+
+        <div className="mt-4 rounded-lg bg-[#f7f4ee] p-3">
+          <p className="font-semibold text-sm">Judge demo scripts</p>
+          <div className="mt-2 grid gap-2">
+            {demoScenarios.map((scenario) => (
+              <Button
+                className="h-auto justify-start px-3 py-2 text-left"
+                key={scenario.label}
+                type="button"
+                variant="outline"
+                onClick={() =>
+                  onChange({
+                    patientName: scenario.patientName,
+                    age: scenario.age,
+                    sex: scenario.sex,
+                    intake: scenario.intake,
+                  })
+                }
+              >
+                <span>
+                  <span className="block font-semibold">{scenario.label}</span>
+                  <span className="block text-muted-foreground text-xs">
+                    {scenario.focus}
+                  </span>
+                </span>
+              </Button>
+            ))}
+          </div>
         </div>
 
         <fieldset className="mt-3">
@@ -154,6 +201,18 @@ export function IntakePanel({
           <Mic size={17} aria-hidden="true" />
           {isListening ? "Listening..." : "Voice intake"}
         </Button>
+
+        <Label htmlFor="intake-file">Attach prescription/lab text</Label>
+        <Input
+          id="intake-file"
+          className="mb-3 mt-1"
+          type="file"
+          accept=".txt,.md,text/*,image/*,.pdf"
+          onChange={(event) => {
+            void attachFile(event.target.files?.[0]);
+            event.currentTarget.value = "";
+          }}
+        />
 
         <div className="grid grid-cols-3 gap-2">
           {sampleIntakes.map((sample) => (
