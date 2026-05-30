@@ -91,6 +91,7 @@ const commandPlanSchema = z.object({
       z.object({ type: z.literal("triage_reply") }),
       z.object({ type: z.literal("schedule_followup") }),
       z.object({ type: z.literal("answer_patient_question") }),
+      z.object({ type: z.literal("check_approval_readiness") }),
     ]),
   ),
 });
@@ -124,7 +125,7 @@ export async function POST(request: Request) {
       output: Output.object({ schema: commandPlanSchema }),
       temperature: 0,
       system:
-        "You translate natural-language clinic operator commands into safe UI actions for Clinic Copilot BD. Only use these exact action type strings: fill_intake, load_scenario, generate_draft, check_medicine, set_status, approve_case, switch_language, print_handout, presentation_mode, search_cases, filter_cases, select_case, set_model, reset_workspace, run_judge_demo, run_full_workflow, compose_followup, edit_draft, compose_referral, compose_briefing, cleanup_intake, explain_risk, compose_handoff, plan_next_steps, extract_document, triage_reply, schedule_followup, answer_patient_question. For Bangla use switch_language with language bn. For scenarios use load_scenario with scenarioLabel. For a request to run everything, full workflow, full clinic workflow, complete workflow, winning clinic workflow, or end-to-end demo, use run_full_workflow. For a request to run only a judge demo, winning demo, or pitch flow, use run_judge_demo. For SMS, WhatsApp, callback, or patient follow-up message requests use compose_followup. For schedule follow-up, plan callback, callback schedule, reminder plan, close the loop, follow-up plan, or due follow-up workflow requests use schedule_followup. For patient question, family question, answer patient, explain to patient, can I take, can patient take, or medicine question requests use answer_patient_question. For patient reply, incoming WhatsApp reply, response from patient, triage reply, callback reply, or follow-up response requests use triage_reply. For referral letter, referral note, paperwork, family visit summary, or visit summary requests use compose_referral. For staff handoff, nurse handoff, doctor handoff, receptionist tasks, team task list, handover tasks, shift handoff, or workflow assignment requests use compose_handoff. For next steps for the selected case, what should I do next for this patient, recommended commands, command suggestions, action plan for this case, or guide me through this case use plan_next_steps. For lab report, prescription, attached document, OCR, photo text, extract report, extract prescription, medicine list from document, or parse document requests use extract_document. For clinic briefing, queue briefing, daily summary, today's clinic, priorities, or operational summary requests use compose_briefing. For messy notes, clean intake, extract vitals, normalize intake, or receptionist cleanup requests use cleanup_intake. For explain risk, why high/medium/low priority, safety rationale, evidence, uncertainty, or why this is risky requests use explain_risk. For commands that ask to change, rewrite, simplify, add, remove, improve, or edit the selected generated clinical note or handout, use edit_draft with the original command as instruction. Never use language_switch, scenario_name, set_ui_mode, diagnosis, or prescribe actions. Keep the summary short.",
+        "You translate natural-language clinic operator commands into safe UI actions for Clinic Copilot BD. Only use these exact action type strings: fill_intake, load_scenario, generate_draft, check_medicine, set_status, approve_case, switch_language, print_handout, presentation_mode, search_cases, filter_cases, select_case, set_model, reset_workspace, run_judge_demo, run_full_workflow, compose_followup, edit_draft, compose_referral, compose_briefing, cleanup_intake, explain_risk, compose_handoff, plan_next_steps, extract_document, triage_reply, schedule_followup, answer_patient_question, check_approval_readiness. For Bangla use switch_language with language bn. For scenarios use load_scenario with scenarioLabel. For a request to run everything, full workflow, full clinic workflow, complete workflow, winning clinic workflow, or end-to-end demo, use run_full_workflow. For a request to run only a judge demo, winning demo, or pitch flow, use run_judge_demo. For approval readiness, ready to approve, safe to approve, signoff check, approval check, ready to print, or before approve requests use check_approval_readiness. For SMS, WhatsApp, callback, or patient follow-up message requests use compose_followup. For schedule follow-up, plan callback, callback schedule, reminder plan, close the loop, follow-up plan, or due follow-up workflow requests use schedule_followup. For patient question, family question, answer patient, explain to patient, can I take, can patient take, or medicine question requests use answer_patient_question. For patient reply, incoming WhatsApp reply, response from patient, triage reply, callback reply, or follow-up response requests use triage_reply. For referral letter, referral note, paperwork, family visit summary, or visit summary requests use compose_referral. For staff handoff, nurse handoff, doctor handoff, receptionist tasks, team task list, handover tasks, shift handoff, or workflow assignment requests use compose_handoff. For next steps for the selected case, what should I do next for this patient, recommended commands, command suggestions, action plan for this case, or guide me through this case use plan_next_steps. For lab report, prescription, attached document, OCR, photo text, extract report, extract prescription, medicine list from document, or parse document requests use extract_document. For clinic briefing, queue briefing, daily summary, today's clinic, priorities, or operational summary requests use compose_briefing. For messy notes, clean intake, extract vitals, normalize intake, or receptionist cleanup requests use cleanup_intake. For explain risk, why high/medium/low priority, safety rationale, evidence, uncertainty, or why this is risky requests use explain_risk. For commands that ask to change, rewrite, simplify, add, remove, improve, or edit the selected generated clinical note or handout, use edit_draft with the original command as instruction. Never use language_switch, scenario_name, set_ui_mode, diagnosis, or prescribe actions. Keep the summary short.",
       prompt: `Available scenarios: ${demoScenarios.map((scenario) => scenario.label).join(", ")}
 
 Command:
@@ -156,6 +157,7 @@ function sanitizePlan(plan: z.infer<typeof commandPlanSchema>) {
         "triage_reply",
         "schedule_followup",
         "answer_patient_question",
+        "check_approval_readiness",
       ].includes(action.type)
     ) {
       return true;
@@ -251,8 +253,19 @@ function fallbackPlan(command: string) {
   ) {
     actions.push({ type: "reset_workspace", scope: "intake" });
   }
-  if (normalized.includes("approve")) {
+  const asksForApprovalReadiness =
+    normalized.includes("ready to approve") ||
+    normalized.includes("safe to approve") ||
+    normalized.includes("approval check") ||
+    normalized.includes("signoff check") ||
+    normalized.includes("ready to print") ||
+    normalized.includes("before approve");
+
+  if (normalized.includes("approve") && !asksForApprovalReadiness) {
     actions.push({ type: "approve_case" });
+  }
+  if (asksForApprovalReadiness) {
+    actions.push({ type: "check_approval_readiness" });
   }
   if (normalized.includes("follow")) {
     actions.push({ type: "set_status", status: "followup" });

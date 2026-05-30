@@ -174,6 +174,17 @@ export type PatientQuestionOutput = {
   suggestedCommands: string[];
 };
 
+export type ApprovalReadinessOutput = {
+  readiness: "ready" | "needs_review" | "blocked";
+  riskLevel: Severity;
+  headline: string;
+  blockers: string[];
+  missingChecks: string[];
+  readySignals: string[];
+  clinicianSignoffChecklist: string[];
+  suggestedCommands: string[];
+};
+
 export type CommandAction =
   | {
       type: "fill_intake";
@@ -212,7 +223,8 @@ export type CommandAction =
   | { type: "extract_document" }
   | { type: "triage_reply" }
   | { type: "schedule_followup" }
-  | { type: "answer_patient_question" };
+  | { type: "answer_patient_question" }
+  | { type: "check_approval_readiness" };
 
 export type CommandPlan = {
   summary: string;

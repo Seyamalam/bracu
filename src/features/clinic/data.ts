@@ -1,4 +1,5 @@
 import type {
+  ApprovalReadinessOutput,
   ClinicBriefingOutput,
   CopilotOutput,
   DemoScenario,
@@ -131,6 +132,7 @@ export const commandExamples = [
   "Load dengue watch and generate a draft",
   "Switch to Bangla and open presentation mode",
   "Approve this case and move it to handout",
+  "Check if this case is ready to approve",
   "Search for Farzana and show high priority cases",
   "Use the fastest model and clear filters",
   "Mark this patient for follow-up",
@@ -622,3 +624,34 @@ export const demoPatientQuestionAnswer = {
     "Schedule follow-up for this patient",
   ],
 } satisfies PatientQuestionOutput;
+
+export const demoApprovalReadiness = {
+  readiness: "needs_review",
+  riskLevel: "medium",
+  headline: "Draft is close, but clinician checks are still needed.",
+  blockers: [
+    "Vitals and danger signs are not fully documented.",
+    "Medication and allergy history should be confirmed before handout approval.",
+  ],
+  missingChecks: [
+    "Temperature, pulse, blood pressure, respiratory rate, and SpO2",
+    "Pregnancy status when relevant",
+    "Current medicines, allergies, and prior antibiotic use",
+  ],
+  readySignals: [
+    "Patient-facing safety-net language is present.",
+    "Follow-up timing is included.",
+    "Red flags and missing questions are visible for review.",
+  ],
+  clinicianSignoffChecklist: [
+    "Review and edit SOAP note.",
+    "Confirm red flags and missing questions with patient or caregiver.",
+    "Approve handout and follow-up wording only after clinical assessment.",
+  ],
+  suggestedCommands: [
+    "Explain why this case is risky",
+    "Clean this intake and extract vitals",
+    "Check medicine safety for the extracted medicines",
+    "Create a nurse handoff and receptionist task list",
+  ],
+} satisfies ApprovalReadinessOutput;

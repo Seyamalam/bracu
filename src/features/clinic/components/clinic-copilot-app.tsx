@@ -19,6 +19,7 @@ import type {
   Severity,
   UiLanguage,
 } from "../types";
+import { ApprovalReadiness } from "./approval-readiness";
 import { AuditLogViewer } from "./audit-log-viewer";
 import { CaseAssistant } from "./case-assistant";
 import { CaseBoard } from "./case-board";
@@ -89,6 +90,7 @@ export function ClinicCopilotApp() {
   const [replyTriageSignal, setReplyTriageSignal] = useState(0);
   const [followUpScheduleSignal, setFollowUpScheduleSignal] = useState(0);
   const [patientQuestionSignal, setPatientQuestionSignal] = useState(0);
+  const [approvalCheckSignal, setApprovalCheckSignal] = useState(0);
 
   const cases = useQuery(api.cases.listRecent, { userId: auth.user?._id });
   const auditLogs = useQuery(
@@ -306,6 +308,7 @@ export function ClinicCopilotApp() {
     setReplyTriageSignal((signal) => signal + 1);
     setFollowUpScheduleSignal((signal) => signal + 1);
     setPatientQuestionSignal((signal) => signal + 1);
+    setApprovalCheckSignal((signal) => signal + 1);
     setReferralComposeSignal((signal) => signal + 1);
     setFollowUpComposeSignal((signal) => signal + 1);
     setBriefingSignal((signal) => signal + 1);
@@ -555,6 +558,11 @@ export function ClinicCopilotApp() {
         setLiveMessage("Answering patient question for clinician review.");
       }
 
+      if (action.type === "check_approval_readiness") {
+        setApprovalCheckSignal((signal) => signal + 1);
+        setLiveMessage("Checking draft approval readiness.");
+      }
+
       if (action.type === "approve_case") {
         approveSelectedCase();
       }
@@ -720,6 +728,11 @@ export function ClinicCopilotApp() {
             model={selectedModel}
             output={displayOutput}
             patientName={selectedCase?.patientName ?? form.patientName}
+          />
+          <ApprovalReadiness
+            checkSignal={approvalCheckSignal}
+            model={selectedModel}
+            output={displayOutput}
           />
           <CaseAssistant model={selectedModel} output={displayOutput} />
           <DoctorConsole output={displayOutput} onSave={saveDraftEdits} />
