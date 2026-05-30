@@ -159,9 +159,22 @@ function actionDetail(action: CommandPlan["actions"][number]) {
   if (action.type === "compose_referral") {
     return `Creates a ${action.documentType.replace("_", " ")} draft.`;
   }
+  if (action.type === "extract_document" && action.documentText) {
+    return `Extracts: ${truncateText(action.documentText)}`;
+  }
+  if (action.type === "triage_reply" && action.replyText) {
+    return `Triages: ${truncateText(action.replyText)}`;
+  }
+  if (action.type === "answer_patient_question" && action.question) {
+    return `Answers: ${truncateText(action.question)}`;
+  }
   if (action.type === "undo_last_command") {
     return "Restores the previous local workspace state.";
   }
 
   return "Runs a safe AI-assisted clinic workflow step.";
+}
+
+function truncateText(text: string) {
+  return text.length > 90 ? `${text.slice(0, 87)}...` : text;
 }

@@ -10,12 +10,14 @@ import { SectionHeading } from "./section-heading";
 import { SuggestedCommandButton } from "./suggested-command-button";
 
 export function DocumentExtractor({
+  commandDocumentText,
   documentText,
   extractSignal,
   model,
   onApplyAddendum,
   onRunCommand,
 }: {
+  commandDocumentText?: string;
   documentText: string;
   extractSignal: number;
   model: string;
@@ -25,11 +27,12 @@ export function DocumentExtractor({
   const [extraction, setExtraction] = useState<DocumentExtractionOutput | null>(
     null,
   );
+  const activeDocumentText = commandDocumentText ?? documentText;
   const [isExtracting, setIsExtracting] = useState(false);
   const [error, setError] = useState("");
 
   const extractDocument = useCallback(async () => {
-    if (documentText.trim().length < 8) {
+    if (activeDocumentText.trim().length < 8) {
       setError("Paste or attach lab, prescription, or OCR text first.");
       return;
     }
@@ -41,7 +44,7 @@ export function DocumentExtractor({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          documentText,
+          documentText: activeDocumentText,
           model,
         }),
       });
@@ -59,7 +62,7 @@ export function DocumentExtractor({
     } finally {
       setIsExtracting(false);
     }
-  }, [documentText, model]);
+  }, [activeDocumentText, model]);
 
   useEffect(() => {
     if (extractSignal > 0) {

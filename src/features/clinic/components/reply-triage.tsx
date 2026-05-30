@@ -12,12 +12,14 @@ import { SectionHeading } from "./section-heading";
 import { SuggestedCommandButton } from "./suggested-command-button";
 
 export function ReplyTriage({
+  commandReplyText,
   model,
   onRunCommand,
   output,
   patientName,
   triageSignal,
 }: {
+  commandReplyText?: string;
   model: string;
   onRunCommand: (command: string) => void | Promise<void>;
   output: CopilotOutput | null;
@@ -29,45 +31,50 @@ export function ReplyTriage({
   const [isTriaging, setIsTriaging] = useState(false);
   const [error, setError] = useState("");
 
-  const triageReply = useCallback(async () => {
-    if (replyText.trim().length < 3) {
-      setError("Paste the patient's reply before triage.");
-      return;
-    }
-
-    setIsTriaging(true);
-    setError("");
-    try {
-      const response = await fetch("/api/reply-triage", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          patientName,
-          replyText,
-          caseSummary: output?.summary,
-          followUpMessage: output?.followUp.message,
-          model,
-        }),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error ?? "Reply triage failed.");
+  const triageReply = useCallback(
+    async (replyOverride?: string) => {
+      const nextReplyText = (replyOverride ?? replyText).trim();
+      if (nextReplyText.length < 3) {
+        setError("Paste the patient's reply before triage.");
+        return;
       }
-      setTriage(data.output as PatientReplyTriageOutput);
-    } catch (caught) {
-      setError(
-        caught instanceof Error ? caught.message : "Reply triage failed.",
-      );
-    } finally {
-      setIsTriaging(false);
-    }
-  }, [model, output, patientName, replyText]);
+
+      setReplyText(nextReplyText);
+      setIsTriaging(true);
+      setError("");
+      try {
+        const response = await fetch("/api/reply-triage", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            patientName,
+            replyText: nextReplyText,
+            caseSummary: output?.summary,
+            followUpMessage: output?.followUp.message,
+            model,
+          }),
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error ?? "Reply triage failed.");
+        }
+        setTriage(data.output as PatientReplyTriageOutput);
+      } catch (caught) {
+        setError(
+          caught instanceof Error ? caught.message : "Reply triage failed.",
+        );
+      } finally {
+        setIsTriaging(false);
+      }
+    },
+    [model, output, patientName, replyText],
+  );
 
   useEffect(() => {
     if (triageSignal > 0) {
-      void triageReply();
+      void triageReply(commandReplyText);
     }
-  }, [triageReply, triageSignal]);
+  }, [commandReplyText, triageReply, triageSignal]);
 
   async function copyText(text: string) {
     await navigator.clipboard.writeText(text);

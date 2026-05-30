@@ -232,10 +232,10 @@ export type CommandAction =
   | { type: "explain_risk" }
   | { type: "compose_handoff" }
   | { type: "plan_next_steps" }
-  | { type: "extract_document" }
-  | { type: "triage_reply" }
+  | { type: "extract_document"; documentText?: string }
+  | { type: "triage_reply"; replyText?: string }
   | { type: "schedule_followup" }
-  | { type: "answer_patient_question" }
+  | { type: "answer_patient_question"; question?: string }
   | { type: "check_approval_readiness" }
   | { type: "close_visit" }
   | { type: "undo_last_command" };

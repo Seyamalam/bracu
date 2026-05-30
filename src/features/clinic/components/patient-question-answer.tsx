@@ -13,12 +13,14 @@ import { SuggestedCommandButton } from "./suggested-command-button";
 
 export function PatientQuestionAnswer({
   answerSignal,
+  commandQuestion,
   model,
   onRunCommand,
   output,
   patientName,
 }: {
   answerSignal: number;
+  commandQuestion?: string;
   model: string;
   onRunCommand: (command: string) => void | Promise<void>;
   output: CopilotOutput | null;
@@ -29,48 +31,53 @@ export function PatientQuestionAnswer({
   const [isAnswering, setIsAnswering] = useState(false);
   const [error, setError] = useState("");
 
-  const answerQuestion = useCallback(async () => {
-    if (question.trim().length < 3) {
-      setError("Paste the patient or family question first.");
-      return;
-    }
-
-    setIsAnswering(true);
-    setError("");
-    try {
-      const response = await fetch("/api/patient-question", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          patientName,
-          question,
-          caseSummary: output?.summary,
-          handoutSummary: output?.patientHandout.plainSummary,
-          redFlags: output?.redFlags,
-          model,
-        }),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error ?? "Patient question answer failed.");
+  const answerQuestion = useCallback(
+    async (questionOverride?: string) => {
+      const nextQuestion = (questionOverride ?? question).trim();
+      if (nextQuestion.length < 3) {
+        setError("Paste the patient or family question first.");
+        return;
       }
-      setAnswer(data.output as PatientQuestionOutput);
-    } catch (caught) {
-      setError(
-        caught instanceof Error
-          ? caught.message
-          : "Patient question answer failed.",
-      );
-    } finally {
-      setIsAnswering(false);
-    }
-  }, [model, output, patientName, question]);
+
+      setQuestion(nextQuestion);
+      setIsAnswering(true);
+      setError("");
+      try {
+        const response = await fetch("/api/patient-question", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            patientName,
+            question: nextQuestion,
+            caseSummary: output?.summary,
+            handoutSummary: output?.patientHandout.plainSummary,
+            redFlags: output?.redFlags,
+            model,
+          }),
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error ?? "Patient question answer failed.");
+        }
+        setAnswer(data.output as PatientQuestionOutput);
+      } catch (caught) {
+        setError(
+          caught instanceof Error
+            ? caught.message
+            : "Patient question answer failed.",
+        );
+      } finally {
+        setIsAnswering(false);
+      }
+    },
+    [model, output, patientName, question],
+  );
 
   useEffect(() => {
     if (answerSignal > 0) {
-      void answerQuestion();
+      void answerQuestion(commandQuestion);
     }
-  }, [answerQuestion, answerSignal]);
+  }, [answerQuestion, answerSignal, commandQuestion]);
 
   async function copyText(text: string) {
     await navigator.clipboard.writeText(text);

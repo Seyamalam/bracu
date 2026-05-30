@@ -52,7 +52,10 @@ import { VisitCloseout } from "./visit-closeout";
 
 type WorkspaceSnapshot = {
   caseSearch: string;
+  commandDocumentText?: string;
   commandMedicines?: string;
+  commandPatientQuestion?: string;
+  commandPatientReply?: string;
   followUpChannel: "sms" | "whatsapp";
   form: IntakeFormState;
   label: string;
@@ -77,7 +80,16 @@ export function ClinicCopilotApp() {
     Id<"cases"> | undefined
   >();
   const [selectedModel, setSelectedModel] = useState("gemini-2.5-flash");
+  const [commandDocumentText, setCommandDocumentText] = useState<
+    string | undefined
+  >();
   const [commandMedicines, setCommandMedicines] = useState<
+    string | undefined
+  >();
+  const [commandPatientQuestion, setCommandPatientQuestion] = useState<
+    string | undefined
+  >();
+  const [commandPatientReply, setCommandPatientReply] = useState<
     string | undefined
   >();
   const [presentationMode, setPresentationMode] = useState(false);
@@ -297,7 +309,10 @@ export function ClinicCopilotApp() {
   function captureWorkspaceSnapshot(label: string): WorkspaceSnapshot {
     return {
       caseSearch,
+      commandDocumentText,
       commandMedicines,
+      commandPatientQuestion,
+      commandPatientReply,
       followUpChannel,
       form,
       label,
@@ -320,7 +335,10 @@ export function ClinicCopilotApp() {
 
   function restoreSnapshot(snapshot: WorkspaceSnapshot) {
     setCaseSearch(snapshot.caseSearch);
+    setCommandDocumentText(snapshot.commandDocumentText);
     setCommandMedicines(snapshot.commandMedicines);
+    setCommandPatientQuestion(snapshot.commandPatientQuestion);
+    setCommandPatientReply(snapshot.commandPatientReply);
     setFollowUpChannel(snapshot.followUpChannel);
     setForm(snapshot.form);
     setMode(snapshot.mode);
@@ -623,11 +641,13 @@ export function ClinicCopilotApp() {
       }
 
       if (action.type === "extract_document") {
+        setCommandDocumentText(action.documentText);
         setDocumentExtractSignal((signal) => signal + 1);
         setLiveMessage("Extracting attached document text.");
       }
 
       if (action.type === "triage_reply") {
+        setCommandPatientReply(action.replyText);
         setReplyTriageSignal((signal) => signal + 1);
         setLiveMessage("Triaging patient follow-up reply.");
       }
@@ -638,6 +658,7 @@ export function ClinicCopilotApp() {
       }
 
       if (action.type === "answer_patient_question") {
+        setCommandPatientQuestion(action.question);
         setPatientQuestionSignal((signal) => signal + 1);
         setLiveMessage("Answering patient question for clinician review.");
       }
@@ -833,6 +854,7 @@ export function ClinicCopilotApp() {
             planSignal={nextStepSignal}
           />
           <DocumentExtractor
+            commandDocumentText={commandDocumentText}
             documentText={form.intake}
             extractSignal={documentExtractSignal}
             model={selectedModel}
@@ -873,6 +895,7 @@ export function ClinicCopilotApp() {
           <PatientHandout copy={copy} output={displayOutput} />
           <PatientQuestionAnswer
             answerSignal={patientQuestionSignal}
+            commandQuestion={commandPatientQuestion}
             model={selectedModel}
             onRunCommand={runSuggestedCommand}
             output={displayOutput}
@@ -893,6 +916,7 @@ export function ClinicCopilotApp() {
             scheduleSignal={followUpScheduleSignal}
           />
           <ReplyTriage
+            commandReplyText={commandPatientReply}
             model={selectedModel}
             onRunCommand={runSuggestedCommand}
             output={displayOutput}
