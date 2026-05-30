@@ -81,6 +81,7 @@ const commandPlanSchema = z.object({
       z.object({ type: z.literal("compose_briefing") }),
       z.object({ type: z.literal("cleanup_intake") }),
       z.object({ type: z.literal("explain_risk") }),
+      z.object({ type: z.literal("compose_handoff") }),
     ]),
   ),
 });
@@ -114,7 +115,7 @@ export async function POST(request: Request) {
       output: Output.object({ schema: commandPlanSchema }),
       temperature: 0,
       system:
-        "You translate natural-language clinic operator commands into safe UI actions for Clinic Copilot BD. Only use these exact action type strings: fill_intake, load_scenario, generate_draft, check_medicine, set_status, approve_case, switch_language, print_handout, presentation_mode, search_cases, filter_cases, select_case, set_model, reset_workspace, run_judge_demo, compose_followup, edit_draft, compose_referral, compose_briefing, cleanup_intake, explain_risk. For Bangla use switch_language with language bn. For scenarios use load_scenario with scenarioLabel. For a request to run a judge demo, winning demo, pitch flow, or full demo, prefer run_judge_demo. For SMS, WhatsApp, callback, or patient follow-up message requests use compose_followup. For referral letter, referral note, handover, paperwork, family visit summary, or visit summary requests use compose_referral. For clinic briefing, queue briefing, daily summary, today's clinic, priorities, operational summary, or tell me what to do next requests use compose_briefing. For messy notes, OCR, labs, prescription text, clean intake, extract vitals, normalize intake, or receptionist cleanup requests use cleanup_intake. For explain risk, why high/medium/low priority, safety rationale, evidence, uncertainty, or why this is risky requests use explain_risk. For commands that ask to change, rewrite, simplify, add, remove, improve, or edit the selected generated clinical note or handout, use edit_draft with the original command as instruction. Never use language_switch, scenario_name, set_ui_mode, diagnosis, or prescribe actions. Keep the summary short.",
+        "You translate natural-language clinic operator commands into safe UI actions for Clinic Copilot BD. Only use these exact action type strings: fill_intake, load_scenario, generate_draft, check_medicine, set_status, approve_case, switch_language, print_handout, presentation_mode, search_cases, filter_cases, select_case, set_model, reset_workspace, run_judge_demo, compose_followup, edit_draft, compose_referral, compose_briefing, cleanup_intake, explain_risk, compose_handoff. For Bangla use switch_language with language bn. For scenarios use load_scenario with scenarioLabel. For a request to run a judge demo, winning demo, pitch flow, or full demo, prefer run_judge_demo. For SMS, WhatsApp, callback, or patient follow-up message requests use compose_followup. For referral letter, referral note, paperwork, family visit summary, or visit summary requests use compose_referral. For staff handoff, nurse handoff, doctor handoff, receptionist tasks, team task list, handover tasks, shift handoff, or workflow assignment requests use compose_handoff. For clinic briefing, queue briefing, daily summary, today's clinic, priorities, operational summary, or tell me what to do next requests use compose_briefing. For messy notes, OCR, labs, prescription text, clean intake, extract vitals, normalize intake, or receptionist cleanup requests use cleanup_intake. For explain risk, why high/medium/low priority, safety rationale, evidence, uncertainty, or why this is risky requests use explain_risk. For commands that ask to change, rewrite, simplify, add, remove, improve, or edit the selected generated clinical note or handout, use edit_draft with the original command as instruction. Never use language_switch, scenario_name, set_ui_mode, diagnosis, or prescribe actions. Keep the summary short.",
       prompt: `Available scenarios: ${demoScenarios.map((scenario) => scenario.label).join(", ")}
 
 Command:
@@ -139,6 +140,7 @@ function sanitizePlan(plan: z.infer<typeof commandPlanSchema>) {
         "compose_briefing",
         "cleanup_intake",
         "explain_risk",
+        "compose_handoff",
       ].includes(action.type)
     ) {
       return true;
@@ -240,7 +242,6 @@ function fallbackPlan(command: string) {
   }
   if (
     normalized.includes("referral") ||
-    normalized.includes("handover") ||
     normalized.includes("paperwork") ||
     normalized.includes("visit summary") ||
     normalized.includes("family summary")
@@ -252,6 +253,17 @@ function fallbackPlan(command: string) {
           ? "visit_summary"
           : "referral",
     });
+  }
+  if (
+    normalized.includes("handoff") ||
+    normalized.includes("handover") ||
+    normalized.includes("nurse task") ||
+    normalized.includes("doctor task") ||
+    normalized.includes("receptionist task") ||
+    normalized.includes("team task") ||
+    normalized.includes("shift handoff")
+  ) {
+    actions.push({ type: "compose_handoff" });
   }
   if (
     normalized.includes("brief") ||

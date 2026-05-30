@@ -105,6 +105,17 @@ export type RiskExplanationOutput = {
   patientSafetyNet: string[];
 };
 
+export type StaffHandoffOutput = {
+  urgency: Severity;
+  headline: string;
+  receptionistTasks: string[];
+  nurseTasks: string[];
+  doctorTasks: string[];
+  followUpDeskTasks: string[];
+  safetyNotes: string[];
+  handoffScript: string;
+};
+
 export type CommandAction =
   | {
       type: "fill_intake";
@@ -136,7 +147,8 @@ export type CommandAction =
   | { type: "compose_referral"; documentType: "referral" | "visit_summary" }
   | { type: "compose_briefing" }
   | { type: "cleanup_intake" }
-  | { type: "explain_risk" };
+  | { type: "explain_risk" }
+  | { type: "compose_handoff" };
 
 export type CommandPlan = {
   summary: string;

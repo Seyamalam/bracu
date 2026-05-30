@@ -40,6 +40,7 @@ import { RiskExplainer } from "./risk-explainer";
 import { SafetyBanner } from "./safety-banner";
 import { SafetyFrame } from "./safety-frame";
 import { ShortcutHelp } from "./shortcut-help";
+import { StaffHandoff } from "./staff-handoff";
 import { TrendDashboard } from "./trend-dashboard";
 
 export function ClinicCopilotApp() {
@@ -77,6 +78,7 @@ export function ClinicCopilotApp() {
   >("referral");
   const [briefingSignal, setBriefingSignal] = useState(0);
   const [riskExplainSignal, setRiskExplainSignal] = useState(0);
+  const [handoffSignal, setHandoffSignal] = useState(0);
 
   const cases = useQuery(api.cases.listRecent, { userId: auth.user?._id });
   const auditLogs = useQuery(
@@ -488,6 +490,11 @@ export function ClinicCopilotApp() {
         setLiveMessage("Explaining selected case risk.");
       }
 
+      if (action.type === "compose_handoff") {
+        setHandoffSignal((signal) => signal + 1);
+        setLiveMessage("Creating staff handoff.");
+      }
+
       if (action.type === "approve_case") {
         approveSelectedCase();
       }
@@ -630,6 +637,12 @@ export function ClinicCopilotApp() {
             explainSignal={riskExplainSignal}
             model={selectedModel}
             output={displayOutput}
+          />
+          <StaffHandoff
+            handoffSignal={handoffSignal}
+            model={selectedModel}
+            output={displayOutput}
+            patientName={selectedCase?.patientName ?? form.patientName}
           />
           <CaseAssistant model={selectedModel} output={displayOutput} />
           <DoctorConsole output={displayOutput} onSave={saveDraftEdits} />

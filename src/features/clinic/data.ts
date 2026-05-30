@@ -8,6 +8,7 @@ import type {
   MedicineSafetyOutput,
   ReferralOutput,
   RiskExplanationOutput,
+  StaffHandoffOutput,
 } from "./types";
 
 export const sampleIntakes = [
@@ -131,6 +132,7 @@ export const commandExamples = [
   "Write a referral letter for this patient",
   "Create a visit summary for the family",
   "Brief me on today's clinic queue",
+  "Create a nurse handoff and receptionist task list",
   "Clean this intake and extract vitals",
   "Explain why this case is risky",
   "Add a bleeding red flag and simplify the Bangla handout",
@@ -141,7 +143,7 @@ export const commandExamples = [
 export const commandPlaybook = [
   {
     label: "Operate",
-    examples: ["generate", "referral", "edit draft", "print handout"],
+    examples: ["generate", "referral", "handoff", "print handout"],
   },
   {
     label: "Navigate",
@@ -431,3 +433,33 @@ export const demoRiskExplanation = {
     "Seek urgent care for breathing difficulty, chest pain, confusion, bleeding, fainting, dehydration, or rapidly worsening symptoms.",
   ],
 } satisfies RiskExplanationOutput;
+
+export const demoStaffHandoff = {
+  urgency: "medium",
+  headline: "Coordinate vitals, safety review, and patient follow-up.",
+  receptionistTasks: [
+    "Confirm patient identity, age, phone number, and preferred language.",
+    "Attach any prescription, lab report, or referral paper to the case.",
+    "Flag the case for nurse vitals before routine waiting.",
+  ],
+  nurseTasks: [
+    "Record temperature, pulse, blood pressure, respiratory rate, and SpO2.",
+    "Ask about breathing difficulty, chest pain, bleeding, fainting, dehydration, and pregnancy status when relevant.",
+    "Escalate immediately if any red flag is present or the patient looks unstable.",
+  ],
+  doctorTasks: [
+    "Review the AI draft, missing questions, and red flags before signing.",
+    "Document clinician assessment and approved plan.",
+    "Approve handout wording only after checking medicine and follow-up instructions.",
+  ],
+  followUpDeskTasks: [
+    "Send the clinician-approved follow-up message in the patient's preferred language.",
+    "Schedule callback timing and record whether the patient understood urgent return signs.",
+  ],
+  safetyNotes: [
+    "This handoff is operational support, not medical advice.",
+    "Do not dispense or change medicines without clinician approval.",
+  ],
+  handoffScript:
+    "Medium-priority fever case. Please confirm vitals and danger signs first, then doctor review before handout or follow-up message.",
+} satisfies StaffHandoffOutput;
