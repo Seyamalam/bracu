@@ -50,6 +50,14 @@ export type MedicineSafetyOutput = {
   patientInstructions: string[];
 };
 
+export type FollowUpMessageOutput = {
+  channel: "sms" | "whatsapp";
+  messageBn: string;
+  messageEn: string;
+  checklist: string[];
+  urgency: Severity;
+};
+
 export type CommandAction =
   | {
       type: "fill_intake";
@@ -75,7 +83,8 @@ export type CommandAction =
   | { type: "select_case"; patientName: string }
   | { type: "set_model"; model: string }
   | { type: "reset_workspace"; scope: "filters" | "intake" | "all" }
-  | { type: "run_judge_demo"; scenarioLabel?: string };
+  | { type: "run_judge_demo"; scenarioLabel?: string }
+  | { type: "compose_followup"; channel: "sms" | "whatsapp" };
 
 export type CommandPlan = {
   summary: string;

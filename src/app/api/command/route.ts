@@ -66,6 +66,10 @@ const commandPlanSchema = z.object({
         type: z.literal("run_judge_demo"),
         scenarioLabel: z.string().optional(),
       }),
+      z.object({
+        type: z.literal("compose_followup"),
+        channel: z.enum(["sms", "whatsapp"]),
+      }),
     ]),
   ),
 });
@@ -99,7 +103,7 @@ export async function POST(request: Request) {
       output: Output.object({ schema: commandPlanSchema }),
       temperature: 0,
       system:
-        "You translate natural-language clinic operator commands into safe UI actions for Clinic Copilot BD. Only use these exact action type strings: fill_intake, load_scenario, generate_draft, check_medicine, set_status, approve_case, switch_language, print_handout, presentation_mode, search_cases, filter_cases, select_case, set_model, reset_workspace, run_judge_demo. For Bangla use switch_language with language bn. For scenarios use load_scenario with scenarioLabel. For a request to run a judge demo, winning demo, pitch flow, or full demo, prefer run_judge_demo. Never use language_switch, scenario_name, set_ui_mode, diagnosis, or prescribe actions. Keep the summary short.",
+        "You translate natural-language clinic operator commands into safe UI actions for Clinic Copilot BD. Only use these exact action type strings: fill_intake, load_scenario, generate_draft, check_medicine, set_status, approve_case, switch_language, print_handout, presentation_mode, search_cases, filter_cases, select_case, set_model, reset_workspace, run_judge_demo, compose_followup. For Bangla use switch_language with language bn. For scenarios use load_scenario with scenarioLabel. For a request to run a judge demo, winning demo, pitch flow, or full demo, prefer run_judge_demo. For SMS, WhatsApp, callback, or patient follow-up message requests use compose_followup. Never use language_switch, scenario_name, set_ui_mode, diagnosis, or prescribe actions. Keep the summary short.",
       prompt: `Available scenarios: ${demoScenarios.map((scenario) => scenario.label).join(", ")}
 
 Command:
@@ -183,6 +187,18 @@ function fallbackPlan(command: string) {
   }
   if (normalized.includes("follow")) {
     actions.push({ type: "set_status", status: "followup" });
+  }
+  if (
+    normalized.includes("whatsapp") ||
+    normalized.includes("sms") ||
+    normalized.includes("callback") ||
+    normalized.includes("follow-up message") ||
+    normalized.includes("follow up message")
+  ) {
+    actions.push({
+      type: "compose_followup",
+      channel: normalized.includes("sms") ? "sms" : "whatsapp",
+    });
   }
   if (normalized.includes("medicine") || normalized.includes("med")) {
     actions.push({ type: "check_medicine" });

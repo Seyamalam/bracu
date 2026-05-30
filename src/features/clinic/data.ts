@@ -1,6 +1,7 @@
 import type {
   CopilotOutput,
   DemoScenario,
+  FollowUpMessageOutput,
   IntakeFormState,
   MedicineSafetyOutput,
 } from "./types";
@@ -122,6 +123,7 @@ export const commandExamples = [
   "Search for Farzana and show high priority cases",
   "Use the fastest model and clear filters",
   "Mark this patient for follow-up",
+  "Compose a WhatsApp follow-up for this patient",
   "Create a 52 year old male chest pain intake",
   "Check medicine safety for paracetamol 500mg and antibiotic twice daily",
 ];
@@ -129,7 +131,7 @@ export const commandExamples = [
 export const commandPlaybook = [
   {
     label: "Operate",
-    examples: ["generate", "approve", "move to follow-up", "print handout"],
+    examples: ["generate", "approve", "follow-up SMS", "print handout"],
   },
   {
     label: "Navigate",
@@ -304,3 +306,17 @@ export const demoMedicineSafetyOutput = {
     "Stop and contact the clinic urgently if rash, breathing trouble, swelling, or severe dizziness occurs.",
   ],
 } satisfies MedicineSafetyOutput;
+
+export const demoFollowUpMessage = {
+  channel: "whatsapp",
+  urgency: "medium",
+  messageBn:
+    "আসসালামু আলাইকুম। Clinic Copilot BD থেকে ফলো-আপ: আপনার জ্বর/উপসর্গ কেমন আছে জানাবেন। শ্বাসকষ্ট, বুকে ব্যথা, অজ্ঞান ভাব, রক্তপাত, কম প্রস্রাব বা অবস্থা খারাপ হলে দেরি না করে ক্লিনিক/ইমার্জেন্সিতে যোগাযোগ করুন।",
+  messageEn:
+    "Clinic Copilot BD follow-up: please reply with how your symptoms are today. If you have breathing difficulty, chest pain, fainting, bleeding, very low urine, or worsening condition, contact the clinic or emergency care urgently.",
+  checklist: [
+    "Ask current temperature and symptom change.",
+    "Confirm red-flag return signs were understood.",
+    "Remind that medicine changes need clinician approval.",
+  ],
+} satisfies FollowUpMessageOutput;

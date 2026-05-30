@@ -23,6 +23,7 @@ import { CaseAssistant } from "./case-assistant";
 import { CaseBoard } from "./case-board";
 import { CommandCopilot } from "./command-copilot";
 import { DoctorConsole } from "./doctor-console";
+import { FollowUpComposer } from "./follow-up-composer";
 import { FollowUpPanel } from "./follow-up-panel";
 import { ImpactSnapshot } from "./impact-snapshot";
 import { IntakePanel } from "./intake-panel";
@@ -60,6 +61,10 @@ export function ClinicCopilotApp() {
   const [liveMessage, setLiveMessage] = useState("Clinic workspace ready.");
   const [commandHistory, setCommandHistory] = useState<CommandHistoryEntry[]>(
     [],
+  );
+  const [followUpComposeSignal, setFollowUpComposeSignal] = useState(0);
+  const [followUpChannel, setFollowUpChannel] = useState<"sms" | "whatsapp">(
+    "whatsapp",
   );
 
   const cases = useQuery(api.cases.listRecent, { userId: auth.user?._id });
@@ -361,6 +366,12 @@ export function ClinicCopilotApp() {
         await runJudgeDemo(action.scenarioLabel);
       }
 
+      if (action.type === "compose_followup") {
+        setFollowUpChannel(action.channel);
+        setFollowUpComposeSignal((signal) => signal + 1);
+        setLiveMessage(`Composing ${action.channel} follow-up.`);
+      }
+
       if (action.type === "approve_case") {
         approveSelectedCase();
       }
@@ -500,6 +511,13 @@ export function ClinicCopilotApp() {
           <CaseAssistant model={selectedModel} output={displayOutput} />
           <DoctorConsole output={displayOutput} onSave={saveDraftEdits} />
           <PatientHandout copy={copy} output={displayOutput} />
+          <FollowUpComposer
+            composeSignal={followUpComposeSignal}
+            model={selectedModel}
+            output={displayOutput}
+            patientName={selectedCase?.patientName ?? form.patientName}
+            preferredChannel={followUpChannel}
+          />
           <MedicineSafety
             commandMedicines={commandMedicines}
             model={selectedModel}
