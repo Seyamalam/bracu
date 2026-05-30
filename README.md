@@ -15,6 +15,7 @@ Clinic Copilot BD is not a diagnosis or prescription engine. It is a clinical wo
 - Natural-language Command Copilot for operating the app by typing
 - Current-case AI Q&A assistant
 - Win Readiness scorecard for safety, accessibility, workflow coverage, and judge proof
+- Clinic Display accessibility controls for large text, high contrast, and calm motion
 - Reception intake in Bangla or English
 - AI generated chief complaint, timeline, severity, missing questions, and red flags
 - Doctor console with SOAP note, checklist, and safety framing

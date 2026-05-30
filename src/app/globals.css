@@ -109,6 +109,75 @@ button {
   overflow: hidden;
 }
 
+.clinic-large-text {
+  font-size: 1.08rem;
+}
+
+.clinic-large-text .text-xs {
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+.clinic-large-text .text-sm {
+  font-size: 0.98rem;
+  line-height: 1.6;
+}
+
+.clinic-large-text button,
+.clinic-large-text input,
+.clinic-large-text textarea {
+  min-height: 2.75rem;
+}
+
+.clinic-high-contrast {
+  --background: #ffffff;
+  --card: #ffffff;
+  --muted: #e5e7eb;
+  --muted-foreground: #111827;
+  --border: #111827;
+  --input: #111827;
+  --ring: #f2c14e;
+  background: #ffffff;
+  color: #020617;
+}
+
+.clinic-high-contrast.clinic-high-contrast [class*="bg-[#f7f4ee]"],
+.clinic-high-contrast.clinic-high-contrast [class*="bg-[#fff7df]"],
+.clinic-high-contrast.clinic-high-contrast [class*="bg-amber-50"],
+.clinic-high-contrast.clinic-high-contrast [class*="bg-emerald-50"] {
+  background: #ffffff;
+}
+
+.clinic-high-contrast.clinic-high-contrast [class*="text-muted-foreground"],
+.clinic-high-contrast.clinic-high-contrast [class*="text-white/"],
+.clinic-high-contrast.clinic-high-contrast [class*="text-primary-foreground/"] {
+  color: #111827;
+}
+
+.clinic-high-contrast.clinic-high-contrast section:first-of-type,
+.clinic-high-contrast.clinic-high-contrast .bg-primary,
+.clinic-high-contrast.clinic-high-contrast [class*="bg-[#12332c]"] {
+  background: #020617;
+  color: #ffffff;
+}
+
+.clinic-high-contrast.clinic-high-contrast button,
+.clinic-high-contrast.clinic-high-contrast input,
+.clinic-high-contrast.clinic-high-contrast textarea,
+.clinic-high-contrast.clinic-high-contrast [class*="border-border"],
+.clinic-high-contrast.clinic-high-contrast [class*="border-input"] {
+  border-color: #111827;
+}
+
+.clinic-calm-motion *,
+.clinic-calm-motion *::before,
+.clinic-calm-motion *::after {
+  animation-duration: 0.01ms;
+  animation-iteration-count: 1;
+  scroll-behavior: auto;
+  transition-duration: 0.01ms;
+}
+
 @media print {
   body {
     background: #ffffff;

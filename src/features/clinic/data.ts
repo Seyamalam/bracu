@@ -77,6 +77,16 @@ export const readinessSignals = [
   "Printable clinic slip and mobile layout support real clinic desks.",
 ] as const;
 
+export const accessibilityControlCopy = {
+  title: "Clinic Display",
+  subtitle: "Low-vision and busy-desk readability controls",
+  largeText: "Large text",
+  highContrast: "High contrast",
+  calmMotion: "Calm motion",
+  proof:
+    "Patient-facing slips, dense dashboards, and AI review panels stay easier to scan on phones and shared clinic desks.",
+} as const;
+
 export const demoScenarios = [
   {
     label: "Fever desk",

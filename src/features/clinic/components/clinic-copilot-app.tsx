@@ -4,6 +4,7 @@ import { useMutation, useQuery } from "convex/react";
 import { LogOut, Stethoscope } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { api } from "../../../../convex/_generated/api";
 import type { Doc, Id } from "../../../../convex/_generated/dataModel";
 import { AuthScreen } from "../../auth/components/auth-screen";
@@ -19,6 +20,10 @@ import type {
   Severity,
   UiLanguage,
 } from "../types";
+import {
+  AccessibilityControls,
+  type AccessibilitySettings,
+} from "./accessibility-controls";
 import { ApprovalReadiness } from "./approval-readiness";
 import { AuditLogViewer } from "./audit-log-viewer";
 import { CaseAssistant } from "./case-assistant";
@@ -130,6 +135,12 @@ export function ClinicCopilotApp() {
   const [commandNextStepInstruction, setCommandNextStepInstruction] = useState<
     string | undefined
   >();
+  const [accessibilitySettings, setAccessibilitySettings] =
+    useState<AccessibilitySettings>({
+      calmMotion: false,
+      highContrast: false,
+      largeText: false,
+    });
   const [presentationMode, setPresentationMode] = useState(false);
   const [caseSearch, setCaseSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<CaseStatus | "all">("all");
@@ -846,7 +857,14 @@ export function ClinicCopilotApp() {
   }
 
   return (
-    <main className="min-h-screen bg-[#f7f4ee] text-slate-950">
+    <main
+      className={cn(
+        "min-h-screen bg-[#f7f4ee] text-slate-950",
+        accessibilitySettings.calmMotion && "clinic-calm-motion",
+        accessibilitySettings.highContrast && "clinic-high-contrast",
+        accessibilitySettings.largeText && "clinic-large-text",
+      )}
+    >
       <div className="sr-only" aria-live="polite">
         {liveMessage}
       </div>
@@ -1040,6 +1058,10 @@ export function ClinicCopilotApp() {
 
         <aside className="space-y-4">
           <ModelSelector value={selectedModel} onChange={setSelectedModel} />
+          <AccessibilityControls
+            settings={accessibilitySettings}
+            onChange={setAccessibilitySettings}
+          />
           <ReadinessScorecard
             auditCount={auditLogs?.length ?? 0}
             cases={cases}
