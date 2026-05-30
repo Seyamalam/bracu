@@ -15,6 +15,7 @@ import type {
   ReferralOutput,
   RiskExplanationOutput,
   StaffHandoffOutput,
+  VisitCloseoutOutput,
 } from "./types";
 
 export const sampleIntakes = [
@@ -137,6 +138,7 @@ export const commandExamples = [
   "Use the fastest model and clear filters",
   "Mark this patient for follow-up",
   "Schedule follow-up for this patient",
+  "Close this visit safely",
   "Compose a WhatsApp follow-up for this patient",
   "Triage this patient reply",
   "Answer this patient question in Bangla",
@@ -156,7 +158,7 @@ export const commandExamples = [
 export const commandPlaybook = [
   {
     label: "Operate",
-    examples: ["answer question", "triage reply", "referral", "handoff"],
+    examples: ["answer question", "triage reply", "close visit", "handoff"],
   },
   {
     label: "Navigate",
@@ -655,3 +657,41 @@ export const demoApprovalReadiness = {
     "Create a nurse handoff and receptionist task list",
   ],
 } satisfies ApprovalReadinessOutput;
+
+export const demoVisitCloseout = {
+  readiness: "needs_review",
+  priority: "medium",
+  headline: "Closeout packet is prepared, but clinician review remains open.",
+  staffCloseoutSteps: [
+    "Confirm vitals, allergies, current medicines, and danger signs are documented.",
+    "Ask the clinician to review the draft, handout wording, and follow-up timing before final handoff.",
+    "Move the case to follow-up if callback timing or safety-net confirmation is still pending.",
+  ],
+  patientBeforeLeaving: [
+    "Explain the approved instructions in the patient's preferred language.",
+    "Ask the patient or caregiver to repeat urgent return signs back to staff.",
+    "Make sure prescriptions, lab papers, and clinic contact details are returned to the patient.",
+  ],
+  followUpClosure: [
+    "Schedule a 24-48 hour callback if symptoms continue or red flags are uncertain.",
+    "Record the responsible staff owner and the next contact channel.",
+    "Escalate immediately if the patient reports breathing difficulty, chest pain, fainting, bleeding, very low urine, severe weakness, or worsening symptoms.",
+  ],
+  auditNotes: [
+    "AI generated operational closeout support only; clinician signoff is required.",
+    "Document whether the patient received Bangla or English instructions.",
+    "Record unresolved blockers before marking the visit complete.",
+  ],
+  printPacket: [
+    "Clinician-reviewed visit summary",
+    "Patient handout with urgent return warnings",
+    "Follow-up callback plan",
+    "Referral note if escalation is needed",
+  ],
+  suggestedCommands: [
+    "Check if this case is ready to approve",
+    "Schedule follow-up for this patient",
+    "Create a visit summary for the family",
+    "Print the patient handout",
+  ],
+} satisfies VisitCloseoutOutput;

@@ -48,6 +48,7 @@ import { SafetyFrame } from "./safety-frame";
 import { ShortcutHelp } from "./shortcut-help";
 import { StaffHandoff } from "./staff-handoff";
 import { TrendDashboard } from "./trend-dashboard";
+import { VisitCloseout } from "./visit-closeout";
 
 export function ClinicCopilotApp() {
   const auth = useDemoAuth();
@@ -91,6 +92,7 @@ export function ClinicCopilotApp() {
   const [followUpScheduleSignal, setFollowUpScheduleSignal] = useState(0);
   const [patientQuestionSignal, setPatientQuestionSignal] = useState(0);
   const [approvalCheckSignal, setApprovalCheckSignal] = useState(0);
+  const [visitCloseoutSignal, setVisitCloseoutSignal] = useState(0);
 
   const cases = useQuery(api.cases.listRecent, { userId: auth.user?._id });
   const auditLogs = useQuery(
@@ -309,11 +311,12 @@ export function ClinicCopilotApp() {
     setFollowUpScheduleSignal((signal) => signal + 1);
     setPatientQuestionSignal((signal) => signal + 1);
     setApprovalCheckSignal((signal) => signal + 1);
+    setVisitCloseoutSignal((signal) => signal + 1);
     setReferralComposeSignal((signal) => signal + 1);
     setFollowUpComposeSignal((signal) => signal + 1);
     setBriefingSignal((signal) => signal + 1);
     setLiveMessage(
-      "Full clinic workflow is running: draft, risk, handoff, referral, follow-up, queue briefing, and presentation.",
+      "Full clinic workflow is running: draft, risk, handoff, closeout, referral, follow-up, queue briefing, and presentation.",
     );
   }
 
@@ -563,6 +566,11 @@ export function ClinicCopilotApp() {
         setLiveMessage("Checking draft approval readiness.");
       }
 
+      if (action.type === "close_visit") {
+        setVisitCloseoutSignal((signal) => signal + 1);
+        setLiveMessage("Preparing safe visit closeout packet.");
+      }
+
       if (action.type === "approve_case") {
         approveSelectedCase();
       }
@@ -733,6 +741,12 @@ export function ClinicCopilotApp() {
             checkSignal={approvalCheckSignal}
             model={selectedModel}
             output={displayOutput}
+          />
+          <VisitCloseout
+            closeoutSignal={visitCloseoutSignal}
+            model={selectedModel}
+            output={displayOutput}
+            patientName={selectedCase?.patientName ?? form.patientName}
           />
           <CaseAssistant model={selectedModel} output={displayOutput} />
           <DoctorConsole output={displayOutput} onSave={saveDraftEdits} />

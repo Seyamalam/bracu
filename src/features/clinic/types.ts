@@ -185,6 +185,18 @@ export type ApprovalReadinessOutput = {
   suggestedCommands: string[];
 };
 
+export type VisitCloseoutOutput = {
+  readiness: "ready" | "needs_review" | "blocked";
+  priority: Severity;
+  headline: string;
+  staffCloseoutSteps: string[];
+  patientBeforeLeaving: string[];
+  followUpClosure: string[];
+  auditNotes: string[];
+  printPacket: string[];
+  suggestedCommands: string[];
+};
+
 export type CommandAction =
   | {
       type: "fill_intake";
@@ -224,7 +236,8 @@ export type CommandAction =
   | { type: "triage_reply" }
   | { type: "schedule_followup" }
   | { type: "answer_patient_question" }
-  | { type: "check_approval_readiness" };
+  | { type: "check_approval_readiness" }
+  | { type: "close_visit" };
 
 export type CommandPlan = {
   summary: string;
