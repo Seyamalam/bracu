@@ -42,4 +42,5 @@
 - [x] Add presentation mode overlay.
 - [x] Add Win Readiness scorecard for safety, accessibility, workflow, and judge proof.
 - [x] Add Clinic Display accessibility controls for large text, high contrast, and calm motion.
+- [x] Add patient teach-back checklist before discharge.
 - [ ] Deploy to Vercel/production Convex.

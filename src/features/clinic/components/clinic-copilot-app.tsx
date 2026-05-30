@@ -53,6 +53,7 @@ import { SafetyBanner } from "./safety-banner";
 import { SafetyFrame } from "./safety-frame";
 import { ShortcutHelp } from "./shortcut-help";
 import { StaffHandoff } from "./staff-handoff";
+import { TeachBackCheck } from "./teach-back-check";
 import { TrendDashboard } from "./trend-dashboard";
 import { VisitCloseout } from "./visit-closeout";
 
@@ -1008,6 +1009,7 @@ export function ClinicCopilotApp() {
           />
           <DoctorConsole output={displayOutput} onSave={saveDraftEdits} />
           <PatientHandout copy={copy} output={displayOutput} />
+          <TeachBackCheck output={displayOutput} />
           <PatientQuestionAnswer
             answerSignal={patientQuestionSignal}
             commandQuestion={commandPatientQuestion}

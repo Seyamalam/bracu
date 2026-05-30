@@ -87,6 +87,24 @@ export const accessibilityControlCopy = {
     "Patient-facing slips, dense dashboards, and AI review panels stay easier to scan on phones and shared clinic desks.",
 } as const;
 
+export const teachBackCopy = {
+  title: "Teach-Back Check",
+  subtitle: "Verify family understanding before discharge",
+  empty: "Generate a patient handout to prepare teach-back prompts.",
+  progress: "confirmed",
+  scriptTitle: "Staff script",
+  script:
+    "Before you leave, can you tell me in your own words what you will do at home, when you will come back, and what danger signs mean you should seek help urgently?",
+  essentialsTitle: "Family should repeat",
+  checklistTitle: "Staff confirmation",
+  checklist: [
+    "Caregiver can explain the main care steps.",
+    "Caregiver can explain medicine instructions without guessing.",
+    "Caregiver can name at least one urgent return warning.",
+    "Caregiver knows the follow-up timing and who to contact.",
+  ],
+} as const;
+
 export const demoScenarios = [
   {
     label: "Fever desk",

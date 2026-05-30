@@ -20,6 +20,7 @@ Clinic Copilot BD is not a diagnosis or prescription engine. It is a clinical wo
 - AI generated chief complaint, timeline, severity, missing questions, and red flags
 - Doctor console with SOAP note, checklist, and safety framing
 - Patient handout in Bangla/English with medicine schedule and return warnings
+- Patient teach-back checklist to confirm family understanding before discharge
 - Medicine safety clarity checker
 - AI document extraction for prescription, lab, or OCR text
 - AI risk explanation, staff handoff, approval guard, visit closeout, and next-step navigator
