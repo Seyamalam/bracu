@@ -11,9 +11,10 @@ Clinic Copilot BD is not a diagnosis or prescription engine. It is a clinical wo
 ## Core Demo
 
 - Public landing site with feature, mission, pitch, and login pages
-- Interactive public homepage with command preview, proof stats, feature catalog, and generated clinic visuals
+- Interactive public homepage with MCP data-layer pitch, command preview, proof stats, feature catalog, and generated clinic visuals
 - Expanded pitch page with product score map, differentiators, demo runbook, and operational proof
 - Generated product visuals and custom Clinic Copilot BD logo
+- Model Context Protocol endpoint at `/api/mcp` for demo-safe tools and resources
 - Authenticated clinic workspace with desktop sidebar and mobile workspace rail
 - Temporary email/password clinic access
 - Guided demo mode with a 3-minute story rail
@@ -40,6 +41,42 @@ Clinic Copilot BD is not a diagnosis or prescription engine. It is a clinical wo
 - Follow-up due panel
 - Full-screen presentation mode
 - Responsive mobile-first interface for clinic desks and phones
+
+## MCP Support
+
+Clinic Copilot BD includes a demo-safe Model Context Protocol endpoint:
+
+```txt
+GET  /api/mcp
+POST /api/mcp
+```
+
+The endpoint speaks JSON-RPC 2.0 over POST and supports:
+
+- `initialize`
+- `tools/list`
+- `tools/call`
+- `resources/list`
+- `resources/read`
+
+Available MCP tools:
+
+- `clinic.demo_manifest` returns the public server manifest, resources, tools, and safety posture.
+- `clinic.list_demo_scenarios` returns the synthetic Bangladesh-native demo scenarios.
+- `clinic.workflow_brief` converts messy intake notes into draft operational support using Gemini when configured, with a demo fallback when no key is present.
+
+Available MCP resources:
+
+- `clinic://demo/scenarios`
+- `clinic://demo/capabilities`
+
+Quick test:
+
+```bash
+curl -s http://localhost:3000/api/mcp \
+  -H 'content-type: application/json' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+```
 
 ## Product Screenshots
 
@@ -75,6 +112,7 @@ Clinic Copilot BD is not a diagnosis or prescription engine. It is a clinical wo
 - Convex backend
 - Vercel AI SDK 6
 - Google Gemini provider through `@ai-sdk/google`
+- JSON-RPC MCP route for agent-readable clinic context
 - Biome for linting and formatting
 
 ## Environment

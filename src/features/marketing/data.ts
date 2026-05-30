@@ -6,6 +6,7 @@ import {
   ClipboardCheck,
   ClipboardList,
   Command,
+  Database,
   FileCheck2,
   FileText,
   HandHeart,
@@ -20,6 +21,7 @@ import {
   PlayCircle,
   Printer,
   Radar,
+  Server,
   ShieldCheck,
   Smartphone,
   Sparkles,
@@ -55,7 +57,7 @@ export const publicNav = [
 export const proofStats = [
   { label: "Core AI workflows", value: "20+" },
   { label: "BD demo cases", value: "6" },
-  { label: "Languages", value: "BN/EN" },
+  { label: "MCP endpoint", value: "/api/mcp" },
 ] as const;
 
 export const featurePillars = [
@@ -242,6 +244,18 @@ export const featureCatalog = [
     ],
   },
   {
+    group: "MCP data layer",
+    icon: Server,
+    items: [
+      "JSON-RPC MCP endpoint at /api/mcp",
+      "Demo scenario resource",
+      "Workflow capability resource",
+      "AI workflow brief tool",
+      "Tool list for external agents",
+      "Safety instructions in server metadata",
+    ],
+  },
+  {
     group: "Demo polish",
     icon: BadgeCheck,
     items: [
@@ -264,6 +278,33 @@ export const featureCatalog = [
       "Calm motion mode",
       "Bangla-first copy surfaces",
     ],
+  },
+] as const;
+
+export const mcpPublicCards = [
+  {
+    body: "External agents can discover the product's tools, resources, server instructions, and demo-safe workflow boundaries.",
+    icon: Server,
+    label: "Endpoint",
+    title: "/api/mcp",
+  },
+  {
+    body: "The server exposes synthetic clinic scenarios and the workflow capability map as readable MCP resources.",
+    icon: Database,
+    label: "Resources",
+    title: "Clinic context, safely scoped",
+  },
+  {
+    body: "MCP clients can request an intake workflow brief powered by Gemini when a key is present, with demo fallback always available.",
+    icon: Command,
+    label: "Tool call",
+    title: "clinic.workflow_brief",
+  },
+  {
+    body: "The MCP instructions explicitly frame AI output as draft operational support, keeping clinicians in charge.",
+    icon: ShieldCheck,
+    label: "Governance",
+    title: "Safety travels with the API",
   },
 ] as const;
 

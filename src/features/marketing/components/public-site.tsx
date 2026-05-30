@@ -16,6 +16,7 @@ import {
   homepageHighlights,
   interactionModes,
   marketingImages,
+  mcpPublicCards,
   missionPoints,
   pitchBeats,
   pitchDifferentiators,
@@ -114,6 +115,13 @@ function HomePage({ authSlot }: { authSlot?: React.ReactNode }) {
               workflow: structured drafts, red-flag review, handouts,
               teach-back, follow-up, and operations visibility.
             </p>
+            <div className="mt-5 inline-flex max-w-full flex-wrap items-center gap-2 border border-[#f2c14e]/45 bg-slate-950/35 px-3 py-2 text-sm">
+              <span className="font-semibold text-[#f2c14e]">
+                MCP endpoint live
+              </span>
+              <span className="font-mono text-white/88">/api/mcp</span>
+              <span className="text-white/62">tools/list + resources/read</span>
+            </div>
             <div className="mt-7 flex flex-wrap gap-3">
               <Button asChild size="lg" variant="secondary">
                 <Link href="/login">
@@ -150,6 +158,7 @@ function HomePage({ authSlot }: { authSlot?: React.ReactNode }) {
           <div className="self-end lg:pl-6">{authSlot}</div>
         </div>
       </section>
+      <McpFrontDoor />
       <FeatureOverview />
       <CommandPreview />
       <HomepageHighlights />
@@ -249,6 +258,83 @@ function LoginPage({ authSlot }: { authSlot?: React.ReactNode }) {
         </p>
       </div>
       <div>{authSlot}</div>
+    </section>
+  );
+}
+
+function McpFrontDoor() {
+  return (
+    <section className="border-slate-200 border-b bg-[#071f1a] text-white">
+      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[0.82fr_1.18fr] lg:px-8">
+        <div className="self-center">
+          <p className="font-semibold text-[#f2c14e] text-sm uppercase tracking-[0.16em]">
+            MCP-ready data layer
+          </p>
+          <h2 className="mt-3 max-w-3xl font-black text-3xl tracking-normal sm:text-5xl">
+            Clinic context is agent-readable from day one.
+          </h2>
+          <p className="mt-4 text-lg text-white/78 leading-8">
+            The demo now exposes a Model Context Protocol endpoint for safe
+            clinic workflow context: tools, resources, scenario data, and an
+            AI-powered intake brief that external agents can call.
+          </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Button asChild size="lg" variant="secondary">
+              <a href="/api/mcp">
+                Inspect /api/mcp
+                <ArrowRight size={18} aria-hidden="true" />
+              </a>
+            </Button>
+            <Button
+              asChild
+              className="border-white/30 bg-white/10 text-white hover:bg-white/20"
+              size="lg"
+              variant="outline"
+            >
+              <Link href="/pitch">See product proof</Link>
+            </Button>
+          </div>
+        </div>
+        <div className="grid gap-3 md:grid-cols-2">
+          {mcpPublicCards.map((card) => {
+            const Icon = card.icon;
+            return (
+              <article
+                className="border border-white/16 bg-white/10 p-5"
+                key={card.title}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="flex size-10 items-center justify-center rounded-md bg-[#f2c14e] text-slate-950">
+                    <Icon size={20} aria-hidden="true" />
+                  </span>
+                  <p className="font-semibold text-[#f2c14e] text-xs uppercase tracking-[0.14em]">
+                    {card.label}
+                  </p>
+                </div>
+                <h3 className="mt-4 font-bold text-xl">{card.title}</h3>
+                <p className="mt-2 text-white/72 text-sm leading-6">
+                  {card.body}
+                </p>
+              </article>
+            );
+          })}
+        </div>
+      </div>
+      <div className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
+        <div className="overflow-hidden border border-white/16 bg-slate-950">
+          <div className="border-white/10 border-b px-4 py-3 font-semibold text-[#f2c14e] text-sm">
+            MCP quick test
+          </div>
+          <pre className="overflow-x-auto p-4 text-white/82 text-xs leading-6">
+            <code>{`POST /api/mcp
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/list"
+}`}</code>
+          </pre>
+        </div>
+      </div>
     </section>
   );
 }
