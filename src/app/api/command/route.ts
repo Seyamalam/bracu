@@ -87,6 +87,7 @@ const commandPlanSchema = z.object({
       z.object({ type: z.literal("explain_risk") }),
       z.object({ type: z.literal("compose_handoff") }),
       z.object({ type: z.literal("plan_next_steps") }),
+      z.object({ type: z.literal("extract_document") }),
     ]),
   ),
 });
@@ -120,7 +121,7 @@ export async function POST(request: Request) {
       output: Output.object({ schema: commandPlanSchema }),
       temperature: 0,
       system:
-        "You translate natural-language clinic operator commands into safe UI actions for Clinic Copilot BD. Only use these exact action type strings: fill_intake, load_scenario, generate_draft, check_medicine, set_status, approve_case, switch_language, print_handout, presentation_mode, search_cases, filter_cases, select_case, set_model, reset_workspace, run_judge_demo, run_full_workflow, compose_followup, edit_draft, compose_referral, compose_briefing, cleanup_intake, explain_risk, compose_handoff, plan_next_steps. For Bangla use switch_language with language bn. For scenarios use load_scenario with scenarioLabel. For a request to run everything, full workflow, full clinic workflow, complete workflow, winning clinic workflow, or end-to-end demo, use run_full_workflow. For a request to run only a judge demo, winning demo, or pitch flow, use run_judge_demo. For SMS, WhatsApp, callback, or patient follow-up message requests use compose_followup. For referral letter, referral note, paperwork, family visit summary, or visit summary requests use compose_referral. For staff handoff, nurse handoff, doctor handoff, receptionist tasks, team task list, handover tasks, shift handoff, or workflow assignment requests use compose_handoff. For next steps for the selected case, what should I do next for this patient, recommended commands, command suggestions, action plan for this case, or guide me through this case use plan_next_steps. For clinic briefing, queue briefing, daily summary, today's clinic, priorities, or operational summary requests use compose_briefing. For messy notes, OCR, labs, prescription text, clean intake, extract vitals, normalize intake, or receptionist cleanup requests use cleanup_intake. For explain risk, why high/medium/low priority, safety rationale, evidence, uncertainty, or why this is risky requests use explain_risk. For commands that ask to change, rewrite, simplify, add, remove, improve, or edit the selected generated clinical note or handout, use edit_draft with the original command as instruction. Never use language_switch, scenario_name, set_ui_mode, diagnosis, or prescribe actions. Keep the summary short.",
+        "You translate natural-language clinic operator commands into safe UI actions for Clinic Copilot BD. Only use these exact action type strings: fill_intake, load_scenario, generate_draft, check_medicine, set_status, approve_case, switch_language, print_handout, presentation_mode, search_cases, filter_cases, select_case, set_model, reset_workspace, run_judge_demo, run_full_workflow, compose_followup, edit_draft, compose_referral, compose_briefing, cleanup_intake, explain_risk, compose_handoff, plan_next_steps, extract_document. For Bangla use switch_language with language bn. For scenarios use load_scenario with scenarioLabel. For a request to run everything, full workflow, full clinic workflow, complete workflow, winning clinic workflow, or end-to-end demo, use run_full_workflow. For a request to run only a judge demo, winning demo, or pitch flow, use run_judge_demo. For SMS, WhatsApp, callback, or patient follow-up message requests use compose_followup. For referral letter, referral note, paperwork, family visit summary, or visit summary requests use compose_referral. For staff handoff, nurse handoff, doctor handoff, receptionist tasks, team task list, handover tasks, shift handoff, or workflow assignment requests use compose_handoff. For next steps for the selected case, what should I do next for this patient, recommended commands, command suggestions, action plan for this case, or guide me through this case use plan_next_steps. For lab report, prescription, attached document, OCR, photo text, extract report, extract prescription, medicine list from document, or parse document requests use extract_document. For clinic briefing, queue briefing, daily summary, today's clinic, priorities, or operational summary requests use compose_briefing. For messy notes, clean intake, extract vitals, normalize intake, or receptionist cleanup requests use cleanup_intake. For explain risk, why high/medium/low priority, safety rationale, evidence, uncertainty, or why this is risky requests use explain_risk. For commands that ask to change, rewrite, simplify, add, remove, improve, or edit the selected generated clinical note or handout, use edit_draft with the original command as instruction. Never use language_switch, scenario_name, set_ui_mode, diagnosis, or prescribe actions. Keep the summary short.",
       prompt: `Available scenarios: ${demoScenarios.map((scenario) => scenario.label).join(", ")}
 
 Command:
@@ -148,6 +149,7 @@ function sanitizePlan(plan: z.infer<typeof commandPlanSchema>) {
         "explain_risk",
         "compose_handoff",
         "plan_next_steps",
+        "extract_document",
       ].includes(action.type)
     ) {
       return true;
@@ -309,14 +311,24 @@ function fallbackPlan(command: string) {
     actions.push({ type: "plan_next_steps" });
   }
   if (
+    normalized.includes("extract document") ||
+    normalized.includes("parse document") ||
+    normalized.includes("attached document") ||
+    normalized.includes("lab report") ||
+    normalized.includes("prescription") ||
+    normalized.includes("extract report") ||
+    normalized.includes("extract prescription") ||
+    normalized.includes("photo text")
+  ) {
+    actions.push({ type: "extract_document" });
+  }
+  if (
     normalized.includes("clean intake") ||
     normalized.includes("cleanup intake") ||
     normalized.includes("normalize intake") ||
     normalized.includes("extract vitals") ||
     normalized.includes("messy notes") ||
-    normalized.includes("ocr") ||
-    normalized.includes("lab text") ||
-    normalized.includes("prescription text")
+    normalized.includes("ocr")
   ) {
     actions.push({ type: "cleanup_intake" });
   }

@@ -2,6 +2,7 @@ import type {
   ClinicBriefingOutput,
   CopilotOutput,
   DemoScenario,
+  DocumentExtractionOutput,
   FollowUpMessageOutput,
   IntakeCleanupOutput,
   IntakeFormState,
@@ -135,6 +136,7 @@ export const commandExamples = [
   "Create a visit summary for the family",
   "Brief me on today's clinic queue",
   "Tell me what to do next for this case",
+  "Extract this prescription and lab report",
   "Create a nurse handoff and receptionist task list",
   "Clean this intake and extract vitals",
   "Explain why this case is risky",
@@ -158,7 +160,7 @@ export const commandPlaybook = [
   },
   {
     label: "AI setup",
-    examples: ["clean intake", "check medicines", "load dengue watch"],
+    examples: ["extract document", "clean intake", "check medicines"],
   },
 ] as const;
 
@@ -491,3 +493,34 @@ export const demoNextStepOutput = {
   demoNarration:
     "This turns the AI from a note writer into a clinic operator: it tells staff the safest next move and gives commands that run the workflow.",
 } satisfies NextStepOutput;
+
+export const demoDocumentExtractionOutput = {
+  documentType: "mixed",
+  confidence: "medium",
+  extractedVitals: ["No confirmed measured vitals found in the attached text."],
+  extractedLabs: [
+    "Platelet count mentioned but value needs confirmation from original report.",
+    "Fever-related lab report should be reviewed by the clinician.",
+  ],
+  extractedMedicines: [
+    "Paracetamol 500mg mentioned; dose timing needs clinician confirmation.",
+    "Unknown antibiotic mentioned; exact name, dose, and duration are unclear.",
+  ],
+  possibleSafetyIssues: [
+    "Unclear antibiotic details should not be dispensed without clinician approval.",
+    "Confirm allergy, pregnancy status, kidney/liver disease, and current medicines.",
+  ],
+  missingClarifications: [
+    "Photo/report date and patient identity",
+    "Exact lab values with units and reference ranges",
+    "Medicine names, strengths, routes, frequency, and duration",
+  ],
+  intakeAddendum:
+    "Attached document text suggests medicines/labs are present but key values and dose details remain unclear. Clinician should verify the original report or prescription before making decisions.",
+  suggestedCommands: [
+    "Check medicine safety for the extracted medicines",
+    "Clean this intake and extract vitals",
+    "Explain why this case is risky",
+    "Create a nurse handoff and receptionist task list",
+  ],
+} satisfies DocumentExtractionOutput;

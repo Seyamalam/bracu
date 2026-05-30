@@ -126,6 +126,18 @@ export type NextStepOutput = {
   demoNarration: string;
 };
 
+export type DocumentExtractionOutput = {
+  documentType: "prescription" | "lab_report" | "mixed" | "unknown";
+  confidence: Severity;
+  extractedVitals: string[];
+  extractedLabs: string[];
+  extractedMedicines: string[];
+  possibleSafetyIssues: string[];
+  missingClarifications: string[];
+  intakeAddendum: string;
+  suggestedCommands: string[];
+};
+
 export type CommandAction =
   | {
       type: "fill_intake";
@@ -160,7 +172,8 @@ export type CommandAction =
   | { type: "cleanup_intake" }
   | { type: "explain_risk" }
   | { type: "compose_handoff" }
-  | { type: "plan_next_steps" };
+  | { type: "plan_next_steps" }
+  | { type: "extract_document" };
 
 export type CommandPlan = {
   summary: string;

@@ -25,6 +25,7 @@ import { CaseBoard } from "./case-board";
 import { ClinicBriefing } from "./clinic-briefing";
 import { CommandCopilot } from "./command-copilot";
 import { DoctorConsole } from "./doctor-console";
+import { DocumentExtractor } from "./document-extractor";
 import { FollowUpComposer } from "./follow-up-composer";
 import { FollowUpPanel } from "./follow-up-panel";
 import { ImpactSnapshot } from "./impact-snapshot";
@@ -81,6 +82,7 @@ export function ClinicCopilotApp() {
   const [riskExplainSignal, setRiskExplainSignal] = useState(0);
   const [handoffSignal, setHandoffSignal] = useState(0);
   const [nextStepSignal, setNextStepSignal] = useState(0);
+  const [documentExtractSignal, setDocumentExtractSignal] = useState(0);
 
   const cases = useQuery(api.cases.listRecent, { userId: auth.user?._id });
   const auditLogs = useQuery(
@@ -294,6 +296,7 @@ export function ClinicCopilotApp() {
     setRiskExplainSignal((signal) => signal + 1);
     setHandoffSignal((signal) => signal + 1);
     setNextStepSignal((signal) => signal + 1);
+    setDocumentExtractSignal((signal) => signal + 1);
     setReferralComposeSignal((signal) => signal + 1);
     setFollowUpComposeSignal((signal) => signal + 1);
     setBriefingSignal((signal) => signal + 1);
@@ -523,6 +526,11 @@ export function ClinicCopilotApp() {
         setLiveMessage("Planning next steps for the selected case.");
       }
 
+      if (action.type === "extract_document") {
+        setDocumentExtractSignal((signal) => signal + 1);
+        setLiveMessage("Extracting attached document text.");
+      }
+
       if (action.type === "approve_case") {
         approveSelectedCase();
       }
@@ -666,6 +674,17 @@ export function ClinicCopilotApp() {
             output={displayOutput}
             patientName={selectedCase?.patientName ?? form.patientName}
             planSignal={nextStepSignal}
+          />
+          <DocumentExtractor
+            documentText={form.intake}
+            extractSignal={documentExtractSignal}
+            model={selectedModel}
+            onApplyAddendum={(addendum) =>
+              setForm((currentForm) => ({
+                ...currentForm,
+                intake: `${currentForm.intake}\n\nDocument addendum:\n${addendum}`,
+              }))
+            }
           />
           <RiskExplainer
             explainSignal={riskExplainSignal}
