@@ -1,9 +1,7 @@
 "use client";
 
 import { useMutation, useQuery } from "convex/react";
-import { LogOut, Stethoscope } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { api } from "../../../../convex/_generated/api";
 import type { Doc, Id } from "../../../../convex/_generated/dataModel";
@@ -24,6 +22,7 @@ import {
   AccessibilityControls,
   type AccessibilitySettings,
 } from "./accessibility-controls";
+import { AppShellSidebar } from "./app-shell-sidebar";
 import { ApprovalReadiness } from "./approval-readiness";
 import { AuditLogViewer } from "./audit-log-viewer";
 import { CaseAssistant } from "./case-assistant";
@@ -882,227 +881,235 @@ export function ClinicCopilotApp() {
           onClose={() => setPresentationMode(false)}
         />
       ) : null}
-      <section className="border-slate-900 border-b bg-[#12332c] text-white">
-        <div className="mx-auto grid max-w-7xl gap-6 px-4 py-5 sm:px-6 lg:grid-cols-[1fr_auto] lg:px-8">
-          <div className="flex items-center gap-3">
-            <div className="flex size-11 items-center justify-center rounded-lg bg-[#f2c14e] text-slate-950">
-              <Stethoscope size={24} aria-hidden="true" />
-            </div>
+      <AppShellSidebar
+        clinicName={currentUser.clinicName}
+        role={currentUser.role}
+        onLogout={auth.logout}
+      />
+
+      <div className="min-w-0 lg:pl-72">
+        <header className="border-slate-200 border-b bg-white">
+          <div className="mx-auto grid max-w-[1680px] gap-4 px-4 py-4 sm:px-6 lg:grid-cols-[1fr_auto] lg:px-8">
             <div>
-              <p className="font-semibold text-[#f2c14e] text-sm">
+              <p className="font-semibold text-primary text-sm">
                 {currentUser.clinicName}
               </p>
-              <h1 className="font-semibold text-2xl tracking-normal sm:text-4xl">
+              <h1 className="mt-1 font-black text-2xl tracking-normal sm:text-4xl">
                 {copy.appTitle}
               </h1>
             </div>
+            <div className="grid grid-cols-3 gap-2 lg:min-w-96">
+              <Metric label={copy.cases} value={cases?.length ?? 0} />
+              <Metric label={copy.ready} value={`${readyScore}%`} />
+              <Metric
+                label={copy.mode}
+                value={mode === "idle" ? "Demo" : mode}
+              />
+            </div>
           </div>
-          <div className="grid grid-cols-3 gap-2 lg:min-w-96">
-            <Metric label={copy.cases} value={cases?.length ?? 0} />
-            <Metric label={copy.ready} value={`${readyScore}%`} />
-            <Metric label={copy.mode} value={mode === "idle" ? "Demo" : mode} />
-          </div>
-          <Button
-            className="justify-self-start lg:justify-self-end"
-            type="button"
-            variant="secondary"
-            onClick={auth.logout}
-          >
-            <LogOut size={17} aria-hidden="true" />
-            {copy.signOut}
-          </Button>
-        </div>
-      </section>
+        </header>
 
-      <section className="mx-auto max-w-7xl px-4 pt-4 sm:px-6 lg:px-8">
-        <CommandCopilot
-          ref={commandInputRef}
-          history={commandHistory}
-          model={selectedModel}
-          onCommandComplete={recordCommand}
-          onApplyPlan={applyCommandPlan}
-        />
-      </section>
-
-      <section className="mx-auto max-w-7xl px-4 pt-4 sm:px-6 lg:px-8">
-        <JudgeDemoPanel
-          copy={copy}
-          language={uiLanguage}
-          onLanguageChange={setUiLanguage}
-          onLoadScenario={setForm}
-          onRunJudgeDemo={() => void runJudgeDemo()}
-        />
-      </section>
-
-      <section
-        className="mx-auto grid max-w-7xl gap-4 px-4 py-4 sm:px-6 lg:grid-cols-[380px_1fr_320px] lg:px-8"
-        id="clinic-workspace"
-      >
-        <aside className="space-y-4">
-          <IntakePanel
-            copy={copy}
-            form={form}
-            error={error}
-            isGenerating={isGenerating}
-            isCleaningIntake={isCleaningIntake}
-            onChange={setForm}
-            onCleanIntake={() => void cleanIntakeWithAi()}
-            onGenerate={() => void generate()}
-          />
-        </aside>
-
-        <section className="space-y-4">
-          <SafetyBanner title={copy.clinicianReview} body={copy.safetyBanner} />
-          <ImpactSnapshot output={displayOutput} title={copy.impactTitle} />
-          <VisitJourney
-            form={form}
-            output={displayOutput}
-            status={selectedCase?.status}
-          />
-          <NextStepNavigator
-            commandInstruction={commandNextStepInstruction}
+        <section className="mx-auto max-w-[1680px] px-4 pt-4 sm:px-6 lg:px-8">
+          <CommandCopilot
+            ref={commandInputRef}
+            history={commandHistory}
             model={selectedModel}
-            onRunCommand={runSuggestedCommand}
-            output={displayOutput}
-            patientName={selectedCase?.patientName ?? form.patientName}
-            planSignal={nextStepSignal}
-          />
-          <DocumentExtractor
-            commandDocumentText={commandDocumentText}
-            documentText={form.intake}
-            extractSignal={documentExtractSignal}
-            model={selectedModel}
-            onRunCommand={runSuggestedCommand}
-            onApplyAddendum={(addendum) =>
-              setForm((currentForm) => ({
-                ...currentForm,
-                intake: `${currentForm.intake}\n\nDocument addendum:\n${addendum}`,
-              }))
-            }
-          />
-          <RiskExplainer
-            commandInstruction={commandRiskInstruction}
-            explainSignal={riskExplainSignal}
-            model={selectedModel}
-            output={displayOutput}
-          />
-          <StaffHandoff
-            commandInstruction={commandHandoffInstruction}
-            handoffSignal={handoffSignal}
-            model={selectedModel}
-            output={displayOutput}
-            patientName={selectedCase?.patientName ?? form.patientName}
-          />
-          <ApprovalReadiness
-            checkSignal={approvalCheckSignal}
-            commandInstruction={commandApprovalInstruction}
-            model={selectedModel}
-            onRunCommand={runSuggestedCommand}
-            output={displayOutput}
-          />
-          <VisitCloseout
-            closeoutSignal={visitCloseoutSignal}
-            commandInstruction={commandCloseoutInstruction}
-            model={selectedModel}
-            onRunCommand={runSuggestedCommand}
-            output={displayOutput}
-            patientName={selectedCase?.patientName ?? form.patientName}
-          />
-          <CaseAssistant
-            askSignal={caseAssistantAskSignal}
-            commandQuestion={commandCaseQuestion}
-            model={selectedModel}
-            output={displayOutput}
-          />
-          <DoctorConsole output={displayOutput} onSave={saveDraftEdits} />
-          <PatientHandout copy={copy} output={displayOutput} />
-          <TeachBackCheck output={displayOutput} />
-          <PatientQuestionAnswer
-            answerSignal={patientQuestionSignal}
-            commandQuestion={commandPatientQuestion}
-            model={selectedModel}
-            onRunCommand={runSuggestedCommand}
-            output={displayOutput}
-            patientName={selectedCase?.patientName ?? form.patientName}
-          />
-          <FollowUpComposer
-            commandInstruction={commandFollowUpInstruction}
-            composeSignal={followUpComposeSignal}
-            model={selectedModel}
-            output={displayOutput}
-            patientName={selectedCase?.patientName ?? form.patientName}
-            preferredChannel={followUpChannel}
-          />
-          <FollowUpScheduler
-            commandInstruction={commandFollowUpScheduleInstruction}
-            model={selectedModel}
-            onRunCommand={runSuggestedCommand}
-            output={displayOutput}
-            patientName={selectedCase?.patientName ?? form.patientName}
-            scheduleSignal={followUpScheduleSignal}
-          />
-          <ReplyTriage
-            commandReplyText={commandPatientReply}
-            model={selectedModel}
-            onRunCommand={runSuggestedCommand}
-            output={displayOutput}
-            patientName={selectedCase?.patientName ?? form.patientName}
-            triageSignal={replyTriageSignal}
-          />
-          <ReferralComposer
-            commandInstruction={commandReferralInstruction}
-            composeSignal={referralComposeSignal}
-            documentType={referralDocumentType}
-            model={selectedModel}
-            output={displayOutput}
-            patientName={selectedCase?.patientName ?? form.patientName}
-          />
-          <MedicineSafety
-            commandMedicines={commandMedicines}
-            medicineCheckSignal={medicineCheckSignal}
-            model={selectedModel}
-            output={displayOutput}
+            onCommandComplete={recordCommand}
+            onApplyPlan={applyCommandPlan}
           />
         </section>
 
-        <aside className="space-y-4">
-          <ModelSelector value={selectedModel} onChange={setSelectedModel} />
-          <AccessibilityControls
-            settings={accessibilitySettings}
-            onChange={setAccessibilitySettings}
+        <section className="mx-auto max-w-[1680px] px-4 pt-4 sm:px-6 lg:px-8">
+          <JudgeDemoPanel
+            copy={copy}
+            language={uiLanguage}
+            onLanguageChange={setUiLanguage}
+            onLoadScenario={setForm}
+            onRunJudgeDemo={() => void runJudgeDemo()}
           />
-          <ReadinessScorecard
-            auditCount={auditLogs?.length ?? 0}
-            cases={cases}
-            output={displayOutput}
-          />
-          <OperationsPulse cases={cases} />
-          <CaseBoard
-            cases={filteredCases}
-            searchQuery={caseSearch}
-            selectedCaseId={selectedCaseId}
-            severityFilter={severityFilter}
-            statusFilter={statusFilter}
-            onSearchChange={setCaseSearch}
-            onSelectCase={setSelectedCaseId}
-            onSeverityFilterChange={setSeverityFilter}
-            onStatusFilterChange={setStatusFilter}
-            onStatusChange={changeCaseStatus}
-            onApproveCase={approveSelectedCase}
-          />
-          <FollowUpPanel cases={cases} onSelectCase={setSelectedCaseId} />
-          <TrendDashboard cases={cases} />
-          <ClinicBriefing
-            briefingSignal={briefingSignal}
-            cases={cases}
-            clinicName={currentUser.clinicName}
-            model={selectedModel}
-          />
-          <AuditLogViewer logs={auditLogs} />
-          <ShortcutHelp />
-          <SafetyFrame />
-        </aside>
-      </section>
+        </section>
+
+        <section
+          className="mx-auto grid max-w-[1680px] gap-4 px-4 py-4 sm:px-6 xl:grid-cols-[360px_minmax(0,1fr)_340px] lg:px-8"
+          id="clinic-workspace"
+        >
+          <aside className="space-y-4" id="intake">
+            <IntakePanel
+              copy={copy}
+              form={form}
+              error={error}
+              isGenerating={isGenerating}
+              isCleaningIntake={isCleaningIntake}
+              onChange={setForm}
+              onCleanIntake={() => void cleanIntakeWithAi()}
+              onGenerate={() => void generate()}
+            />
+          </aside>
+
+          <section className="space-y-4">
+            <div className="space-y-4 scroll-mt-4" id="clinic-overview">
+              <SafetyBanner
+                title={copy.clinicianReview}
+                body={copy.safetyBanner}
+              />
+              <ImpactSnapshot output={displayOutput} title={copy.impactTitle} />
+              <VisitJourney
+                form={form}
+                output={displayOutput}
+                status={selectedCase?.status}
+              />
+            </div>
+
+            <div className="space-y-4 scroll-mt-4" id="clinical-review">
+              <NextStepNavigator
+                commandInstruction={commandNextStepInstruction}
+                model={selectedModel}
+                onRunCommand={runSuggestedCommand}
+                output={displayOutput}
+                patientName={selectedCase?.patientName ?? form.patientName}
+                planSignal={nextStepSignal}
+              />
+              <DocumentExtractor
+                commandDocumentText={commandDocumentText}
+                documentText={form.intake}
+                extractSignal={documentExtractSignal}
+                model={selectedModel}
+                onRunCommand={runSuggestedCommand}
+                onApplyAddendum={(addendum) =>
+                  setForm((currentForm) => ({
+                    ...currentForm,
+                    intake: `${currentForm.intake}\n\nDocument addendum:\n${addendum}`,
+                  }))
+                }
+              />
+              <RiskExplainer
+                commandInstruction={commandRiskInstruction}
+                explainSignal={riskExplainSignal}
+                model={selectedModel}
+                output={displayOutput}
+              />
+              <StaffHandoff
+                commandInstruction={commandHandoffInstruction}
+                handoffSignal={handoffSignal}
+                model={selectedModel}
+                output={displayOutput}
+                patientName={selectedCase?.patientName ?? form.patientName}
+              />
+              <ApprovalReadiness
+                checkSignal={approvalCheckSignal}
+                commandInstruction={commandApprovalInstruction}
+                model={selectedModel}
+                onRunCommand={runSuggestedCommand}
+                output={displayOutput}
+              />
+              <VisitCloseout
+                closeoutSignal={visitCloseoutSignal}
+                commandInstruction={commandCloseoutInstruction}
+                model={selectedModel}
+                onRunCommand={runSuggestedCommand}
+                output={displayOutput}
+                patientName={selectedCase?.patientName ?? form.patientName}
+              />
+              <CaseAssistant
+                askSignal={caseAssistantAskSignal}
+                commandQuestion={commandCaseQuestion}
+                model={selectedModel}
+                output={displayOutput}
+              />
+              <DoctorConsole output={displayOutput} onSave={saveDraftEdits} />
+            </div>
+
+            <div className="space-y-4 scroll-mt-4" id="patient-comms">
+              <PatientHandout copy={copy} output={displayOutput} />
+              <TeachBackCheck output={displayOutput} />
+              <PatientQuestionAnswer
+                answerSignal={patientQuestionSignal}
+                commandQuestion={commandPatientQuestion}
+                model={selectedModel}
+                onRunCommand={runSuggestedCommand}
+                output={displayOutput}
+                patientName={selectedCase?.patientName ?? form.patientName}
+              />
+              <FollowUpComposer
+                commandInstruction={commandFollowUpInstruction}
+                composeSignal={followUpComposeSignal}
+                model={selectedModel}
+                output={displayOutput}
+                patientName={selectedCase?.patientName ?? form.patientName}
+                preferredChannel={followUpChannel}
+              />
+              <FollowUpScheduler
+                commandInstruction={commandFollowUpScheduleInstruction}
+                model={selectedModel}
+                onRunCommand={runSuggestedCommand}
+                output={displayOutput}
+                patientName={selectedCase?.patientName ?? form.patientName}
+                scheduleSignal={followUpScheduleSignal}
+              />
+              <ReplyTriage
+                commandReplyText={commandPatientReply}
+                model={selectedModel}
+                onRunCommand={runSuggestedCommand}
+                output={displayOutput}
+                patientName={selectedCase?.patientName ?? form.patientName}
+                triageSignal={replyTriageSignal}
+              />
+              <ReferralComposer
+                commandInstruction={commandReferralInstruction}
+                composeSignal={referralComposeSignal}
+                documentType={referralDocumentType}
+                model={selectedModel}
+                output={displayOutput}
+                patientName={selectedCase?.patientName ?? form.patientName}
+              />
+              <MedicineSafety
+                commandMedicines={commandMedicines}
+                medicineCheckSignal={medicineCheckSignal}
+                model={selectedModel}
+                output={displayOutput}
+              />
+            </div>
+          </section>
+
+          <aside className="space-y-4 scroll-mt-4" id="operations">
+            <ModelSelector value={selectedModel} onChange={setSelectedModel} />
+            <AccessibilityControls
+              settings={accessibilitySettings}
+              onChange={setAccessibilitySettings}
+            />
+            <ReadinessScorecard
+              auditCount={auditLogs?.length ?? 0}
+              cases={cases}
+              output={displayOutput}
+            />
+            <OperationsPulse cases={cases} />
+            <CaseBoard
+              cases={filteredCases}
+              searchQuery={caseSearch}
+              selectedCaseId={selectedCaseId}
+              severityFilter={severityFilter}
+              statusFilter={statusFilter}
+              onSearchChange={setCaseSearch}
+              onSelectCase={setSelectedCaseId}
+              onSeverityFilterChange={setSeverityFilter}
+              onStatusFilterChange={setStatusFilter}
+              onStatusChange={changeCaseStatus}
+              onApproveCase={approveSelectedCase}
+            />
+            <FollowUpPanel cases={cases} onSelectCase={setSelectedCaseId} />
+            <TrendDashboard cases={cases} />
+            <ClinicBriefing
+              briefingSignal={briefingSignal}
+              cases={cases}
+              clinicName={currentUser.clinicName}
+              model={selectedModel}
+            />
+            <AuditLogViewer logs={auditLogs} />
+            <ShortcutHelp />
+            <SafetyFrame />
+          </aside>
+        </section>
+      </div>
     </main>
   );
 }

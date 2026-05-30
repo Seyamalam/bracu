@@ -29,6 +29,10 @@
 
 ## Hackathon Win Polish
 
+- [x] Redesign public landing page with generated clinic imagery.
+- [x] Add public feature, mission, pitch, and login pages.
+- [x] Add custom Clinic Copilot BD logo asset.
+- [x] Replace the authenticated layout with a sidebar clinic workspace.
 - [x] Add judge demo mode with a 3-minute progress rail.
 - [x] Add visible impact metrics for time saved, missing questions, and red flags.
 - [x] Add clinician-review safety banner and stronger no-diagnosis framing.

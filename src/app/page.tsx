@@ -1,5 +1,5 @@
-import { ClinicCopilotApp } from "@/features/clinic/components/clinic-copilot-app";
+import { HomeExperience } from "@/features/marketing/components/home-experience";
 
 export default function Home() {
-  return <ClinicCopilotApp />;
+  return <HomeExperience />;
 }

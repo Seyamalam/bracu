@@ -10,6 +10,9 @@ Clinic Copilot BD is not a diagnosis or prescription engine. It is a clinical wo
 
 ## Core Demo
 
+- Public landing site with feature, mission, pitch, and login pages
+- Generated product visuals and custom Clinic Copilot BD logo
+- Authenticated clinic workspace with desktop sidebar and mobile workspace rail
 - Temporary email/password clinic access
 - Judge demo mode with a 3-minute story rail
 - Natural-language Command Copilot for operating the app by typing
@@ -92,6 +95,16 @@ doctor@demo.clinic / demo1234
 The seed command creates six fake Bangladesh-native cases for fever, cardiac
 risk, child dehydration, dengue watch, pregnancy fever, and diabetic wound
 follow-up.
+
+Public product pages:
+
+```txt
+/          Landing page and demo entry
+/features  Complete workflow overview
+/mission   Mission, vision, and care principles
+/pitch     Judge-ready product pitch
+/login     Demo authentication
+```
 
 Quality checks:
 

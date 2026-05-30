@@ -6,9 +6,11 @@ export function Metric({
   value: string | number;
 }) {
   return (
-    <div className="rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-center">
-      <p className="font-semibold text-xl capitalize">{value}</p>
-      <p className="text-white/70 text-xs">{label}</p>
+    <div className="rounded-md border border-border bg-background px-3 py-2 text-center shadow-sm">
+      <p className="font-semibold text-xl text-foreground capitalize">
+        {value}
+      </p>
+      <p className="text-muted-foreground text-xs">{label}</p>
     </div>
   );
 }

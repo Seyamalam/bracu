@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Clinic Copilot BD",
   description:
-    "Bilingual AI clinical documentation and patient communication assistant.",
+    "Bangla-first AI clinic operations platform for intake, clinician review, patient handouts, teach-back, follow-up, and safety workflows.",
 };
 
 export default function RootLayout({
