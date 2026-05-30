@@ -11,6 +11,8 @@ Clinic Copilot BD is not a diagnosis or prescription engine. It is a clinical wo
 ## Core Demo
 
 - Public landing site with feature, mission, pitch, and login pages
+- Interactive public homepage with command preview, proof stats, feature catalog, and generated clinic visuals
+- Expanded pitch page with judge score map, differentiators, demo runbook, and operational proof
 - Generated product visuals and custom Clinic Copilot BD logo
 - Authenticated clinic workspace with desktop sidebar and mobile workspace rail
 - Temporary email/password clinic access

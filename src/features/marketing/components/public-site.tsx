@@ -1,20 +1,29 @@
 "use client";
 
-import { ArrowRight, LogIn, PlayCircle } from "lucide-react";
+import { ArrowRight, CheckCircle2, LogIn, PlayCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import type React from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
   audienceCards,
   brand,
+  demoRunbook,
+  featureCatalog,
   featurePillars,
+  homepageHighlights,
+  interactionModes,
   marketingImages,
   missionPoints,
   pitchBeats,
+  pitchDifferentiators,
+  pitchScorecards,
+  productShots,
   proofStats,
   publicNav,
+  trustPoints,
   workflowSteps,
 } from "../data";
 import { BrandMark } from "./brand-mark";
@@ -141,7 +150,12 @@ function HomePage({ authSlot }: { authSlot?: React.ReactNode }) {
         </div>
       </section>
       <FeatureOverview />
+      <CommandPreview />
+      <HomepageHighlights />
+      <FullFeatureCatalog compact />
+      <ShowcaseStories />
       <MissionBand />
+      <TrustBand />
       <ProductImageBand />
     </>
   );
@@ -156,8 +170,10 @@ function FeaturesPage() {
         body="A clinic does not need one more isolated AI textbox. It needs a connected workflow across reception, clinician review, patient education, and operations."
       />
       <FeatureGrid />
+      <FullFeatureCatalog />
+      <InteractionBand />
       <WorkflowBand />
-      <ProductImageBand />
+      <ShowcaseStories />
     </>
   );
 }
@@ -171,6 +187,7 @@ function MissionPage() {
         body="The product is designed for low-resource, Bangla-first care settings where staff need speed, clarity, and safety framing more than generic automation."
       />
       <MissionBand />
+      <TrustBand />
       <ImageStory
         image={marketingImages.teachBack}
         kicker="Human understanding"
@@ -199,7 +216,16 @@ function PitchPage() {
           ))}
         </div>
       </section>
+      <PitchScoreboard />
+      <PitchDifferentiators />
+      <DemoRunbook />
       <WorkflowBand />
+      <ImageStory
+        image={marketingImages.operations}
+        kicker="Final proof"
+        title="Close the demo on operational evidence."
+        body="After the AI draft, the judge can see queue state, follow-up ownership, trend signals, audit history, and readiness scoring. That is the difference between a clever prompt and a viable product."
+      />
     </>
   );
 }
@@ -221,6 +247,74 @@ function LoginPage({ authSlot }: { authSlot?: React.ReactNode }) {
         </p>
       </div>
       <div>{authSlot}</div>
+    </section>
+  );
+}
+
+function CommandPreview() {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const activeMode = interactionModes[activeIndex] ?? interactionModes[0];
+  const ActiveIcon = activeMode.icon;
+
+  return (
+    <section className="bg-white">
+      <div className="mx-auto grid max-w-7xl gap-6 px-4 py-12 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
+        <div className="self-center">
+          <p className="font-semibold text-primary text-sm uppercase tracking-[0.16em]">
+            Interactive demo layer
+          </p>
+          <h2 className="mt-3 font-black text-3xl tracking-normal sm:text-5xl">
+            The public pitch hints at the product magic.
+          </h2>
+          <p className="mt-4 text-muted-foreground text-lg leading-8">
+            Judges should understand before logging in that this is a
+            commandable workflow. The real app lets staff operate major clinic
+            actions through natural language while keeping review boundaries
+            visible.
+          </p>
+        </div>
+
+        <div className="border border-border bg-[#12332c] p-4 text-white">
+          <div className="flex flex-wrap gap-2">
+            {interactionModes.map((mode, index) => {
+              const Icon = mode.icon;
+              return (
+                <Button
+                  className={cn(
+                    "border-white/20 bg-white/10 text-white hover:bg-white/20",
+                    index === activeIndex && "bg-[#f2c14e] text-slate-950",
+                  )}
+                  key={mode.label}
+                  size="sm"
+                  type="button"
+                  variant="outline"
+                  onClick={() => setActiveIndex(index)}
+                >
+                  <Icon size={16} aria-hidden="true" />
+                  {mode.label}
+                </Button>
+              );
+            })}
+          </div>
+          <div className="mt-5 border border-white/20 bg-white/10 p-4">
+            <div className="flex items-center gap-3">
+              <span className="flex size-10 items-center justify-center rounded-md bg-[#f2c14e] text-slate-950">
+                <ActiveIcon size={20} aria-hidden="true" />
+              </span>
+              <div>
+                <p className="font-semibold text-white/70 text-xs uppercase tracking-[0.14em]">
+                  Command
+                </p>
+                <p className="font-semibold">{activeMode.command}</p>
+              </div>
+            </div>
+            <div className="mt-5 bg-slate-950/50 p-4 font-mono text-sm text-[#f2c14e]">
+              {">"} {activeMode.command}
+            </div>
+            <p className="mt-4 text-white/82 leading-7">{activeMode.result}</p>
+          </div>
+        </div>
+      </div>
     </section>
   );
 }
@@ -259,6 +353,37 @@ function FeatureOverview() {
   );
 }
 
+function HomepageHighlights() {
+  return (
+    <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {homepageHighlights.map((highlight) => {
+          const Icon = highlight.icon;
+          return (
+            <article
+              className="border border-border bg-white p-5"
+              key={highlight.title}
+            >
+              <div className="flex items-center gap-3">
+                <span className="flex size-10 items-center justify-center rounded-md bg-[#eaf6f1]">
+                  <Icon className="text-primary" size={20} aria-hidden="true" />
+                </span>
+                <p className="font-semibold text-primary text-xs uppercase tracking-[0.14em]">
+                  {highlight.label}
+                </p>
+              </div>
+              <h3 className="mt-4 font-bold text-xl">{highlight.title}</h3>
+              <p className="mt-2 text-muted-foreground leading-7">
+                {highlight.body}
+              </p>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 function FeatureGrid() {
   return (
     <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
@@ -283,6 +408,109 @@ function FeatureGrid() {
   );
 }
 
+function FullFeatureCatalog({ compact = false }: { compact?: boolean }) {
+  const visibleCatalog = compact ? featureCatalog.slice(0, 4) : featureCatalog;
+
+  return (
+    <section className="bg-[#fffdf8]">
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="font-semibold text-primary text-sm uppercase tracking-[0.16em]">
+              Everything included
+            </p>
+            <h2 className="mt-3 max-w-3xl font-black text-3xl tracking-normal sm:text-5xl">
+              The demo is loaded because the product story is loaded.
+            </h2>
+          </div>
+          {compact ? (
+            <Button asChild variant="outline">
+              <Link href="/features">
+                Full feature list
+                <ArrowRight size={17} aria-hidden="true" />
+              </Link>
+            </Button>
+          ) : null}
+        </div>
+        <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {visibleCatalog.map((group) => {
+            const Icon = group.icon;
+            return (
+              <article
+                className="border border-border bg-white p-5"
+                key={group.group}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="flex size-10 items-center justify-center rounded-md bg-[#eaf6f1]">
+                    <Icon
+                      className="text-primary"
+                      size={21}
+                      aria-hidden="true"
+                    />
+                  </span>
+                  <h3 className="font-bold text-xl">{group.group}</h3>
+                </div>
+                <ul className="mt-4 space-y-2">
+                  {group.items.map((item) => (
+                    <li
+                      className="flex gap-2 text-muted-foreground text-sm leading-6"
+                      key={item}
+                    >
+                      <CheckCircle2
+                        className="mt-0.5 shrink-0 text-primary"
+                        size={16}
+                        aria-hidden="true"
+                      />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </article>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function InteractionBand() {
+  return (
+    <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <div className="grid gap-6 lg:grid-cols-[0.65fr_1.35fr]">
+        <div>
+          <p className="font-semibold text-primary text-sm uppercase tracking-[0.16em]">
+            Interactions judges can feel
+          </p>
+          <h2 className="mt-3 font-black text-3xl tracking-normal sm:text-5xl">
+            Every click moves the clinic forward.
+          </h2>
+        </div>
+        <div className="grid gap-3 md:grid-cols-2">
+          {interactionModes.map((mode) => {
+            const Icon = mode.icon;
+            return (
+              <article
+                className="border border-border bg-white p-5"
+                key={mode.label}
+              >
+                <Icon className="text-primary" size={24} aria-hidden="true" />
+                <h3 className="mt-4 font-bold text-xl">{mode.label}</h3>
+                <p className="mt-2 font-mono text-primary text-sm">
+                  {mode.command}
+                </p>
+                <p className="mt-3 text-muted-foreground leading-7">
+                  {mode.result}
+                </p>
+              </article>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function MissionBand() {
   return (
     <section className="bg-[#eaf6f1]">
@@ -298,6 +526,47 @@ function MissionBand() {
         ))}
       </div>
     </section>
+  );
+}
+
+function TrustBand() {
+  return (
+    <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <div className="grid gap-4 lg:grid-cols-3">
+        {trustPoints.map((point) => {
+          const Icon = point.icon;
+          return (
+            <article
+              className="border border-border bg-white p-5"
+              key={point.title}
+            >
+              <Icon className="text-primary" size={24} aria-hidden="true" />
+              <h2 className="mt-4 font-bold text-xl">{point.title}</h2>
+              <p className="mt-2 text-muted-foreground leading-7">
+                {point.body}
+              </p>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+function ShowcaseStories() {
+  return (
+    <>
+      {productShots.map((shot, index) => (
+        <ImageStory
+          body={shot.body}
+          image={shot.image}
+          key={shot.title}
+          kicker={shot.kicker}
+          reverse={index % 2 === 1}
+          title={shot.title}
+        />
+      ))}
+    </>
   );
 }
 
@@ -335,19 +604,116 @@ function WorkflowBand() {
   );
 }
 
+function PitchScoreboard() {
+  return (
+    <section className="bg-[#12332c] text-white">
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <p className="font-semibold text-[#f2c14e] text-sm uppercase tracking-[0.16em]">
+          Judge score map
+        </p>
+        <h2 className="mt-3 max-w-3xl font-black text-3xl tracking-normal sm:text-5xl">
+          The pitch is built around proof, not vibes.
+        </h2>
+        <div className="mt-8 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          {pitchScorecards.map((card) => (
+            <article
+              className="border border-white/20 bg-white/10 p-4"
+              key={card.label}
+            >
+              <p className="font-semibold text-[#f2c14e] text-sm">
+                {card.label}
+              </p>
+              <h3 className="mt-3 font-bold text-xl">{card.value}</h3>
+              <p className="mt-3 text-white/76 text-sm leading-6">
+                {card.proof}
+              </p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function PitchDifferentiators() {
+  return (
+    <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        {pitchDifferentiators.map((item) => {
+          const Icon = item.icon;
+          return (
+            <article
+              className="border border-border bg-white p-5"
+              key={item.title}
+            >
+              <Icon className="text-primary" size={24} aria-hidden="true" />
+              <h2 className="mt-4 font-bold text-xl">{item.title}</h2>
+              <p className="mt-2 text-muted-foreground leading-7">
+                {item.body}
+              </p>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+function DemoRunbook() {
+  return (
+    <section className="bg-[#eaf6f1]">
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <p className="font-semibold text-primary text-sm uppercase tracking-[0.16em]">
+          Demo runbook
+        </p>
+        <h2 className="mt-3 max-w-3xl font-black text-3xl tracking-normal sm:text-5xl">
+          A crisp three-minute story the judges can follow.
+        </h2>
+        <div className="mt-8 grid gap-3 lg:grid-cols-5">
+          {demoRunbook.map((step) => {
+            const Icon = step.icon;
+            return (
+              <article
+                className="border border-[#cfe7dc] bg-white p-4"
+                key={step.title}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <Icon className="text-primary" size={22} aria-hidden="true" />
+                  <p className="font-black text-primary">{step.time}</p>
+                </div>
+                <h3 className="mt-4 font-bold text-lg">{step.title}</h3>
+                <p className="mt-2 text-muted-foreground text-sm leading-6">
+                  {step.body}
+                </p>
+              </article>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function ImageStory({
   body,
   image,
   kicker,
+  reverse = false,
   title,
 }: {
   body: string;
   image: string;
   kicker: string;
+  reverse?: boolean;
   title: string;
 }) {
   return (
-    <section className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[1fr_0.9fr] lg:px-8">
+    <section
+      className={cn(
+        "mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[1fr_0.9fr] lg:px-8",
+        reverse && "lg:grid-cols-[0.9fr_1fr]",
+      )}
+    >
       <div className="relative min-h-80 overflow-hidden border border-border bg-white">
         <Image
           alt=""
@@ -357,7 +723,7 @@ function ImageStory({
           src={image}
         />
       </div>
-      <div className="self-center">
+      <div className={cn("self-center", reverse && "lg:order-first")}>
         <p className="font-semibold text-primary text-sm uppercase tracking-[0.16em]">
           {kicker}
         </p>

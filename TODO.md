@@ -31,6 +31,8 @@
 
 - [x] Redesign public landing page with generated clinic imagery.
 - [x] Add public feature, mission, pitch, and login pages.
+- [x] Expand public homepage with command preview, feature catalog, trust proof, and image story sections.
+- [x] Improve pitch page with judge score map, differentiators, and 3-minute demo runbook.
 - [x] Add custom Clinic Copilot BD logo asset.
 - [x] Replace the authenticated layout with a sidebar clinic workspace.
 - [x] Add judge demo mode with a 3-minute progress rail.
