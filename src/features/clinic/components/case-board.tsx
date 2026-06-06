@@ -213,9 +213,9 @@ function RedFlagLane({
   }
 
   return (
-    <div className="rounded-lg border border-red-200 bg-red-50 p-3">
+    <div className="min-w-0 overflow-hidden rounded-lg border border-red-200 bg-red-50 p-3">
       <p className="font-semibold text-red-950 text-sm">Red Flag Lane</p>
-      <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
+      <div className="mt-2 flex max-w-full gap-2 overflow-x-auto pb-1">
         {urgentCases.map((caseItem) => (
           <button
             aria-label={`Open urgent case for ${caseItem.patientName}`}

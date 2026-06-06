@@ -129,7 +129,7 @@ export function AppShellSidebar({
         </div>
       </aside>
 
-      <div className="border-slate-200 border-b bg-white px-4 py-3 lg:hidden">
+      <div className="border-slate-200 border-b bg-white px-4 py-3 pb-20 lg:hidden">
         <div className="flex items-center justify-between gap-3">
           <BrandMark compact />
           <Button size="sm" type="button" variant="outline" onClick={onLogout}>
@@ -137,10 +137,7 @@ export function AppShellSidebar({
             Sign out
           </Button>
         </div>
-        <nav
-          className="mt-3 flex gap-2 overflow-x-auto pb-1"
-          aria-label="Workspace"
-        >
+        <nav className="mt-3 grid grid-cols-3 gap-2" aria-label="Workspace">
           {workspaceNav.map((item) => {
             const Icon = item.icon;
             const isActive = activePage === item.id;
@@ -149,7 +146,7 @@ export function AppShellSidebar({
                 aria-label={`Open ${item.label} workspace`}
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "flex shrink-0 items-center gap-2 rounded-md border border-border bg-background px-3 py-2 font-semibold text-xs",
+                  "flex items-center justify-center gap-2 rounded-md border border-border bg-background px-2 py-2 font-semibold text-xs",
                   isActive &&
                     "border-primary bg-primary text-primary-foreground",
                 )}
@@ -164,6 +161,33 @@ export function AppShellSidebar({
           })}
         </nav>
       </div>
+      <nav
+        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-6 border-slate-200 border-t bg-white/95 px-1 py-1 shadow-[0_-8px_24px_rgba(15,23,42,0.08)] backdrop-blur lg:hidden"
+        aria-label="Primary mobile workspace"
+      >
+        {workspaceNav.map((item) => {
+          const Icon = item.icon;
+          const isActive = activePage === item.id;
+          return (
+            <button
+              aria-label={`Open ${item.label} workspace`}
+              aria-current={isActive ? "page" : undefined}
+              className={cn(
+                "flex min-h-14 flex-col items-center justify-center gap-1 rounded-md px-1 py-1 font-semibold text-[10px]",
+                isActive
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground",
+              )}
+              key={item.id}
+              type="button"
+              onClick={() => onPageChange(item.id)}
+            >
+              <Icon size={16} aria-hidden="true" />
+              <span>{item.label}</span>
+            </button>
+          );
+        })}
+      </nav>
     </>
   );
 }

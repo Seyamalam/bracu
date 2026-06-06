@@ -10,15 +10,16 @@ Clinic Copilot BD is not a diagnosis or prescription engine. It is a clinical wo
 
 ## Core Demo
 
-- Public landing site with feature, mission, pitch, and login pages
+- Public landing site with feature, mission, pitch, judge, and login pages
 - Interactive public homepage with MCP data-layer pitch, command preview, proof stats, feature catalog, and generated clinic visuals
 - Public docs page for MCP usage, AI provenance, prompt categories, and deployment notes
+- Judge Mode route at `/judge` with a clean 3-minute demo script
 - Expanded pitch page with product score map, differentiators, demo runbook, and operational proof
 - Generated product visuals and custom Clinic Copilot BD logo
 - Model Context Protocol endpoint at `/api/mcp` for demo-safe external-agent
   tools, resources, safety gates, queue snapshots, print packets, literacy
   drafts, sync previews, approval envelopes, and scenario scorecards
-- Authenticated clinic workspace with desktop sidebar and mobile workspace rail
+- Authenticated clinic workspace with desktop sidebar and mobile bottom navigation
 - Temporary email/password clinic access
 - Guided demo mode with a 3-minute story rail
 - Natural-language Command Copilot for operating the app by typing
@@ -27,6 +28,9 @@ Clinic Copilot BD is not a diagnosis or prescription engine. It is a clinical wo
   workflow template marketplace
 - Agent Command Center and Agent Operating System with named tools, live tool
   streaming, agent inbox, memory, command replay, voice commands, and judge mode
+- AI Run Receipts for tool inputs, output type, safety checks, status, role, and timestamp
+- Approvals Inbox for vitals, allergies, red flags, patient packet print approval, and escalation acknowledgment
+- MCP Explorer in Admin for inspecting schemas and running demo-safe JSON-RPC calls
 - Current-case AI Q&A assistant
 - Readiness scorecard for safety, accessibility, workflow coverage, and operating proof
 - Clinic Display accessibility controls for large text, high contrast, and calm motion
@@ -190,6 +194,7 @@ Public product pages:
 /          Landing page and demo entry
 /docs      AI, MCP, prompt, and deployment documentation
 /features  Complete workflow overview
+/judge     Three-minute judge walkthrough
 /mission   Mission, vision, and care principles
 /pitch     Product pitch
 /login     Demo authentication
@@ -222,13 +227,13 @@ it with production authentication before handling real users or real patient dat
 1. Create a temporary clinic account.
 2. Start in Queue, pick a case, then open the Case workspace.
 3. Generate the clinical draft and review red flags.
-4. Open AI for chat, tool runs, approvals, memory, and the agent timeline.
+4. Open AI for chat, tool runs, AI Run Receipts, Approvals Inbox, memory, and the agent timeline.
 5. Open Builder and show Canvas, Safety Governor, Journey, Protocols, Shift,
    Simulation, and Marketplace tabs.
 6. Copy or print the patient handout.
 7. Run the medicine safety checker.
 8. Move the case to handout or follow-up from the live queue.
-9. Show MCP docs, Readiness card, anonymized trend dashboard, and audit log.
+9. Show MCP Explorer, MCP docs, Readiness card, anonymized trend dashboard, and audit log.
 10. Close on the impact snapshot: minutes saved, questions found, red flags caught.
 
 Command Copilot examples:

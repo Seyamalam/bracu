@@ -50,6 +50,7 @@ export const publicNav = [
   { href: "/", label: "Home" },
   { href: "/features", label: "Features" },
   { href: "/docs", label: "Docs" },
+  { href: "/judge", label: "Judge" },
   { href: "/mission", label: "Mission" },
   { href: "/pitch", label: "Pitch" },
   { href: "/login", label: "Login" },
@@ -207,6 +208,8 @@ export const featureCatalog = [
       "Agent Command Center with named tools",
       "Agentic Workflow Studio",
       "Canvas-style automation preview",
+      "AI Run Receipts",
+      "Approvals Inbox",
       "AI document extraction for OCR text",
       "Draft edit support with clinician review",
     ],
@@ -262,6 +265,7 @@ export const featureCatalog = [
       "Workflow capability resource",
       "AI workflow brief tool",
       "Role-aware tool registry for external agents",
+      "In-app MCP Explorer",
       "Queue, safety, print, literacy, sync, approval, and simulation MCP tools",
       "Safety instructions in server metadata",
     ],
@@ -496,6 +500,7 @@ export const docsTesterWalkthrough = [
   {
     steps: [
       "Open /login and sign in or create a demo session, then enter the clinic workspace.",
+      "Open /judge first if presenting to judges; it gives the clean three-minute route.",
       "Use the six main workspaces: Queue, Case, AI, Operations, Builder, and Admin.",
       "Switch between Reception, Nurse, Doctor, Follow-up desk, and Admin roles and confirm each role changes ownership context.",
       "Check the red-flag lane, waiting-time labels, follow-up due clock, and staff owner badges on the case board.",
@@ -515,6 +520,7 @@ export const docsTesterWalkthrough = [
       "Use the agent command bar to ask for a doctor summary, medicine slip, referral, follow-up call sheet, or pictogram handout.",
       "Open the command palette and run named tools from the Clinic Agent Swarm.",
       "Open the AI workspace for chat, tool runs, approvals, memory, MCP-style commands, and agent timeline.",
+      "Check AI Run Receipts and Approvals Inbox for safety status, role, timestamp, and human-review boundaries.",
       "Open Builder for Agentic Workflow Studio and click Canvas, Governor, Journey, Protocols, Shift, Simulation, and Marketplace.",
       "Review the live tool stream, agent memory, agent inbox, command replay, and simulation judge output for clear status and human approval boundaries.",
     ],
@@ -532,6 +538,7 @@ export const docsTesterWalkthrough = [
     steps: [
       "Turn on low-connectivity mode, create local drafts, and confirm queued sync status is visible.",
       "Return online and verify sync status updates without losing draft content.",
+      "Open Admin and run MCP Explorer for tools/list or safety blocker calls.",
       "Capture screenshots of the queue, AI progress, safety gate, print preview, and low-connectivity states for the judging report.",
     ],
     title: "6. Offline and evidence pass",

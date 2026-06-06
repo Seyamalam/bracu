@@ -39,12 +39,14 @@ import {
   type StreamingStep,
 } from "./agent-operating-system";
 import { AgenticWorkflowStudio } from "./agentic-workflow-studio";
+import { AiRunReceipts } from "./ai-run-receipts";
 import {
   AppShellSidebar,
   type WorkspacePage,
   workspaceNav,
 } from "./app-shell-sidebar";
 import { ApprovalReadiness } from "./approval-readiness";
+import { ApprovalsInbox } from "./approvals-inbox";
 import { AuditLogViewer } from "./audit-log-viewer";
 import { CaseAssistant } from "./case-assistant";
 import { CaseBoard } from "./case-board";
@@ -66,6 +68,7 @@ import {
   LowConnectivityPanel,
   type QueuedDraft,
 } from "./low-connectivity-panel";
+import { McpExplorer } from "./mcp-explorer";
 import { MedicineSafety } from "./medicine-safety";
 import { Metric } from "./metric";
 import { ModelSelector } from "./model-selector";
@@ -1338,6 +1341,17 @@ export function ClinicCopilotApp() {
                 onCommandComplete={recordCommand}
                 onApplyPlan={applyCommandPlan}
               />
+              <AiRunReceipts
+                form={form}
+                output={displayOutput}
+                runningAction={runningAction}
+              />
+              <ApprovalsInbox
+                form={form}
+                output={displayOutput}
+                onCommand={runSuggestedCommand}
+                onPrintPreview={() => setPrintPreviewOpen(true)}
+              />
               <ClinicalSafetyGates gates={safetyGates} />
               <ApprovalReadiness
                 checkSignal={approvalCheckSignal}
@@ -1448,6 +1462,11 @@ export function ClinicCopilotApp() {
                     onCommandComplete={recordCommand}
                     onApplyPlan={applyCommandPlan}
                   />
+                  <AiRunReceipts
+                    form={form}
+                    output={displayOutput}
+                    runningAction={runningAction}
+                  />
                   <GuidedWorkflowPanel
                     copy={copy}
                     language={uiLanguage}
@@ -1462,6 +1481,12 @@ export function ClinicCopilotApp() {
                     body={copy.safetyBanner}
                   />
                   <ClinicalSafetyGates gates={safetyGates} />
+                  <ApprovalsInbox
+                    form={form}
+                    output={displayOutput}
+                    onCommand={runSuggestedCommand}
+                    onPrintPreview={() => setPrintPreviewOpen(true)}
+                  />
                   <ImpactSnapshot
                     output={displayOutput}
                     title={copy.impactTitle}
@@ -1634,8 +1659,8 @@ export function ClinicCopilotApp() {
           ) : null}
 
           {activeWorkspacePage === "queue" ? (
-            <div className="mt-4 grid gap-4 xl:grid-cols-[360px_minmax(0,1fr)_360px]">
-              <div className="space-y-4">
+            <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,360px)_minmax(0,1fr)_minmax(0,360px)]">
+              <div className="min-w-0 space-y-4">
                 <RoleWorkspacePanel
                   activeRole={activeRole}
                   onRoleChange={setActiveRole}
@@ -1649,7 +1674,7 @@ export function ClinicCopilotApp() {
                   onSyncDraft={syncQueuedDraft}
                 />
               </div>
-              <div className="space-y-4">
+              <div className="min-w-0 space-y-4">
                 <CaseBoard
                   cases={filteredCases}
                   searchQuery={caseSearch}
@@ -1666,7 +1691,7 @@ export function ClinicCopilotApp() {
                 <FollowUpPanel cases={cases} onSelectCase={setSelectedCaseId} />
                 <TrendDashboard cases={cases} />
               </div>
-              <div className="space-y-4">
+              <div className="min-w-0 space-y-4">
                 <ClinicBriefing
                   briefingSignal={briefingSignal}
                   cases={cases}
@@ -1717,8 +1742,8 @@ export function ClinicCopilotApp() {
           ) : null}
 
           {activeWorkspacePage === "admin" ? (
-            <div className="mt-4 grid gap-4 xl:grid-cols-[360px_minmax(0,1fr)_360px]">
-              <div className="space-y-4">
+            <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,360px)_minmax(0,1fr)_minmax(0,360px)]">
+              <div className="min-w-0 space-y-4">
                 <RoleWorkspacePanel
                   activeRole={activeRole}
                   onRoleChange={setActiveRole}
@@ -1733,15 +1758,16 @@ export function ClinicCopilotApp() {
                   onChange={setAccessibilitySettings}
                 />
               </div>
-              <div className="space-y-4">
+              <div className="min-w-0 space-y-4">
                 <ReadinessScorecard
                   auditCount={auditLogs?.length ?? 0}
                   cases={cases}
                   output={displayOutput}
                 />
+                <McpExplorer />
                 <AuditLogViewer logs={auditLogs} />
               </div>
-              <div className="space-y-4">
+              <div className="min-w-0 space-y-4">
                 <ShortcutHelp />
                 <SafetyFrame />
               </div>

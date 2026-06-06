@@ -336,8 +336,8 @@ function DocsMcpSection() {
           </article>
           <article className="border border-white/16 bg-white/10 p-5 md:col-span-2">
             <h3 className="font-bold text-xl">Quick test</h3>
-            <pre className="mt-4 overflow-x-auto bg-slate-950 p-4 text-white/82 text-xs leading-6">
-              <code>{`curl -s https://bracu-steel.vercel.app/api/mcp \\
+            <pre className="mt-4 max-w-full overflow-x-auto whitespace-pre-wrap break-words bg-slate-950 p-4 text-white/82 text-xs leading-6">
+              <code className="break-words">{`curl -s https://bracu-steel.vercel.app/api/mcp \\
   -H 'content-type: application/json' \\
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
 
