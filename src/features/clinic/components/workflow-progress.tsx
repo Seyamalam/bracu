@@ -25,6 +25,12 @@ export function WorkflowProgress({
   steps: WorkflowStep[];
   toast: ToastNotice | null;
 }) {
+  const blockedCount = steps.filter((step) => step.status === "blocked").length;
+  const runningStep = steps.find((step) => step.status === "running");
+  const completeCount = steps.filter(
+    (step) => step.status === "complete",
+  ).length;
+
   return (
     <section className="space-y-3" aria-label="Clinic workflow progress">
       {toast ? (
@@ -47,28 +53,60 @@ export function WorkflowProgress({
       ) : null}
       <Card>
         <CardContent className="p-3">
-          <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
-            {steps.map((step) => (
-              <div
-                className={cn(
-                  "rounded-md border bg-background p-3",
-                  step.status === "complete" &&
-                    "border-emerald-200 bg-emerald-50",
-                  step.status === "running" && "border-sky-200 bg-sky-50",
-                  step.status === "blocked" && "border-red-200 bg-red-50",
-                )}
-                key={step.id}
-              >
-                <div className="flex items-center gap-2">
-                  <StepIcon status={step.status} />
-                  <p className="font-semibold text-sm">{step.label}</p>
+          <details>
+            <summary className="flex cursor-pointer list-none flex-wrap items-center justify-between gap-3">
+              <span className="flex items-center gap-2 font-bold text-sm">
+                <StepIcon
+                  status={
+                    blockedCount ? "blocked" : runningStep ? "running" : "idle"
+                  }
+                />
+                Clinic status
+              </span>
+              <span className="flex flex-wrap gap-2 text-xs">
+                <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 font-semibold text-emerald-900">
+                  {completeCount}/{steps.length} complete
+                </span>
+                <span
+                  className={cn(
+                    "rounded-full border px-2 py-1 font-semibold",
+                    blockedCount
+                      ? "border-red-200 bg-red-50 text-red-900"
+                      : "border-emerald-200 bg-emerald-50 text-emerald-900",
+                  )}
+                >
+                  {blockedCount ? `${blockedCount} blocked` : "No hard blocks"}
+                </span>
+                {runningStep ? (
+                  <span className="rounded-full border border-sky-200 bg-sky-50 px-2 py-1 font-semibold text-sky-900">
+                    Running: {runningStep.label}
+                  </span>
+                ) : null}
+              </span>
+            </summary>
+            <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
+              {steps.map((step) => (
+                <div
+                  className={cn(
+                    "rounded-md border bg-background p-3",
+                    step.status === "complete" &&
+                      "border-emerald-200 bg-emerald-50",
+                    step.status === "running" && "border-sky-200 bg-sky-50",
+                    step.status === "blocked" && "border-red-200 bg-red-50",
+                  )}
+                  key={step.id}
+                >
+                  <div className="flex items-center gap-2">
+                    <StepIcon status={step.status} />
+                    <p className="font-semibold text-sm">{step.label}</p>
+                  </div>
+                  <p className="mt-1 text-muted-foreground text-xs leading-4">
+                    {step.detail}
+                  </p>
                 </div>
-                <p className="mt-1 text-muted-foreground text-xs leading-4">
-                  {step.detail}
-                </p>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          </details>
         </CardContent>
       </Card>
     </section>

@@ -2,13 +2,19 @@
 
 import {
   Activity,
+  BookOpen,
   Bot,
   BriefcaseMedical,
   Building2,
   GitBranch,
+  HelpCircle,
+  Keyboard,
   LogOut,
   Settings,
+  ShieldCheck,
+  X,
 } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { BrandMark } from "@/features/marketing/components/brand-mark";
 import { cn } from "@/lib/utils";
@@ -73,6 +79,8 @@ export function AppShellSidebar({
   onLogout: () => void;
   role: string;
 }) {
+  const [helpOpen, setHelpOpen] = useState(false);
+
   return (
     <>
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-72 border-slate-200 border-r bg-white lg:flex lg:flex-col">
@@ -118,7 +126,16 @@ export function AppShellSidebar({
             );
           })}
         </nav>
-        <div className="border-slate-200 border-t p-3">
+        <div className="space-y-2 border-slate-200 border-t p-3">
+          <Button
+            className="w-full justify-start"
+            type="button"
+            variant="outline"
+            onClick={() => setHelpOpen(true)}
+          >
+            <HelpCircle size={17} aria-hidden="true" />
+            Help and tools
+          </Button>
           <Button
             className="w-full justify-start"
             type="button"
@@ -134,10 +151,26 @@ export function AppShellSidebar({
       <div className="border-slate-200 border-b bg-white px-4 py-3 pb-20 lg:hidden">
         <div className="flex items-center justify-between gap-3">
           <BrandMark compact />
-          <Button size="sm" type="button" variant="outline" onClick={onLogout}>
-            <LogOut size={15} aria-hidden="true" />
-            Sign out
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              type="button"
+              variant="outline"
+              onClick={() => setHelpOpen(true)}
+            >
+              <HelpCircle size={15} aria-hidden="true" />
+              Help
+            </Button>
+            <Button
+              size="sm"
+              type="button"
+              variant="outline"
+              onClick={onLogout}
+            >
+              <LogOut size={15} aria-hidden="true" />
+              Sign out
+            </Button>
+          </div>
         </div>
         <nav className="mt-3 grid grid-cols-3 gap-2" aria-label="Workspace">
           {workspaceNav.map((item) => {
@@ -190,6 +223,100 @@ export function AppShellSidebar({
           );
         })}
       </nav>
+      {helpOpen ? (
+        <SidebarHelpDrawer onClose={() => setHelpOpen(false)} />
+      ) : null}
     </>
+  );
+}
+
+function SidebarHelpDrawer({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-50 bg-black/30">
+      <aside className="absolute inset-y-0 right-0 flex w-full max-w-md flex-col overflow-y-auto border-slate-200 border-l bg-white shadow-2xl">
+        <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-slate-200 border-b bg-white p-4">
+          <div>
+            <p className="font-black text-xl">Help</p>
+            <p className="text-muted-foreground text-sm">
+              Shortcuts, safety rules, and tool reference live here so the
+              workspace can stay calm.
+            </p>
+          </div>
+          <Button
+            aria-label="Close help drawer"
+            size="icon"
+            type="button"
+            variant="outline"
+            onClick={onClose}
+          >
+            <X size={17} aria-hidden="true" />
+          </Button>
+        </div>
+        <div className="space-y-4 p-4">
+          <HelpBlock
+            icon={Keyboard}
+            title="Shortcuts"
+            items={[
+              "Cmd/Ctrl+K opens Copilot",
+              "Cmd/Ctrl+G generates a draft",
+              "Cmd/Ctrl+P opens presentation mode",
+              "Esc closes presentation mode",
+            ]}
+          />
+          <HelpBlock
+            icon={ShieldCheck}
+            title="Safety reminders"
+            items={[
+              "Vitals, allergies, escalation, return warnings, and clinician approval stay visible before print.",
+              "Copilot output is draft support only.",
+              "Use Case for patient work; use Copilot for questions and agent actions.",
+            ]}
+          />
+          <HelpBlock
+            icon={Bot}
+            title="Useful Copilot asks"
+            items={[
+              "What should I do next?",
+              "Is this safe to print?",
+              "Explain this in simple Bangla.",
+              "Prepare follow-up ownership.",
+            ]}
+          />
+          <a
+            className="flex items-center justify-between rounded-md border border-primary/20 bg-[#eaf6f1] p-3 font-bold text-primary text-sm"
+            href="/docs"
+          >
+            <span className="flex items-center gap-2">
+              <BookOpen size={16} aria-hidden="true" />
+              Open public docs and tool catalog
+            </span>
+          </a>
+        </div>
+      </aside>
+    </div>
+  );
+}
+
+function HelpBlock({
+  icon: Icon,
+  items,
+  title,
+}: {
+  icon: typeof Keyboard;
+  items: string[];
+  title: string;
+}) {
+  return (
+    <section className="rounded-md border border-border bg-[#fbfaf6] p-4">
+      <div className="flex items-center gap-2">
+        <Icon className="text-primary" size={18} aria-hidden="true" />
+        <h2 className="font-black text-base">{title}</h2>
+      </div>
+      <ul className="mt-3 space-y-2 text-muted-foreground text-sm leading-6">
+        {items.map((item) => (
+          <li key={item}>{item}</li>
+        ))}
+      </ul>
+    </section>
   );
 }

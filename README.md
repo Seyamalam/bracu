@@ -26,10 +26,13 @@ Clinic Copilot BD is not a diagnosis or prescription engine. It is a clinical wo
 - Agentic Workflow Studio with canvas-style workflow builder, safety governor,
   patient journey map, protocol library, shift copilot, simulation lab, and
   workflow template marketplace
-- Agent Command Center and Agent Operating System with named tools, live tool
-  streaming, agent inbox, memory, command replay, voice commands, and judge mode
+- Agent Command Center and agent tooling available through the Ask Copilot
+  drawer, Help drawer, Admin, and public docs instead of crowding every page
 - Global Ask Copilot launcher on every non-Copilot workspace
-- Copilot Console with chat-first agent interface, tool calls, reasoning, receipts, approvals, memory, and MCP
+- Copilot workspace with Codex-style threads, one chat input, inline safety
+  context, recent activity, and compact patient/queue context
+- Sidebar Help drawer for shortcuts, safety reminders, common Copilot asks, and
+  a public docs link
 - AI Run Receipts for tool inputs, output type, safety checks, status, role, and timestamp
 - Approvals Inbox for vitals, allergies, red flags, patient packet print approval, and escalation acknowledgment
 - MCP Explorer in Admin for inspecting schemas and running demo-safe JSON-RPC calls

@@ -32,13 +32,8 @@ import {
 } from "./accessibility-controls";
 import { AgentCommandCenter } from "./agent-command-center";
 import {
-  type AgentMemory,
-  AgentOperatingSystem,
   type AgentTimelineEvent,
-  type AutopilotMode,
-  defaultAgentMemory,
   initialTimeline,
-  type StreamingStep,
 } from "./agent-operating-system";
 import { AgenticWorkflowStudio } from "./agentic-workflow-studio";
 import { AiRunReceipts } from "./ai-run-receipts";
@@ -64,8 +59,6 @@ import { DocumentExtractor } from "./document-extractor";
 import { FollowUpComposer } from "./follow-up-composer";
 import { FollowUpPanel } from "./follow-up-panel";
 import { FollowUpScheduler } from "./follow-up-scheduler";
-import { GuidedWorkflowPanel } from "./guided-workflow-panel";
-import { ImpactSnapshot } from "./impact-snapshot";
 import { IntakePanel } from "./intake-panel";
 import {
   LowConnectivityPanel,
@@ -77,7 +70,6 @@ import { Metric } from "./metric";
 import { ModelSelector } from "./model-selector";
 import { NextStepNavigator } from "./next-step-navigator";
 import { OperationsPulse } from "./operations-pulse";
-import { OverviewQuickActions } from "./overview-quick-actions";
 import { PatientHandout } from "./patient-handout";
 import {
   type LiteracyMode,
@@ -91,14 +83,12 @@ import { ReferralComposer } from "./referral-composer";
 import { ReplyTriage } from "./reply-triage";
 import { RiskExplainer } from "./risk-explainer";
 import { type ClinicRole, RoleWorkspacePanel } from "./role-workspace-panel";
-import { SafetyBanner } from "./safety-banner";
 import { SafetyFrame } from "./safety-frame";
 import { ShortcutHelp } from "./shortcut-help";
 import { StaffHandoff } from "./staff-handoff";
 import { TeachBackCheck } from "./teach-back-check";
 import { TrendDashboard } from "./trend-dashboard";
 import { VisitCloseout } from "./visit-closeout";
-import { VisitJourney } from "./visit-journey";
 import {
   type ToastNotice,
   WorkflowProgress,
@@ -200,12 +190,8 @@ export function ClinicCopilotApp({
   const [activeWorkspacePage, setActiveWorkspacePage] =
     useState<WorkspacePage>(initialWorkspace);
   const [activeRole, setActiveRole] = useState<ClinicRole>("doctor");
-  const [autopilotMode, setAutopilotMode] = useState<AutopilotMode>("safe");
   const [agentTimeline, setAgentTimeline] =
     useState<AgentTimelineEvent[]>(initialTimeline);
-  const [agentMemory, setAgentMemory] =
-    useState<AgentMemory>(defaultAgentMemory);
-  const [isJudgeMode, setIsJudgeMode] = useState(false);
   const [printPreviewOpen, setPrintPreviewOpen] = useState(false);
   const [aiDrawerOpen, setAiDrawerOpen] = useState(false);
   const [literacyMode, setLiteracyMode] = useState<LiteracyMode>("simple_bn");
@@ -384,28 +370,6 @@ export function ClinicCopilotApp({
     ],
     [displayOutput, form, runningAction, safetyGates, selectedCase?.status],
   );
-  const streamingSteps: StreamingStep[] = useMemo(
-    () =>
-      [
-        "Reading intake",
-        "Checking pregnancy/child/chest pain",
-        "Checking allergy and medicines",
-        "Drafting handout",
-        "Writing audit trail",
-      ].map((label, index) => ({
-        id: label.toLowerCase().replaceAll(" ", "-"),
-        label,
-        status: runningAction
-          ? index === 0
-            ? "running"
-            : "idle"
-          : displayOutput
-            ? "complete"
-            : "idle",
-      })),
-    [displayOutput, runningAction],
-  );
-
   useEffect(() => {
     if (!selectedCaseId && filteredCases[0]) {
       setSelectedCaseId(filteredCases[0]._id);
@@ -461,22 +425,6 @@ export function ClinicCopilotApp({
     );
   }, [queuedDrafts]);
 
-  useEffect(() => {
-    const rawMemory = window.localStorage.getItem(
-      "clinic-copilot-agent-memory",
-    );
-    if (rawMemory) {
-      setAgentMemory(JSON.parse(rawMemory) as AgentMemory);
-    }
-  }, []);
-
-  useEffect(() => {
-    window.localStorage.setItem(
-      "clinic-copilot-agent-memory",
-      JSON.stringify(agentMemory),
-    );
-  }, [agentMemory]);
-
   const currentUser = auth.user;
 
   function notify(
@@ -509,15 +457,6 @@ export function ClinicCopilotApp({
         },
         ...events,
       ].slice(0, 24),
-    );
-  }
-
-  function changeAutopilotMode(nextMode: AutopilotMode) {
-    setAutopilotMode(nextMode);
-    addAgentEvent(
-      nextMode === "emergency" ? "Safety" : "Ops",
-      `Autopilot mode set to ${nextMode}.`,
-      nextMode === "emergency" ? "running" : "complete",
     );
   }
 
@@ -1438,100 +1377,21 @@ export function ClinicCopilotApp({
           <WorkflowProgress steps={workflowSteps} toast={toast} />
 
           {activeWorkspacePage === "ai" ? (
-            <>
-              <div className="mt-4">
-                <CopilotConsole
-                  form={form}
-                  model={selectedModel}
-                  output={displayOutput}
-                  runningAction={runningAction}
-                  onCommand={runSuggestedCommand}
-                />
-              </div>
-              <div className="mt-4">
-                <AgentOperatingSystem
-                  activeRole={activeRole}
-                  autopilotMode={autopilotMode}
-                  cases={cases}
-                  commandHistory={commandHistory}
-                  form={form}
-                  isJudgeMode={isJudgeMode}
-                  memory={agentMemory}
-                  output={displayOutput}
-                  runningAction={runningAction}
-                  streamingSteps={streamingSteps}
-                  timeline={agentTimeline}
-                  onAutopilotModeChange={changeAutopilotMode}
-                  onCommand={(command) => void runSuggestedCommand(command)}
-                  onJudgeModeChange={setIsJudgeMode}
-                  onMemoryChange={setAgentMemory}
-                  onPrintPreview={() => setPrintPreviewOpen(true)}
-                />
-              </div>
-              <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_420px]">
-                <div className="space-y-4">
-                  <RoleWorkspacePanel
-                    activeRole={activeRole}
-                    onRoleChange={setActiveRole}
-                    onOpenPage={openWorkspacePage}
-                  />
-                  <AgentCommandCenter
-                    cases={cases}
-                    model={selectedModel}
-                    output={displayOutput}
-                    selectedPatient={
-                      selectedCase?.patientName ?? form.patientName
-                    }
-                    onRunCommand={runSuggestedCommand}
-                  />
-                  <OverviewQuickActions
-                    onOpenPage={openWorkspacePage}
-                    onStartGuidedWorkflow={() => void runGuidedWorkflow()}
-                  />
-                  <CommandCopilot
-                    ref={commandInputRef}
-                    history={commandHistory}
-                    model={selectedModel}
-                    onCommandComplete={recordCommand}
-                    onApplyPlan={applyCommandPlan}
-                  />
-                  <AiRunReceipts
-                    form={form}
-                    output={displayOutput}
-                    runningAction={runningAction}
-                  />
-                  <GuidedWorkflowPanel
-                    copy={copy}
-                    language={uiLanguage}
-                    onLanguageChange={setUiLanguage}
-                    onLoadScenario={setForm}
-                    onRunGuidedWorkflow={() => void runGuidedWorkflow()}
-                  />
-                </div>
-                <div className="space-y-4">
-                  <SafetyBanner
-                    title={copy.clinicianReview}
-                    body={copy.safetyBanner}
-                  />
-                  <ClinicalSafetyGates gates={safetyGates} />
-                  <ApprovalsInbox
-                    form={form}
-                    output={displayOutput}
-                    onCommand={runSuggestedCommand}
-                    onPrintPreview={() => setPrintPreviewOpen(true)}
-                  />
-                  <ImpactSnapshot
-                    output={displayOutput}
-                    title={copy.impactTitle}
-                  />
-                  <VisitJourney
-                    form={form}
-                    output={displayOutput}
-                    status={selectedCase?.status}
-                  />
-                </div>
-              </div>
-            </>
+            <div className="mt-4">
+              <CopilotConsole
+                activeRole={activeRole}
+                cases={cases}
+                commandHistory={commandHistory}
+                form={form}
+                model={selectedModel}
+                output={displayOutput}
+                runningAction={runningAction}
+                safetyGates={safetyGates}
+                timeline={agentTimeline}
+                onCommand={runSuggestedCommand}
+                onOpenCase={() => openWorkspacePage("case")}
+              />
+            </div>
           ) : null}
 
           {activeWorkspacePage === "case" ? (

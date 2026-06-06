@@ -70,6 +70,7 @@ open_and_capture() {
   local route="$1"
   local name="$2"
   shift 2
+  echo "  - ${name} (${route})"
   agent-browser --session "$SESSION" open "${BASE_URL}${route}" >/dev/null
   agent-browser --session "$SESSION" wait --load networkidle >/dev/null
   require_text "$name" "$@"
@@ -108,6 +109,7 @@ open_workspace() {
   local workspace="$1"
   local name="$2"
   shift 2
+  echo "  - ${name} (${workspace})"
   agent-browser --session "$SESSION" eval --stdin >/dev/null <<EOF
 var target = "${workspace}";
 var button = [...document.querySelectorAll("button")].find((item) =>
@@ -147,7 +149,7 @@ clear_demo_auth
 echo "Running public page QA..."
 open_and_capture "/" "public-home" "Clinic Copilot BD" "Launch clinic demo"
 open_and_capture "/features" "public-features" "Agentic Workflow Studio" "MCP data layer"
-open_and_capture "/docs" "public-docs" "Tester walkthrough" "clinic.safety.get_blockers"
+open_and_capture "/docs" "public-docs" "Tester walkthrough" "Copilot and tools" "clinic.safety.get_blockers"
 open_and_capture "/judge" "public-judge" "Judge Mode" "Show Copilot" "Prove MCP"
 open_and_capture "/mission" "public-mission" "Mission" "Practical AI"
 open_and_capture "/pitch" "public-pitch" "Product pitch" "Open demo"
@@ -157,13 +159,13 @@ open_and_capture "/clinic" "clinic-redirect-auth" "Create clinic session"
 echo "Running authenticated workspace QA..."
 login_seeded_user
 open_and_capture "/clinic/case" "direct-workspace-case" "Reception Intake" "Clinical Safety Gates"
-open_and_capture "/clinic/copilot" "direct-workspace-copilot" "Copilot Command Room" "AI Run Receipts"
+open_and_capture "/clinic/copilot" "direct-workspace-copilot" "Patient thread" "Context"
 require_text "workspace-shell" "Queue" "Case" "Copilot" "Operations" "Builder" "Admin"
 agent-browser --session "$SESSION" screenshot --full "${OUT_DIR}/workspace-shell.png" >/dev/null
 
 open_workspace "Queue" "workspace-queue" "Live Case Board" "Ask Copilot"
 open_workspace "Case" "workspace-case" "Reception Intake" "Clinical Safety Gates" "Ask Copilot"
-open_workspace "Copilot" "workspace-copilot" "Copilot Command Room" "AI Run Receipts" "Approvals Inbox"
+open_workspace "Copilot" "workspace-copilot" "Patient thread" "Context" "Clinical review stays required"
 open_workspace "Operations" "workspace-operations" "Operations Pulse" "Ask Copilot"
 open_workspace "Builder" "workspace-builder" "Agentic Workflow Studio" "Ask Copilot"
 open_workspace "Admin" "workspace-admin" "MCP Explorer" "Readiness"
@@ -178,6 +180,25 @@ EOF
 agent-browser --session "$SESSION" wait --text "AI Run Receipts" >/dev/null
 require_text "copilot-drawer" "Ask Copilot" "AI Run Receipts" "Approvals Inbox"
 agent-browser --session "$SESSION" screenshot --full "${OUT_DIR}/copilot-drawer.png" >/dev/null
+
+echo "Checking sidebar help drawer..."
+agent-browser --session "$SESSION" eval --stdin >/dev/null <<'EOF'
+var __qaHelpButton = [...document.querySelectorAll("button")].find((item) =>
+  item.textContent?.includes("Help and tools")
+);
+if (!__qaHelpButton) throw new Error("Help and tools button missing");
+__qaHelpButton.click();
+EOF
+agent-browser --session "$SESSION" wait --text "Shortcuts" >/dev/null
+require_text "sidebar-help" "Shortcuts" "Open public docs and tool catalog"
+agent-browser --session "$SESSION" screenshot --full "${OUT_DIR}/sidebar-help.png" >/dev/null
+agent-browser --session "$SESSION" eval --stdin >/dev/null <<'EOF'
+var __qaCloseHelp = [...document.querySelectorAll("button")].find((item) =>
+  item.getAttribute("aria-label") === "Close help drawer"
+);
+if (!__qaCloseHelp) throw new Error("Close help drawer button missing");
+__qaCloseHelp.click();
+EOF
 
 echo "Checking MCP Explorer call..."
 open_workspace "Admin" "workspace-admin-mcp" "MCP Explorer"

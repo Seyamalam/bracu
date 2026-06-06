@@ -223,6 +223,7 @@ function DocsPage() {
         </div>
       </section>
       <DocsTesterSection />
+      <DocsCopilotSection />
       <DocsMcpSection />
       <DocsAiSection />
       <DocsBuildSection />
@@ -290,6 +291,100 @@ function DocsTesterSection() {
               </article>
             ))}
           </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+const docsCopilotTools = [
+  {
+    group: "Clinical safety",
+    items: [
+      "detect_missing_vitals",
+      "detect_allergy_gap",
+      "detect_pregnancy_child_chest_pain",
+      "audit_case_safety",
+    ],
+  },
+  {
+    group: "Patient communication",
+    items: [
+      "rewrite_for_low_literacy",
+      "translate_bn_en",
+      "generate_patient_audio_script",
+      "generate_pictogram_plan",
+    ],
+  },
+  {
+    group: "Print and documents",
+    items: [
+      "prepare_referral_packet",
+      "compare_before_after_draft",
+      "create_visit_summary",
+      "prepare_followup_call_sheet",
+    ],
+  },
+  {
+    group: "Operations",
+    items: [
+      "summarize_queue_pressure",
+      "predict_followup_risk",
+      "generate_staff_tasks",
+      "recommend_next_agent_action",
+    ],
+  },
+] as const;
+
+const docsShortcuts = [
+  "Cmd/Ctrl+K opens Copilot",
+  "Cmd/Ctrl+G generates a draft",
+  "Cmd/Ctrl+P opens presentation mode",
+  "Esc closes presentation mode",
+] as const;
+
+function DocsCopilotSection() {
+  return (
+    <section className="bg-[#fbfaf6]">
+      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[0.78fr_1.22fr] lg:px-8">
+        <div>
+          <p className="font-semibold text-primary text-sm uppercase tracking-[0.16em]">
+            Copilot and tools
+          </p>
+          <h2 className="mt-3 font-black text-3xl tracking-normal sm:text-5xl">
+            The app stays simple; the tool catalog lives here.
+          </h2>
+          <p className="mt-4 text-muted-foreground text-lg leading-8">
+            Healthcare workers see a chat-first Copilot with threads, patient
+            context, safety blockers, and inline tool results. Detailed tool
+            names, shortcuts, and external-agent capabilities are documented
+            here for testers, admins, and judges.
+          </p>
+          <div className="mt-6 border border-border bg-white p-5">
+            <h3 className="font-bold text-xl">Keyboard shortcuts</h3>
+            <ul className="mt-4 space-y-3 text-muted-foreground text-sm leading-6">
+              {docsShortcuts.map((shortcut) => (
+                <li key={shortcut}>{shortcut}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+        <div className="grid gap-3 md:grid-cols-2">
+          {docsCopilotTools.map((group) => (
+            <article
+              className="border border-border bg-white p-5"
+              key={group.group}
+            >
+              <h3 className="font-bold text-xl">{group.group}</h3>
+              <ul className="mt-4 space-y-2">
+                {group.items.map((item) => (
+                  <li className="font-mono text-primary text-sm" key={item}>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </article>
+          ))}
         </div>
       </div>
     </section>
