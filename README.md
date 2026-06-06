@@ -200,6 +200,13 @@ Public product pages:
 /mission   Mission, vision, and care principles
 /pitch     Product pitch
 /login     Demo authentication
+/clinic    Redirects to the default clinic queue
+/clinic/queue
+/clinic/case
+/clinic/copilot
+/clinic/operations
+/clinic/builder
+/clinic/admin
 ```
 
 Quality checks:

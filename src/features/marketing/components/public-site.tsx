@@ -88,7 +88,7 @@ function PublicHeader({ activePage }: { activePage: PublicPage }) {
           })}
         </nav>
         <Button asChild className="shrink-0">
-          <Link href="/login">
+          <Link href="/clinic/queue">
             <LogIn size={17} aria-hidden="true" />
             Start demo
           </Link>
@@ -132,7 +132,7 @@ function HomePage({ authSlot }: { authSlot?: React.ReactNode }) {
             </div>
             <div className="mt-7 flex flex-wrap gap-3">
               <Button asChild size="lg" variant="secondary">
-                <Link href="/login">
+                <Link href="/clinic/queue">
                   <PlayCircle size={19} aria-hidden="true" />
                   Launch clinic demo
                 </Link>
@@ -932,7 +932,7 @@ function ProductScreenshotBand() {
             </h2>
           </div>
           <Button asChild variant="outline">
-            <Link href="/login">
+            <Link href="/clinic/queue">
               Open demo
               <ArrowRight size={17} aria-hidden="true" />
             </Link>

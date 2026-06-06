@@ -499,7 +499,7 @@ export const docsTesterWalkthrough = [
   },
   {
     steps: [
-      "Open /login and sign in or create a demo session, then enter the clinic workspace.",
+      "Open /clinic/queue and sign in or create a demo session, then enter the shareable clinic workspace.",
       "Open /judge first if presenting to judges; it gives the clean three-minute route.",
       "Use the six main workspaces: Queue, Case, AI, Operations, Builder, and Admin.",
       "Switch between Reception, Nurse, Doctor, Follow-up desk, and Admin roles and confirm each role changes ownership context.",

@@ -77,8 +77,16 @@ open_and_capture() {
   agent-browser --session "$SESSION" screenshot --full "${OUT_DIR}/${name}.png" >/dev/null
 }
 
+clear_demo_auth() {
+  agent-browser --session "$SESSION" open "${BASE_URL}/" >/dev/null
+  agent-browser --session "$SESSION" wait --load networkidle >/dev/null
+  agent-browser --session "$SESSION" eval --stdin >/dev/null <<'EOF'
+window.localStorage.removeItem("clinic-copilot-demo-user");
+EOF
+}
+
 login_seeded_user() {
-  agent-browser --session "$SESSION" open "${BASE_URL}/login" >/dev/null
+  agent-browser --session "$SESSION" open "${BASE_URL}/clinic/queue" >/dev/null
   agent-browser --session "$SESSION" wait --load networkidle >/dev/null
   agent-browser --session "$SESSION" eval --stdin >/dev/null <<'EOF'
 var text = document.body.innerText;
@@ -109,6 +117,18 @@ if (!button) throw new Error("Missing workspace button: " + target);
 button.click();
 EOF
   agent-browser --session "$SESSION" wait 700 >/dev/null
+  local expected_slug
+  case "$workspace" in
+    Copilot) expected_slug="copilot" ;;
+    *) expected_slug="$(echo "$workspace" | tr '[:upper:]' '[:lower:]')" ;;
+  esac
+  agent-browser --session "$SESSION" eval --stdin >/tmp/bracu-qa-route-check.json <<EOF
+var __qaExpectedPath = "/clinic/${expected_slug}";
+if (window.location.pathname !== __qaExpectedPath) {
+  throw new Error("${name} expected path " + __qaExpectedPath + " but got " + window.location.pathname);
+}
+({ ok: true, path: window.location.pathname });
+EOF
   require_text "$name" "$@"
   check_no_page_overflow "$name"
   agent-browser --session "$SESSION" screenshot --full "${OUT_DIR}/${name}.png" >/dev/null
@@ -122,6 +142,8 @@ echo "Starting app on ${BASE_URL}..."
 SERVER_PID="$!"
 sleep 2
 
+clear_demo_auth
+
 echo "Running public page QA..."
 open_and_capture "/" "public-home" "Clinic Copilot BD" "Launch clinic demo"
 open_and_capture "/features" "public-features" "Agentic Workflow Studio" "MCP data layer"
@@ -130,9 +152,12 @@ open_and_capture "/judge" "public-judge" "Judge Mode" "Show Copilot" "Prove MCP"
 open_and_capture "/mission" "public-mission" "Mission" "Practical AI"
 open_and_capture "/pitch" "public-pitch" "Product pitch" "Open demo"
 open_and_capture "/login" "public-login" "Demo access" "Create clinic session"
+open_and_capture "/clinic" "clinic-redirect-auth" "Create clinic session"
 
 echo "Running authenticated workspace QA..."
 login_seeded_user
+open_and_capture "/clinic/case" "direct-workspace-case" "Reception Intake" "Clinical Safety Gates"
+open_and_capture "/clinic/copilot" "direct-workspace-copilot" "Copilot Command Room" "AI Run Receipts"
 require_text "workspace-shell" "Queue" "Case" "Copilot" "Operations" "Builder" "Admin"
 agent-browser --session "$SESSION" screenshot --full "${OUT_DIR}/workspace-shell.png" >/dev/null
 

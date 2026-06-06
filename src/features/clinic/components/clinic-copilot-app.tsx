@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery } from "convex/react";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -14,6 +15,7 @@ import {
   initialIntake,
   uiCopy,
 } from "../data";
+import { getWorkspaceHref } from "../routes";
 import type {
   CaseStatus,
   CommandHistoryEntry,
@@ -103,6 +105,10 @@ import {
   type WorkflowStep,
 } from "./workflow-progress";
 
+type ClinicCopilotAppProps = {
+  initialWorkspace?: WorkspacePage;
+};
+
 type WorkspaceSnapshot = {
   caseSearch: string;
   commandApprovalInstruction?: string;
@@ -132,7 +138,10 @@ type WorkspaceSnapshot = {
   uiLanguage: UiLanguage;
 };
 
-export function ClinicCopilotApp() {
+export function ClinicCopilotApp({
+  initialWorkspace = "queue",
+}: ClinicCopilotAppProps = {}) {
+  const router = useRouter();
   const auth = useDemoAuth();
   const commandInputRef = useRef<HTMLInputElement>(null);
   const [uiLanguage, setUiLanguage] = useState<UiLanguage>("en");
@@ -189,7 +198,7 @@ export function ClinicCopilotApp() {
       largeText: false,
     });
   const [activeWorkspacePage, setActiveWorkspacePage] =
-    useState<WorkspacePage>("queue");
+    useState<WorkspacePage>(initialWorkspace);
   const [activeRole, setActiveRole] = useState<ClinicRole>("doctor");
   const [autopilotMode, setAutopilotMode] = useState<AutopilotMode>("safe");
   const [agentTimeline, setAgentTimeline] =
@@ -250,6 +259,20 @@ export function ClinicCopilotApp() {
   const approveCase = useMutation(api.cases.approveCase);
   const updateDraft = useMutation(api.cases.updateDraft);
   const copy = uiCopy[uiLanguage];
+
+  useEffect(() => {
+    setActiveWorkspacePage(initialWorkspace);
+  }, [initialWorkspace]);
+
+  function openWorkspacePage(page: WorkspacePage) {
+    setActiveWorkspacePage(page);
+    router.push(getWorkspaceHref(page));
+  }
+
+  function logout() {
+    auth.logout();
+    router.push("/login");
+  }
 
   const readyScore = useMemo(() => {
     let score = 0;
@@ -547,7 +570,7 @@ export function ClinicCopilotApp() {
       intake: draft.intake,
     });
     setQueuedDrafts((drafts) => drafts.filter((item) => item.id !== draft.id));
-    setActiveWorkspacePage("case");
+    openWorkspacePage("case");
     notify(
       "Draft synced",
       "Queued intake is now active in the reception form.",
@@ -1201,7 +1224,7 @@ export function ClinicCopilotApp() {
       const isModifier = event.metaKey || event.ctrlKey;
       if (isModifier && event.key.toLowerCase() === "k") {
         event.preventDefault();
-        setActiveWorkspacePage("ai");
+        openWorkspacePage("ai");
         addAgentEvent(
           "Ops",
           "Cmd+K opened the agent command palette.",
@@ -1304,9 +1327,9 @@ export function ClinicCopilotApp() {
       <AppShellSidebar
         activePage={activeWorkspacePage}
         clinicName={currentUser.clinicName}
-        onPageChange={setActiveWorkspacePage}
+        onPageChange={openWorkspacePage}
         role={currentUser.role}
-        onLogout={auth.logout}
+        onLogout={logout}
       />
 
       {aiDrawerOpen ? (
@@ -1450,7 +1473,7 @@ export function ClinicCopilotApp() {
                   <RoleWorkspacePanel
                     activeRole={activeRole}
                     onRoleChange={setActiveRole}
-                    onOpenPage={setActiveWorkspacePage}
+                    onOpenPage={openWorkspacePage}
                   />
                   <AgentCommandCenter
                     cases={cases}
@@ -1462,7 +1485,7 @@ export function ClinicCopilotApp() {
                     onRunCommand={runSuggestedCommand}
                   />
                   <OverviewQuickActions
-                    onOpenPage={setActiveWorkspacePage}
+                    onOpenPage={openWorkspacePage}
                     onStartGuidedWorkflow={() => void runGuidedWorkflow()}
                   />
                   <CommandCopilot
@@ -1674,7 +1697,7 @@ export function ClinicCopilotApp() {
                 <RoleWorkspacePanel
                   activeRole={activeRole}
                   onRoleChange={setActiveRole}
-                  onOpenPage={setActiveWorkspacePage}
+                  onOpenPage={openWorkspacePage}
                 />
                 <OperationsPulse cases={cases} />
                 <LowConnectivityPanel
@@ -1757,7 +1780,7 @@ export function ClinicCopilotApp() {
                 <RoleWorkspacePanel
                   activeRole={activeRole}
                   onRoleChange={setActiveRole}
-                  onOpenPage={setActiveWorkspacePage}
+                  onOpenPage={openWorkspacePage}
                 />
                 <ModelSelector
                   value={selectedModel}

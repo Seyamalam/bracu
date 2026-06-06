@@ -59,7 +59,7 @@ export function JudgeModePage() {
         <BrandMark />
         <div className="flex gap-2">
           <Button asChild variant="secondary">
-            <Link href="/login">Launch demo</Link>
+            <Link href="/clinic/queue">Launch demo</Link>
           </Button>
           <Button asChild variant="outline">
             <Link href="/docs">Docs</Link>
