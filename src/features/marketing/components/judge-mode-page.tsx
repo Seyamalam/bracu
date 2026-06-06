@@ -28,9 +28,9 @@ const judgeSteps = [
   },
   {
     detail:
-      "Run or show the AI Console with command palette, tool stream, run receipts, approvals, memory, and timeline.",
+      "Run or show the Copilot Console with chat, command palette, tool stream, run receipts, approvals, memory, and timeline.",
     icon: Bot,
-    title: "3. Show AI Console",
+    title: "3. Show Copilot",
   },
   {
     detail:
@@ -77,7 +77,8 @@ export function JudgeModePage() {
           <p className="mt-5 text-lg text-white/76 leading-8">
             Use this page as the judging script. It highlights the calm clinic
             workflow first, then proves the agentic layer with receipts,
-            approvals, Builder, MCP Explorer, and print-first outputs.
+            approvals, Builder, MCP Explorer, global Ask Copilot, and
+            print-first outputs.
           </p>
           <div className="mt-6 grid gap-3 sm:grid-cols-3">
             {[

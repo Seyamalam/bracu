@@ -519,7 +519,8 @@ export const docsTesterWalkthrough = [
     steps: [
       "Use the agent command bar to ask for a doctor summary, medicine slip, referral, follow-up call sheet, or pictogram handout.",
       "Open the command palette and run named tools from the Clinic Agent Swarm.",
-      "Open the AI workspace for chat, tool runs, approvals, memory, MCP-style commands, and agent timeline.",
+      "Open the Copilot workspace for chat, tool runs, approvals, memory, MCP-style commands, and agent timeline.",
+      "Use Ask Copilot from Queue, Case, Operations, Builder, and Admin to confirm page-aware help is always available.",
       "Check AI Run Receipts and Approvals Inbox for safety status, role, timestamp, and human-review boundaries.",
       "Open Builder for Agentic Workflow Studio and click Canvas, Governor, Journey, Protocols, Shift, Simulation, and Marketplace.",
       "Review the live tool stream, agent memory, agent inbox, command replay, and simulation judge output for clear status and human approval boundaries.",

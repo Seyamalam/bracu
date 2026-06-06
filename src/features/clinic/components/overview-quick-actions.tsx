@@ -14,7 +14,7 @@ const quickActions = [
   {
     body: "Check the draft, handoff, risk explanation, and approval status.",
     icon: ShieldCheck,
-    label: "Open AI",
+    label: "Open Copilot",
     page: "ai",
   },
   {

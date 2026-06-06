@@ -28,6 +28,8 @@ Clinic Copilot BD is not a diagnosis or prescription engine. It is a clinical wo
   workflow template marketplace
 - Agent Command Center and Agent Operating System with named tools, live tool
   streaming, agent inbox, memory, command replay, voice commands, and judge mode
+- Global Ask Copilot launcher on every non-Copilot workspace
+- Copilot Console with chat-first agent interface, tool calls, reasoning, receipts, approvals, memory, and MCP
 - AI Run Receipts for tool inputs, output type, safety checks, status, role, and timestamp
 - Approvals Inbox for vitals, allergies, red flags, patient packet print approval, and escalation acknowledgment
 - MCP Explorer in Admin for inspecting schemas and running demo-safe JSON-RPC calls
@@ -114,9 +116,9 @@ curl -s http://localhost:3000/api/mcp \
 
 ![Clinic Copilot BD patient case workspace](public/screenshots/clinic-workspace-review.png)
 
-### AI Console workspace
+### Copilot workspace
 
-![Clinic Copilot BD AI console workspace](public/screenshots/clinic-workspace-intake.png)
+![Clinic Copilot BD Copilot workspace](public/screenshots/clinic-workspace-intake.png)
 
 ### Operations workspace
 
@@ -206,7 +208,13 @@ Quality checks:
 bun run lint
 bun run build
 bun run validate
+bun run qa:browser
 ```
+
+`bun run qa:browser` builds the app, starts `next start`, drives the public
+site and every authenticated workspace through `agent-browser`, verifies key
+text and layout overflow, checks the MCP Explorer response, and saves full-page
+screenshots in `artifacts/agent-browser-qa/`.
 
 ## Safety Principles
 
@@ -227,7 +235,7 @@ it with production authentication before handling real users or real patient dat
 1. Create a temporary clinic account.
 2. Start in Queue, pick a case, then open the Case workspace.
 3. Generate the clinical draft and review red flags.
-4. Open AI for chat, tool runs, AI Run Receipts, Approvals Inbox, memory, and the agent timeline.
+4. Open Copilot for chat, tool runs, AI Run Receipts, Approvals Inbox, memory, and the agent timeline.
 5. Open Builder and show Canvas, Safety Governor, Journey, Protocols, Shift,
    Simulation, and Marketplace tabs.
 6. Copy or print the patient handout.

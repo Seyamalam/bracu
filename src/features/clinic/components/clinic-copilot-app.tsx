@@ -56,6 +56,7 @@ import {
   getClinicalSafetyGates,
 } from "./clinical-safety-gates";
 import { CommandCopilot } from "./command-copilot";
+import { CopilotConsole } from "./copilot-console";
 import { DoctorConsole } from "./doctor-console";
 import { DocumentExtractor } from "./document-extractor";
 import { FollowUpComposer } from "./follow-up-composer";
@@ -1313,9 +1314,10 @@ export function ClinicCopilotApp() {
           <aside className="absolute inset-y-0 right-0 flex w-full max-w-xl flex-col overflow-y-auto border-slate-200 border-l bg-white shadow-2xl">
             <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-slate-200 border-b bg-white p-4">
               <div>
-                <p className="font-black text-xl">AI Drawer</p>
+                <p className="font-black text-xl">Ask Copilot</p>
                 <p className="text-muted-foreground text-sm">
-                  Case-aware chat, tool runs, approvals, and safety context.
+                  Page-aware help with chat, tools, approvals, and safety
+                  context.
                 </p>
               </div>
               <Button
@@ -1366,14 +1368,14 @@ export function ClinicCopilotApp() {
       ) : null}
 
       <div className="min-w-0 lg:pl-72">
-        <header className="border-slate-200 border-b bg-white">
+        <header className="border-slate-200 border-b bg-gradient-to-r from-white via-[#f7fff8] to-[#fff7d6]">
           <div className="mx-auto grid max-w-[1680px] gap-4 px-4 py-4 sm:px-6 lg:grid-cols-[1fr_auto] lg:px-8">
             <div>
               <p className="font-semibold text-primary text-sm">
                 {currentUser.clinicName}
               </p>
               <div className="mt-1 flex items-center gap-3">
-                <span className="hidden size-11 shrink-0 items-center justify-center rounded-md bg-[#eaf6f1] text-primary sm:flex">
+                <span className="hidden size-11 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground shadow-sm sm:flex">
                   <ActiveWorkspaceIcon size={22} aria-hidden="true" />
                 </span>
                 <div>
@@ -1393,14 +1395,13 @@ export function ClinicCopilotApp() {
                 label={copy.mode}
                 value={mode === "idle" ? "Demo" : mode}
               />
-              {["queue", "case", "operations"].includes(activeWorkspacePage) ? (
+              {activeWorkspacePage !== "ai" ? (
                 <Button
-                  className="col-span-3"
+                  className="col-span-3 bg-[#f2c14e] text-slate-950 hover:bg-[#e2b243]"
                   type="button"
-                  variant="outline"
                   onClick={() => setAiDrawerOpen(true)}
                 >
-                  Open AI drawer
+                  Ask Copilot
                 </Button>
               ) : null}
             </div>
@@ -1415,6 +1416,15 @@ export function ClinicCopilotApp() {
 
           {activeWorkspacePage === "ai" ? (
             <>
+              <div className="mt-4">
+                <CopilotConsole
+                  form={form}
+                  model={selectedModel}
+                  output={displayOutput}
+                  runningAction={runningAction}
+                  onCommand={runSuggestedCommand}
+                />
+              </div>
               <div className="mt-4">
                 <AgentOperatingSystem
                   activeRole={activeRole}

@@ -38,7 +38,7 @@ export const workspaceNav = [
     description: "Chat, tools, runs, approvals, memory, MCP",
     icon: Bot,
     id: "ai",
-    label: "AI",
+    label: "Copilot",
   },
   {
     description: "Shift brief, analytics, follow-up, offline sync",
@@ -76,9 +76,9 @@ export function AppShellSidebar({
   return (
     <>
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-72 border-slate-200 border-r bg-white lg:flex lg:flex-col">
-        <div className="border-slate-200 border-b p-5">
+        <div className="border-slate-200 border-b bg-gradient-to-br from-white via-[#f7fff8] to-[#fff8df] p-5">
           <BrandMark />
-          <div className="mt-5 rounded-md bg-[#eaf6f1] p-3">
+          <div className="mt-5 rounded-md border border-primary/15 bg-white p-3 shadow-sm">
             <p className="font-semibold text-primary text-sm">{clinicName}</p>
             <p className="mt-1 text-muted-foreground text-xs capitalize">
               {role} workspace
@@ -95,6 +95,8 @@ export function AppShellSidebar({
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
                   "flex w-full items-center gap-3 rounded-md border border-transparent px-3 py-3 text-left transition hover:border-primary/20 hover:bg-[#eaf6f1]",
+                  item.id === "ai" &&
+                    "bg-gradient-to-r from-[#fff7d6] to-[#eaf6f1]",
                   isActive && "border-primary/30 bg-[#eaf6f1] text-primary",
                 )}
                 key={item.id}
