@@ -6,6 +6,7 @@ PORT="${PORT:-3001}"
 BASE_URL="${BASE_URL:-http://127.0.0.1:${PORT}}"
 SESSION="${AGENT_BROWSER_SESSION:-bracu-qa}"
 OUT_DIR="${QA_OUT_DIR:-${ROOT_DIR}/artifacts/agent-browser-qa}"
+QA_SCREENSHOTS="${QA_SCREENSHOTS:-0}"
 SERVER_PID=""
 
 mkdir -p "$OUT_DIR"
@@ -66,6 +67,13 @@ if (__qaOverflow > 4) {
 EOF
 }
 
+capture_screenshot() {
+  local name="$1"
+  if [[ "$QA_SCREENSHOTS" == "1" ]]; then
+    agent-browser --session "$SESSION" screenshot "${OUT_DIR}/${name}.png" >/dev/null
+  fi
+}
+
 open_and_capture() {
   local route="$1"
   local name="$2"
@@ -75,7 +83,7 @@ open_and_capture() {
   agent-browser --session "$SESSION" wait --load networkidle >/dev/null
   require_text "$name" "$@"
   check_no_page_overflow "$name"
-  agent-browser --session "$SESSION" screenshot --full "${OUT_DIR}/${name}.png" >/dev/null
+  capture_screenshot "$name"
 }
 
 clear_demo_auth() {
@@ -133,7 +141,7 @@ if (window.location.pathname !== __qaExpectedPath) {
 EOF
   require_text "$name" "$@"
   check_no_page_overflow "$name"
-  agent-browser --session "$SESSION" screenshot --full "${OUT_DIR}/${name}.png" >/dev/null
+  capture_screenshot "$name"
 }
 
 echo "Building app..."
@@ -159,13 +167,27 @@ open_and_capture "/clinic" "clinic-redirect-auth" "Create clinic session"
 echo "Running authenticated workspace QA..."
 login_seeded_user
 open_and_capture "/clinic/case" "direct-workspace-case" "Reception Intake" "Clinical Safety Gates"
-open_and_capture "/clinic/copilot" "direct-workspace-copilot" "Patient thread" "Context"
+open_and_capture "/clinic/copilot" "direct-workspace-copilot" "Patient thread" "Clinical review stays required"
+agent-browser --session "$SESSION" open "${BASE_URL}/clinic/queue" >/dev/null
+agent-browser --session "$SESSION" wait --load networkidle >/dev/null
 require_text "workspace-shell" "Queue" "Case" "Copilot" "Operations" "Builder" "Admin"
-agent-browser --session "$SESSION" screenshot --full "${OUT_DIR}/workspace-shell.png" >/dev/null
+capture_screenshot "workspace-shell"
 
 open_workspace "Queue" "workspace-queue" "Live Case Board" "Ask Copilot"
 open_workspace "Case" "workspace-case" "Reception Intake" "Clinical Safety Gates" "Ask Copilot"
-open_workspace "Copilot" "workspace-copilot" "Patient thread" "Context" "Clinical review stays required"
+open_workspace "Copilot" "workspace-copilot" "Patient thread" "Clinical review stays required"
+agent-browser --session "$SESSION" eval --stdin >/tmp/bracu-qa-copilot-nav-toggle.json <<'EOF'
+(async () => {
+var __qaNavToggle = document.querySelector('button[aria-label="Open workspace navigation"]');
+if (!__qaNavToggle) throw new Error("Copilot navigation toggle missing");
+__qaNavToggle.click();
+await new Promise((resolve) => setTimeout(resolve, 300));
+var __qaCloseToggle = document.querySelector('button[aria-label="Close workspace navigation"]');
+if (!__qaCloseToggle) throw new Error("Copilot navigation close button missing");
+__qaCloseToggle.click();
+return { ok: true };
+})();
+EOF
 open_workspace "Operations" "workspace-operations" "Operations Pulse" "Ask Copilot"
 open_workspace "Builder" "workspace-builder" "Agentic Workflow Studio" "Ask Copilot"
 open_workspace "Admin" "workspace-admin" "MCP Explorer" "Readiness"
@@ -179,7 +201,7 @@ button.click();
 EOF
 agent-browser --session "$SESSION" wait --text "AI Run Receipts" >/dev/null
 require_text "copilot-drawer" "Ask Copilot" "AI Run Receipts" "Approvals Inbox"
-agent-browser --session "$SESSION" screenshot --full "${OUT_DIR}/copilot-drawer.png" >/dev/null
+capture_screenshot "copilot-drawer"
 
 echo "Checking sidebar help drawer..."
 agent-browser --session "$SESSION" eval --stdin >/dev/null <<'EOF'
@@ -191,7 +213,7 @@ __qaHelpButton.click();
 EOF
 agent-browser --session "$SESSION" wait --text "Shortcuts" >/dev/null
 require_text "sidebar-help" "Shortcuts" "Open public docs and tool catalog"
-agent-browser --session "$SESSION" screenshot --full "${OUT_DIR}/sidebar-help.png" >/dev/null
+capture_screenshot "sidebar-help"
 agent-browser --session "$SESSION" eval --stdin >/dev/null <<'EOF'
 var __qaCloseHelp = [...document.querySelectorAll("button")].find((item) =>
   item.getAttribute("aria-label") === "Close help drawer"
@@ -228,6 +250,10 @@ if (!__qaMcpText.includes("clinic.demo_manifest") || !__qaMcpText.includes("clin
 return { ok: true, includesManifest: true, includesSafetyTool: true };
 })();
 EOF
-agent-browser --session "$SESSION" screenshot --full "${OUT_DIR}/mcp-explorer-response.png" >/dev/null
+capture_screenshot "mcp-explorer-response"
 
-echo "QA complete. Screenshots saved to ${OUT_DIR}"
+if [[ "$QA_SCREENSHOTS" == "1" ]]; then
+  echo "QA complete. Screenshots saved to ${OUT_DIR}"
+else
+  echo "QA complete. Set QA_SCREENSHOTS=1 to capture browser screenshots."
+fi

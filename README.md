@@ -30,7 +30,7 @@ Clinic Copilot BD is not a diagnosis or prescription engine. It is a clinical wo
   drawer, Help drawer, Admin, and public docs instead of crowding every page
 - Global Ask Copilot launcher on every non-Copilot workspace
 - Copilot workspace with Codex-style threads, one chat input, inline safety
-  context, recent activity, and compact patient/queue context
+  context, and a closed-by-default workspace navigation overlay
 - Sidebar Help drawer for shortcuts, safety reminders, common Copilot asks, and
   a public docs link
 - AI Run Receipts for tool inputs, output type, safety checks, status, role, and timestamp
@@ -223,7 +223,8 @@ bun run qa:browser
 
 `bun run qa:browser` builds the app, starts `next start`, drives the public
 site and every authenticated workspace through `agent-browser`, verifies key
-text and layout overflow, checks the MCP Explorer response, and saves full-page
+text and layout overflow, checks the MCP Explorer response, and keeps
+screenshots opt-in. Run `QA_SCREENSHOTS=1 bun run qa:browser` to save browser
 screenshots in `artifacts/agent-browser-qa/`.
 
 ## Safety Principles

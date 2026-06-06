@@ -10,6 +10,7 @@ import {
   HelpCircle,
   Keyboard,
   LogOut,
+  Menu,
   Settings,
   ShieldCheck,
   X,
@@ -69,84 +70,134 @@ export const workspaceNav = [
 export function AppShellSidebar({
   activePage,
   clinicName,
+  collapsed = false,
+  overlay = false,
+  onCollapsedChange,
   onPageChange,
   onLogout,
   role,
 }: {
   activePage: WorkspacePage;
   clinicName: string;
+  collapsed?: boolean;
+  overlay?: boolean;
+  onCollapsedChange?: (collapsed: boolean) => void;
   onPageChange: (page: WorkspacePage) => void;
   onLogout: () => void;
   role: string;
 }) {
   const [helpOpen, setHelpOpen] = useState(false);
+  const sidebar = (
+    <aside
+      className={cn(
+        "fixed inset-y-0 left-0 z-30 hidden w-72 border-slate-200 border-r bg-white lg:flex lg:flex-col",
+        overlay && "z-50 shadow-2xl",
+      )}
+    >
+      <div className="border-slate-200 border-b bg-gradient-to-br from-white via-[#f7fff8] to-[#fff8df] p-5">
+        <div className="flex items-start justify-between gap-3">
+          <BrandMark />
+          {overlay ? (
+            <Button
+              aria-label="Close workspace navigation"
+              size="icon"
+              type="button"
+              variant="outline"
+              onClick={() => onCollapsedChange?.(true)}
+            >
+              <X size={16} aria-hidden="true" />
+            </Button>
+          ) : null}
+        </div>
+        <div className="mt-5 rounded-md border border-primary/15 bg-white p-3 shadow-sm">
+          <p className="font-semibold text-primary text-sm">{clinicName}</p>
+          <p className="mt-1 text-muted-foreground text-xs capitalize">
+            {role} workspace
+          </p>
+        </div>
+      </div>
+      <nav className="flex-1 space-y-1 p-3" aria-label="Workspace">
+        {workspaceNav.map((item) => {
+          const Icon = item.icon;
+          const isActive = activePage === item.id;
+          return (
+            <button
+              aria-label={`Open ${item.label} workspace: ${item.description}`}
+              aria-current={isActive ? "page" : undefined}
+              className={cn(
+                "flex w-full items-center gap-3 rounded-md border border-transparent px-3 py-3 text-left transition hover:border-primary/20 hover:bg-[#eaf6f1]",
+                item.id === "ai" &&
+                  "bg-gradient-to-r from-[#fff7d6] to-[#eaf6f1]",
+                isActive && "border-primary/30 bg-[#eaf6f1] text-primary",
+              )}
+              key={item.id}
+              type="button"
+              onClick={() => {
+                onPageChange(item.id);
+                if (overlay) {
+                  onCollapsedChange?.(true);
+                }
+              }}
+            >
+              <Icon
+                className="mt-0.5 text-primary"
+                size={18}
+                aria-hidden="true"
+              />
+              <span className="min-w-0">
+                <span className="block font-bold text-sm">{item.label}</span>
+                <span className="mt-0.5 block text-muted-foreground text-xs leading-4">
+                  {item.description}
+                </span>
+              </span>
+            </button>
+          );
+        })}
+      </nav>
+      <div className="space-y-2 border-slate-200 border-t p-3">
+        <Button
+          className="w-full justify-start"
+          type="button"
+          variant="outline"
+          onClick={() => setHelpOpen(true)}
+        >
+          <HelpCircle size={17} aria-hidden="true" />
+          Help and tools
+        </Button>
+        <Button
+          className="w-full justify-start"
+          type="button"
+          variant="outline"
+          onClick={onLogout}
+        >
+          <LogOut size={17} aria-hidden="true" />
+          Sign out
+        </Button>
+      </div>
+    </aside>
+  );
 
   return (
     <>
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-72 border-slate-200 border-r bg-white lg:flex lg:flex-col">
-        <div className="border-slate-200 border-b bg-gradient-to-br from-white via-[#f7fff8] to-[#fff8df] p-5">
-          <BrandMark />
-          <div className="mt-5 rounded-md border border-primary/15 bg-white p-3 shadow-sm">
-            <p className="font-semibold text-primary text-sm">{clinicName}</p>
-            <p className="mt-1 text-muted-foreground text-xs capitalize">
-              {role} workspace
-            </p>
-          </div>
+      {overlay && collapsed ? (
+        <Button
+          aria-label="Open workspace navigation"
+          className="fixed top-4 left-4 z-40 hidden shadow-lg lg:inline-flex"
+          size="icon"
+          type="button"
+          variant="secondary"
+          onClick={() => onCollapsedChange?.(false)}
+        >
+          <Menu size={18} aria-hidden="true" />
+        </Button>
+      ) : null}
+
+      {overlay && !collapsed ? (
+        <div className="fixed inset-0 z-40 hidden bg-black/20 lg:block">
+          {sidebar}
         </div>
-        <nav className="flex-1 space-y-1 p-3" aria-label="Workspace">
-          {workspaceNav.map((item) => {
-            const Icon = item.icon;
-            const isActive = activePage === item.id;
-            return (
-              <button
-                aria-label={`Open ${item.label} workspace: ${item.description}`}
-                aria-current={isActive ? "page" : undefined}
-                className={cn(
-                  "flex w-full items-center gap-3 rounded-md border border-transparent px-3 py-3 text-left transition hover:border-primary/20 hover:bg-[#eaf6f1]",
-                  item.id === "ai" &&
-                    "bg-gradient-to-r from-[#fff7d6] to-[#eaf6f1]",
-                  isActive && "border-primary/30 bg-[#eaf6f1] text-primary",
-                )}
-                key={item.id}
-                type="button"
-                onClick={() => onPageChange(item.id)}
-              >
-                <Icon
-                  className="mt-0.5 text-primary"
-                  size={18}
-                  aria-hidden="true"
-                />
-                <span className="min-w-0">
-                  <span className="block font-bold text-sm">{item.label}</span>
-                  <span className="mt-0.5 block text-muted-foreground text-xs leading-4">
-                    {item.description}
-                  </span>
-                </span>
-              </button>
-            );
-          })}
-        </nav>
-        <div className="space-y-2 border-slate-200 border-t p-3">
-          <Button
-            className="w-full justify-start"
-            type="button"
-            variant="outline"
-            onClick={() => setHelpOpen(true)}
-          >
-            <HelpCircle size={17} aria-hidden="true" />
-            Help and tools
-          </Button>
-          <Button
-            className="w-full justify-start"
-            type="button"
-            variant="outline"
-            onClick={onLogout}
-          >
-            <LogOut size={17} aria-hidden="true" />
-            Sign out
-          </Button>
-        </div>
-      </aside>
+      ) : null}
+      {!overlay ? sidebar : null}
 
       <div className="border-slate-200 border-b bg-white px-4 py-3 pb-20 lg:hidden">
         <div className="flex items-center justify-between gap-3">
@@ -223,6 +274,19 @@ export function AppShellSidebar({
           );
         })}
       </nav>
+      {overlay && collapsed ? (
+        <div className="fixed right-3 bottom-20 left-3 z-30 lg:hidden">
+          <Button
+            className="w-full justify-center shadow-lg"
+            type="button"
+            variant="secondary"
+            onClick={() => onCollapsedChange?.(false)}
+          >
+            <Menu size={17} aria-hidden="true" />
+            Open workspace navigation
+          </Button>
+        </div>
+      ) : null}
       {helpOpen ? (
         <SidebarHelpDrawer onClose={() => setHelpOpen(false)} />
       ) : null}

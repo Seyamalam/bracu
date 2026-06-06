@@ -190,10 +190,11 @@ export function ClinicCopilotApp({
   const [activeWorkspacePage, setActiveWorkspacePage] =
     useState<WorkspacePage>(initialWorkspace);
   const [activeRole, setActiveRole] = useState<ClinicRole>("doctor");
-  const [agentTimeline, setAgentTimeline] =
+  const [_agentTimeline, setAgentTimeline] =
     useState<AgentTimelineEvent[]>(initialTimeline);
   const [printPreviewOpen, setPrintPreviewOpen] = useState(false);
   const [aiDrawerOpen, setAiDrawerOpen] = useState(false);
+  const [appSidebarCollapsed, setAppSidebarCollapsed] = useState(false);
   const [literacyMode, setLiteracyMode] = useState<LiteracyMode>("simple_bn");
   const [toast, setToast] = useState<ToastNotice | null>(null);
   const [runningAction, setRunningAction] = useState<string | null>(null);
@@ -249,6 +250,10 @@ export function ClinicCopilotApp({
   useEffect(() => {
     setActiveWorkspacePage(initialWorkspace);
   }, [initialWorkspace]);
+
+  useEffect(() => {
+    setAppSidebarCollapsed(activeWorkspacePage === "ai");
+  }, [activeWorkspacePage]);
 
   function openWorkspacePage(page: WorkspacePage) {
     setActiveWorkspacePage(page);
@@ -1266,6 +1271,9 @@ export function ClinicCopilotApp({
       <AppShellSidebar
         activePage={activeWorkspacePage}
         clinicName={currentUser.clinicName}
+        collapsed={activeWorkspacePage === "ai" ? appSidebarCollapsed : false}
+        overlay={activeWorkspacePage === "ai"}
+        onCollapsedChange={setAppSidebarCollapsed}
         onPageChange={openWorkspacePage}
         role={currentUser.role}
         onLogout={logout}
@@ -1329,7 +1337,12 @@ export function ClinicCopilotApp({
         </div>
       ) : null}
 
-      <div className="min-w-0 lg:pl-72">
+      <div
+        className={cn(
+          "min-w-0",
+          activeWorkspacePage === "ai" ? "lg:pl-0" : "lg:pl-72",
+        )}
+      >
         <header className="border-slate-200 border-b bg-gradient-to-r from-white via-[#f7fff8] to-[#fff7d6]">
           <div className="mx-auto grid max-w-[1680px] gap-4 px-4 py-4 sm:px-6 lg:grid-cols-[1fr_auto] lg:px-8">
             <div>
@@ -1380,14 +1393,12 @@ export function ClinicCopilotApp({
             <div className="mt-4">
               <CopilotConsole
                 activeRole={activeRole}
-                cases={cases}
                 commandHistory={commandHistory}
                 form={form}
                 model={selectedModel}
                 output={displayOutput}
                 runningAction={runningAction}
                 safetyGates={safetyGates}
-                timeline={agentTimeline}
                 onCommand={runSuggestedCommand}
                 onOpenCase={() => openWorkspacePage("case")}
               />

@@ -1,14 +1,12 @@
 import {
-  AlertTriangle,
   Bot,
-  FileText,
   MessageSquareText,
   Paperclip,
   ShieldCheck,
   Stethoscope,
   Volume2,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import {
   Message,
   PromptInput,
@@ -16,13 +14,11 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import type { Doc } from "../../../../convex/_generated/dataModel";
 import type {
   CommandHistoryEntry,
   CopilotOutput,
   IntakeFormState,
 } from "../types";
-import type { AgentTimelineEvent } from "./agent-operating-system";
 import type { SafetyGate } from "./clinical-safety-gates";
 import type { ClinicRole } from "./role-workspace-panel";
 
@@ -58,7 +54,6 @@ const quickPrompts = [
 
 export function CopilotConsole({
   activeRole,
-  cases,
   commandHistory,
   form,
   model,
@@ -67,10 +62,8 @@ export function CopilotConsole({
   output,
   runningAction,
   safetyGates,
-  timeline,
 }: {
   activeRole: ClinicRole;
-  cases: Doc<"cases">[] | undefined;
   commandHistory: CommandHistoryEntry[];
   form: IntakeFormState;
   model: string;
@@ -79,7 +72,6 @@ export function CopilotConsole({
   output: CopilotOutput | null;
   runningAction: string | null;
   safetyGates: SafetyGate[];
-  timeline: AgentTimelineEvent[];
 }) {
   const [prompt, setPrompt] = useState("");
   const [activeThread, setActiveThread] =
@@ -88,7 +80,6 @@ export function CopilotConsole({
   const currentThread = threadTemplates.find(
     (thread) => thread.id === activeThread,
   );
-  const recentActivity = useMemo(() => timeline.slice(0, 4), [timeline]);
 
   function submitPrompt(nextPrompt = prompt) {
     const command =
@@ -101,7 +92,7 @@ export function CopilotConsole({
 
   return (
     <section
-      className="grid min-h-[calc(100svh-220px)] overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm xl:grid-cols-[280px_minmax(0,1fr)_340px]"
+      className="grid min-h-[calc(100svh-220px)] overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm xl:grid-cols-[300px_minmax(0,1fr)]"
       aria-label="Copilot command room"
     >
       <aside className="border-slate-200 border-b bg-[#fbfaf6] p-3 xl:border-r xl:border-b-0">
@@ -268,93 +259,6 @@ export function CopilotConsole({
           />
         </div>
       </div>
-
-      <aside className="border-slate-200 border-t bg-white p-4 xl:border-t-0 xl:border-l">
-        <h3 className="font-black text-lg">Context</h3>
-        <div className="mt-3 grid gap-3">
-          <ContextItem
-            icon={Stethoscope}
-            label="Active patient"
-            value={form.patientName || "No patient selected"}
-          />
-          <ContextItem
-            icon={AlertTriangle}
-            label="Safety gates"
-            value={
-              openSafetyGates.length
-                ? `${openSafetyGates.length} open`
-                : "All clear"
-            }
-          />
-          <ContextItem
-            icon={FileText}
-            label="Cases in queue"
-            value={`${cases?.length ?? 0}`}
-          />
-        </div>
-
-        <div className="mt-5">
-          <p className="font-bold text-sm">Open blockers</p>
-          <div className="mt-2 space-y-2">
-            {openSafetyGates.slice(0, 4).map((gate) => (
-              <div
-                className="rounded-md border border-amber-200 bg-amber-50 p-3"
-                key={gate.id}
-              >
-                <p className="font-semibold text-sm">{gate.label}</p>
-                <p className="mt-1 text-muted-foreground text-xs leading-5">
-                  {gate.detail}
-                </p>
-              </div>
-            ))}
-            {!openSafetyGates.length ? (
-              <p className="rounded-md border border-emerald-200 bg-emerald-50 p-3 text-emerald-900 text-sm">
-                No open safety blockers in the current context.
-              </p>
-            ) : null}
-          </div>
-        </div>
-
-        <div className="mt-5">
-          <p className="font-bold text-sm">Activity</p>
-          <div className="mt-2 space-y-2">
-            {recentActivity.map((event) => (
-              <div
-                className="rounded-md border border-border p-3"
-                key={event.id}
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <p className="font-semibold text-xs">{event.agent}</p>
-                  <Badge variant="outline">{event.status}</Badge>
-                </div>
-                <p className="mt-1 text-muted-foreground text-xs leading-5">
-                  {event.detail}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </aside>
     </section>
-  );
-}
-
-function ContextItem({
-  icon: Icon,
-  label,
-  value,
-}: {
-  icon: typeof Stethoscope;
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="rounded-md border border-border bg-[#fbfaf6] p-3">
-      <div className="flex items-center gap-2 text-muted-foreground text-xs">
-        <Icon size={15} aria-hidden="true" />
-        {label}
-      </div>
-      <p className="mt-2 font-black text-lg">{value}</p>
-    </div>
   );
 }
