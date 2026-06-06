@@ -13,6 +13,7 @@ import {
   demoRunbook,
   docsAiPractices,
   docsMcpMethods,
+  docsMcpToolGroups,
   docsPromptLibrary,
   docsQuickLinks,
   docsTesterChecklist,
@@ -328,9 +329,9 @@ function DocsMcpSection() {
           <article className="border border-white/16 bg-white/10 p-5">
             <h3 className="font-bold text-xl">Tools</h3>
             <ul className="mt-4 space-y-2 text-white/76 text-sm leading-6">
-              <li>clinic.demo_manifest</li>
-              <li>clinic.list_demo_scenarios</li>
-              <li>clinic.workflow_brief</li>
+              {docsMcpToolGroups.map((toolGroup) => (
+                <li key={toolGroup}>{toolGroup}</li>
+              ))}
             </ul>
           </article>
           <article className="border border-white/16 bg-white/10 p-5 md:col-span-2">
@@ -338,7 +339,11 @@ function DocsMcpSection() {
             <pre className="mt-4 overflow-x-auto bg-slate-950 p-4 text-white/82 text-xs leading-6">
               <code>{`curl -s https://bracu-steel.vercel.app/api/mcp \\
   -H 'content-type: application/json' \\
-  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'`}</code>
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+
+curl -s https://bracu-steel.vercel.app/api/mcp \\
+  -H 'content-type: application/json' \\
+  -d '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"clinic.safety.get_blockers","arguments":{"intake":"Patient has chest tightness and sweating","allergiesKnown":false}}}'`}</code>
             </pre>
           </article>
         </div>

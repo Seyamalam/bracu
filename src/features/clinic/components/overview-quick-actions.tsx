@@ -8,14 +8,14 @@ const quickActions = [
   {
     body: "Capture or clean the reception note before AI drafting.",
     icon: ClipboardList,
-    label: "Open Intake",
-    page: "intake",
+    label: "Open Case",
+    page: "case",
   },
   {
     body: "Check the draft, handoff, risk explanation, and approval status.",
     icon: ShieldCheck,
-    label: "Open Review",
-    page: "review",
+    label: "Open AI",
+    page: "ai",
   },
   {
     body: "Review queue pressure, follow-ups, trends, model, and audit trail.",

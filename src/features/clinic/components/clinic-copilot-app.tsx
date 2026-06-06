@@ -38,6 +38,7 @@ import {
   initialTimeline,
   type StreamingStep,
 } from "./agent-operating-system";
+import { AgenticWorkflowStudio } from "./agentic-workflow-studio";
 import {
   AppShellSidebar,
   type WorkspacePage,
@@ -184,7 +185,7 @@ export function ClinicCopilotApp() {
       largeText: false,
     });
   const [activeWorkspacePage, setActiveWorkspacePage] =
-    useState<WorkspacePage>("overview");
+    useState<WorkspacePage>("queue");
   const [activeRole, setActiveRole] = useState<ClinicRole>("doctor");
   const [autopilotMode, setAutopilotMode] = useState<AutopilotMode>("safe");
   const [agentTimeline, setAgentTimeline] =
@@ -193,6 +194,7 @@ export function ClinicCopilotApp() {
     useState<AgentMemory>(defaultAgentMemory);
   const [isJudgeMode, setIsJudgeMode] = useState(false);
   const [printPreviewOpen, setPrintPreviewOpen] = useState(false);
+  const [aiDrawerOpen, setAiDrawerOpen] = useState(false);
   const [literacyMode, setLiteracyMode] = useState<LiteracyMode>("simple_bn");
   const [toast, setToast] = useState<ToastNotice | null>(null);
   const [runningAction, setRunningAction] = useState<string | null>(null);
@@ -541,7 +543,7 @@ export function ClinicCopilotApp() {
       intake: draft.intake,
     });
     setQueuedDrafts((drafts) => drafts.filter((item) => item.id !== draft.id));
-    setActiveWorkspacePage("intake");
+    setActiveWorkspacePage("case");
     notify(
       "Draft synced",
       "Queued intake is now active in the reception form.",
@@ -1195,7 +1197,7 @@ export function ClinicCopilotApp() {
       const isModifier = event.metaKey || event.ctrlKey;
       if (isModifier && event.key.toLowerCase() === "k") {
         event.preventDefault();
-        setActiveWorkspacePage("overview");
+        setActiveWorkspacePage("ai");
         addAgentEvent(
           "Ops",
           "Cmd+K opened the agent command palette.",
@@ -1303,6 +1305,52 @@ export function ClinicCopilotApp() {
         onLogout={auth.logout}
       />
 
+      {aiDrawerOpen ? (
+        <div className="fixed inset-0 z-40 bg-black/30">
+          <aside className="absolute inset-y-0 right-0 flex w-full max-w-xl flex-col overflow-y-auto border-slate-200 border-l bg-white shadow-2xl">
+            <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-slate-200 border-b bg-white p-4">
+              <div>
+                <p className="font-black text-xl">AI Drawer</p>
+                <p className="text-muted-foreground text-sm">
+                  Case-aware chat, tool runs, approvals, and safety context.
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setAiDrawerOpen(false)}
+              >
+                Close
+              </Button>
+            </div>
+            <div className="space-y-4 p-4">
+              <AgentCommandCenter
+                cases={cases}
+                model={selectedModel}
+                output={displayOutput}
+                selectedPatient={selectedCase?.patientName ?? form.patientName}
+                onRunCommand={runSuggestedCommand}
+              />
+              <CommandCopilot
+                ref={commandInputRef}
+                history={commandHistory}
+                model={selectedModel}
+                onCommandComplete={recordCommand}
+                onApplyPlan={applyCommandPlan}
+              />
+              <ClinicalSafetyGates gates={safetyGates} />
+              <ApprovalReadiness
+                checkSignal={approvalCheckSignal}
+                commandInstruction={commandApprovalInstruction}
+                model={selectedModel}
+                onRunCommand={runSuggestedCommand}
+                output={displayOutput}
+              />
+            </div>
+          </aside>
+        </div>
+      ) : null}
+
       <div className="min-w-0 lg:pl-72">
         <header className="border-slate-200 border-b bg-white">
           <div className="mx-auto grid max-w-[1680px] gap-4 px-4 py-4 sm:px-6 lg:grid-cols-[1fr_auto] lg:px-8">
@@ -1331,6 +1379,16 @@ export function ClinicCopilotApp() {
                 label={copy.mode}
                 value={mode === "idle" ? "Demo" : mode}
               />
+              {["queue", "case", "operations"].includes(activeWorkspacePage) ? (
+                <Button
+                  className="col-span-3"
+                  type="button"
+                  variant="outline"
+                  onClick={() => setAiDrawerOpen(true)}
+                >
+                  Open AI drawer
+                </Button>
+              ) : null}
             </div>
           </div>
         </header>
@@ -1341,7 +1399,7 @@ export function ClinicCopilotApp() {
         >
           <WorkflowProgress steps={workflowSteps} toast={toast} />
 
-          {activeWorkspacePage === "overview" ? (
+          {activeWorkspacePage === "ai" ? (
             <>
               <div className="mt-4">
                 <AgentOperatingSystem
@@ -1418,7 +1476,7 @@ export function ClinicCopilotApp() {
             </>
           ) : null}
 
-          {activeWorkspacePage === "intake" ? (
+          {activeWorkspacePage === "case" ? (
             <div className="mt-4 grid gap-4 xl:grid-cols-[420px_minmax(0,1fr)]">
               <div className="space-y-4">
                 <IntakePanel
@@ -1464,7 +1522,7 @@ export function ClinicCopilotApp() {
             </div>
           ) : null}
 
-          {activeWorkspacePage === "review" ? (
+          {activeWorkspacePage === "case" ? (
             <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_420px]">
               <div className="space-y-4">
                 <RiskExplainer
@@ -1509,7 +1567,7 @@ export function ClinicCopilotApp() {
             </div>
           ) : null}
 
-          {activeWorkspacePage === "patient" ? (
+          {activeWorkspacePage === "case" ? (
             <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_420px]">
               <div className="space-y-4">
                 <PatientHandout copy={copy} output={displayOutput} />
@@ -1575,35 +1633,13 @@ export function ClinicCopilotApp() {
             </div>
           ) : null}
 
-          {activeWorkspacePage === "operations" ? (
+          {activeWorkspacePage === "queue" ? (
             <div className="mt-4 grid gap-4 xl:grid-cols-[360px_minmax(0,1fr)_360px]">
               <div className="space-y-4">
                 <RoleWorkspacePanel
                   activeRole={activeRole}
                   onRoleChange={setActiveRole}
                   onOpenPage={setActiveWorkspacePage}
-                />
-                <AgentCommandCenter
-                  cases={cases}
-                  model={selectedModel}
-                  output={displayOutput}
-                  selectedPatient={
-                    selectedCase?.patientName ?? form.patientName
-                  }
-                  onRunCommand={runSuggestedCommand}
-                />
-                <ModelSelector
-                  value={selectedModel}
-                  onChange={setSelectedModel}
-                />
-                <AccessibilityControls
-                  settings={accessibilitySettings}
-                  onChange={setAccessibilitySettings}
-                />
-                <ReadinessScorecard
-                  auditCount={auditLogs?.length ?? 0}
-                  cases={cases}
-                  output={displayOutput}
                 />
                 <OperationsPulse cases={cases} />
                 <LowConnectivityPanel
@@ -1637,7 +1673,75 @@ export function ClinicCopilotApp() {
                   clinicName={currentUser.clinicName}
                   model={selectedModel}
                 />
+              </div>
+            </div>
+          ) : null}
+
+          {activeWorkspacePage === "operations" ? (
+            <div className="mt-4 grid gap-4 xl:grid-cols-[380px_minmax(0,1fr)_380px]">
+              <div className="space-y-4">
+                <OperationsPulse cases={cases} />
+                <LowConnectivityPanel
+                  isOnline={isOnline}
+                  queue={queuedDrafts}
+                  onQueueDraft={queueLocalDraft}
+                  onSyncDraft={syncQueuedDraft}
+                />
+              </div>
+              <div className="space-y-4">
+                <ClinicBriefing
+                  briefingSignal={briefingSignal}
+                  cases={cases}
+                  clinicName={currentUser.clinicName}
+                  model={selectedModel}
+                />
+                <TrendDashboard cases={cases} />
+              </div>
+              <div className="space-y-4">
+                <FollowUpPanel cases={cases} onSelectCase={setSelectedCaseId} />
+                <SafetyFrame />
+              </div>
+            </div>
+          ) : null}
+
+          {activeWorkspacePage === "builder" ? (
+            <div className="mt-4">
+              <AgenticWorkflowStudio
+                activeRole={activeRole}
+                cases={cases}
+                form={form}
+                output={displayOutput}
+                onCommand={runSuggestedCommand}
+              />
+            </div>
+          ) : null}
+
+          {activeWorkspacePage === "admin" ? (
+            <div className="mt-4 grid gap-4 xl:grid-cols-[360px_minmax(0,1fr)_360px]">
+              <div className="space-y-4">
+                <RoleWorkspacePanel
+                  activeRole={activeRole}
+                  onRoleChange={setActiveRole}
+                  onOpenPage={setActiveWorkspacePage}
+                />
+                <ModelSelector
+                  value={selectedModel}
+                  onChange={setSelectedModel}
+                />
+                <AccessibilityControls
+                  settings={accessibilitySettings}
+                  onChange={setAccessibilitySettings}
+                />
+              </div>
+              <div className="space-y-4">
+                <ReadinessScorecard
+                  auditCount={auditLogs?.length ?? 0}
+                  cases={cases}
+                  output={displayOutput}
+                />
                 <AuditLogViewer logs={auditLogs} />
+              </div>
+              <div className="space-y-4">
                 <ShortcutHelp />
                 <SafetyFrame />
               </div>

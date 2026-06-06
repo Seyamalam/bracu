@@ -30,7 +30,7 @@ const roleConfig: Record<
 > = {
   reception: {
     label: "Reception",
-    page: "intake",
+    page: "queue",
     icon: ClipboardList,
     focus: "Capture notes, vitals, documents, and missing basics.",
     tasks: [
@@ -41,28 +41,28 @@ const roleConfig: Record<
   },
   nurse: {
     label: "Nurse",
-    page: "review",
+    page: "case",
     icon: BriefcaseMedical,
     focus: "Prepare triage, red flags, and staff handoff.",
     tasks: ["Check vitals", "Confirm allergies", "Escalate red flags"],
   },
   doctor: {
     label: "Doctor",
-    page: "review",
+    page: "case",
     icon: ShieldCheck,
     focus: "Review SOAP draft, approve, and close safely.",
     tasks: ["Review draft", "Check safety gates", "Approve handout"],
   },
   follow_up: {
     label: "Follow-up desk",
-    page: "patient",
+    page: "operations",
     icon: PhoneCall,
     focus: "Own call-backs, reply triage, and patient understanding.",
     tasks: ["Schedule callback", "Triage replies", "Confirm teach-back"],
   },
   admin: {
     label: "Admin",
-    page: "operations",
+    page: "admin",
     icon: Users,
     focus: "Monitor queue, staffing load, audit, and clinic readiness.",
     tasks: ["Watch queue pressure", "Review audit trail", "Assign owners"],

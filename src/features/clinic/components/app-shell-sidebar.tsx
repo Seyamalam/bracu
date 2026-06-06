@@ -2,53 +2,61 @@
 
 import {
   Activity,
-  ClipboardList,
-  Home,
+  Bot,
+  BriefcaseMedical,
+  Building2,
+  GitBranch,
   LogOut,
-  Printer,
-  ShieldCheck,
+  Settings,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BrandMark } from "@/features/marketing/components/brand-mark";
 import { cn } from "@/lib/utils";
 
 export type WorkspacePage =
-  | "intake"
+  | "admin"
+  | "ai"
+  | "builder"
+  | "case"
   | "operations"
-  | "overview"
-  | "patient"
-  | "review";
+  | "queue";
 
 export const workspaceNav = [
   {
-    description: "Command center, guided flow, safety snapshot",
-    icon: Home,
-    id: "overview",
-    label: "Overview",
-  },
-  {
-    description: "Reception notes, scenario loading, documents",
-    icon: ClipboardList,
-    id: "intake",
-    label: "Intake",
-  },
-  {
-    description: "Clinical draft, risks, handoff, approval",
-    icon: ShieldCheck,
-    id: "review",
-    label: "Review",
-  },
-  {
-    description: "Handout, teach-back, follow-up, referral",
-    icon: Printer,
-    id: "patient",
-    label: "Patient",
-  },
-  {
-    description: "Queue, model, accessibility, audit, trends",
+    description: "Waiting room, red flags, owners, and follow-ups",
     icon: Activity,
+    id: "queue",
+    label: "Queue",
+  },
+  {
+    description: "One patient, intake, safety, draft, packet",
+    icon: BriefcaseMedical,
+    id: "case",
+    label: "Case",
+  },
+  {
+    description: "Chat, tools, runs, approvals, memory, MCP",
+    icon: Bot,
+    id: "ai",
+    label: "AI",
+  },
+  {
+    description: "Shift brief, analytics, follow-up, offline sync",
+    icon: Building2,
     id: "operations",
-    label: "Ops",
+    label: "Operations",
+  },
+  {
+    description: "Workflow canvas, protocols, simulation, templates",
+    icon: GitBranch,
+    id: "builder",
+    label: "Builder",
+  },
+  {
+    description: "Settings, roles, MCP, audit, readiness",
+    icon: Settings,
+    id: "admin",
+    label: "Admin",
   },
 ] as const;
 
@@ -86,8 +94,8 @@ export function AppShellSidebar({
                 aria-label={`Open ${item.label} workspace: ${item.description}`}
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "flex w-full items-start gap-3 rounded-md border-l-4 border-transparent px-3 py-2.5 text-left transition hover:bg-[#eaf6f1]",
-                  isActive && "border-primary bg-[#eaf6f1] text-primary",
+                  "flex w-full items-center gap-3 rounded-md border border-transparent px-3 py-3 text-left transition hover:border-primary/20 hover:bg-[#eaf6f1]",
+                  isActive && "border-primary/30 bg-[#eaf6f1] text-primary",
                 )}
                 key={item.id}
                 type="button"
@@ -98,10 +106,8 @@ export function AppShellSidebar({
                   size={18}
                   aria-hidden="true"
                 />
-                <span>
-                  <span className="block font-semibold text-sm">
-                    {item.label}
-                  </span>
+                <span className="min-w-0">
+                  <span className="block font-bold text-sm">{item.label}</span>
                   <span className="mt-0.5 block text-muted-foreground text-xs leading-4">
                     {item.description}
                   </span>

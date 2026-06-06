@@ -15,11 +15,18 @@ Clinic Copilot BD is not a diagnosis or prescription engine. It is a clinical wo
 - Public docs page for MCP usage, AI provenance, prompt categories, and deployment notes
 - Expanded pitch page with product score map, differentiators, demo runbook, and operational proof
 - Generated product visuals and custom Clinic Copilot BD logo
-- Model Context Protocol endpoint at `/api/mcp` for demo-safe tools and resources
+- Model Context Protocol endpoint at `/api/mcp` for demo-safe external-agent
+  tools, resources, safety gates, queue snapshots, print packets, literacy
+  drafts, sync previews, approval envelopes, and scenario scorecards
 - Authenticated clinic workspace with desktop sidebar and mobile workspace rail
 - Temporary email/password clinic access
 - Guided demo mode with a 3-minute story rail
 - Natural-language Command Copilot for operating the app by typing
+- Agentic Workflow Studio with canvas-style workflow builder, safety governor,
+  patient journey map, protocol library, shift copilot, simulation lab, and
+  workflow template marketplace
+- Agent Command Center and Agent Operating System with named tools, live tool
+  streaming, agent inbox, memory, command replay, voice commands, and judge mode
 - Current-case AI Q&A assistant
 - Readiness scorecard for safety, accessibility, workflow coverage, and operating proof
 - Clinic Display accessibility controls for large text, high contrast, and calm motion
@@ -65,11 +72,21 @@ Available MCP tools:
 - `clinic.demo_manifest` returns the public server manifest, resources, tools, and safety posture.
 - `clinic.list_demo_scenarios` returns the synthetic Bangladesh-native demo scenarios.
 - `clinic.workflow_brief` converts messy intake notes into draft operational support using Gemini when configured, with a demo fallback when no key is present.
+- `clinic.tools.list` and `clinic.tools.describe` expose the role-aware external-agent tool registry.
+- `clinic.queue.snapshot` returns red-flag lane, waiting-time, follow-up due, and owner badge signals.
+- `clinic.safety.get_blockers` checks vitals, allergy status, pregnancy/child/chest-pain escalation, and return-warning confirmation.
+- `clinic.print.prepare_packet` prepares draft handout, referral, medicine slip, follow-up call sheet, or doctor summary packets.
+- `clinic.literacy.prepare` prepares simple Bangla, pictogram, audio script, or teach-back checklist drafts.
+- `clinic.sync.preview_queue` validates low-connectivity local drafts before sync.
+- `clinic.approval.request` creates a preview-only human approval request envelope.
+- `clinic.demo.score_scenario` returns a synthetic judge scorecard for workflow completeness and safety.
 
 Available MCP resources:
 
 - `clinic://demo/scenarios`
 - `clinic://demo/capabilities`
+- `clinic://agents/tool-registry`
+- `clinic://safety/gates`
 
 Quick test:
 
@@ -77,29 +94,33 @@ Quick test:
 curl -s http://localhost:3000/api/mcp \
   -H 'content-type: application/json' \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+
+curl -s http://localhost:3000/api/mcp \
+  -H 'content-type: application/json' \
+  -d '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"clinic.safety.get_blockers","arguments":{"intake":"Patient has chest tightness and sweating","allergiesKnown":false}}}'
 ```
 
 ## Product Screenshots
 
-### Overview workspace
+### Queue workspace
 
-![Clinic Copilot BD overview workspace](public/screenshots/clinic-workspace-overview.png)
+![Clinic Copilot BD queue workspace](public/screenshots/clinic-workspace-overview.png)
 
-### Clinical review workspace
+### Case workspace
 
-![Clinic Copilot BD clinical review workspace](public/screenshots/clinic-workspace-review.png)
+![Clinic Copilot BD patient case workspace](public/screenshots/clinic-workspace-review.png)
+
+### AI Console workspace
+
+![Clinic Copilot BD AI console workspace](public/screenshots/clinic-workspace-intake.png)
 
 ### Operations workspace
 
 ![Clinic Copilot BD operations workspace](public/screenshots/clinic-workspace-ops.png)
 
-### Patient communication workspace
+### Builder/Admin workflow workspace
 
 ![Clinic Copilot BD patient communication workspace](public/screenshots/clinic-workspace-patient.png)
-
-### Intake workspace
-
-![Clinic Copilot BD intake workspace](public/screenshots/clinic-workspace-intake.png)
 
 ### Public pitch page
 
@@ -199,13 +220,16 @@ it with production authentication before handling real users or real patient dat
 ## Demo Checklist
 
 1. Create a temporary clinic account.
-2. Pick a guided demo script from the intake panel.
+2. Start in Queue, pick a case, then open the Case workspace.
 3. Generate the clinical draft and review red flags.
-4. Copy or print the patient handout.
-5. Run the medicine safety checker.
-6. Move the case to handout or follow-up from the live queue.
-7. Show the Readiness card, anonymized trend dashboard, and audit log.
-8. Close on the impact snapshot: minutes saved, questions found, red flags caught.
+4. Open AI for chat, tool runs, approvals, memory, and the agent timeline.
+5. Open Builder and show Canvas, Safety Governor, Journey, Protocols, Shift,
+   Simulation, and Marketplace tabs.
+6. Copy or print the patient handout.
+7. Run the medicine safety checker.
+8. Move the case to handout or follow-up from the live queue.
+9. Show MCP docs, Readiness card, anonymized trend dashboard, and audit log.
+10. Close on the impact snapshot: minutes saved, questions found, red flags caught.
 
 Command Copilot examples:
 

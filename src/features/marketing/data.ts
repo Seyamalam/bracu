@@ -204,6 +204,9 @@ export const featureCatalog = [
       "SOAP-style clinical draft",
       "Current-case AI Q&A",
       "Natural-language Command Copilot",
+      "Agent Command Center with named tools",
+      "Agentic Workflow Studio",
+      "Canvas-style automation preview",
       "AI document extraction for OCR text",
       "Draft edit support with clinician review",
     ],
@@ -216,6 +219,7 @@ export const featureCatalog = [
       "Missing question finder",
       "Medicine clarity checker",
       "Approval readiness guard",
+      "Safety Governor supervising agent outputs",
       "Visit closeout checklist",
       "Safety frame that avoids diagnosis claims",
     ],
@@ -227,6 +231,7 @@ export const featureCatalog = [
       "Bangla/English patient handout",
       "Printable clinic slip",
       "Teach-back confirmation",
+      "Patient journey map across roles",
       "Patient question answer assistant",
       "Follow-up message composer",
       "Reply triage for incoming patient messages",
@@ -242,6 +247,10 @@ export const featureCatalog = [
       "Follow-up due panel",
       "Trend dashboard",
       "Clinic briefing for shift handoff",
+      "Shift Copilot for handoff briefings",
+      "Protocol library for local workflows",
+      "Simulation lab for judging and drills",
+      "Workflow template marketplace",
     ],
   },
   {
@@ -252,7 +261,8 @@ export const featureCatalog = [
       "Demo scenario resource",
       "Workflow capability resource",
       "AI workflow brief tool",
-      "Tool list for external agents",
+      "Role-aware tool registry for external agents",
+      "Queue, safety, print, literacy, sync, approval, and simulation MCP tools",
       "Safety instructions in server metadata",
     ],
   },
@@ -486,7 +496,8 @@ export const docsTesterWalkthrough = [
   {
     steps: [
       "Open /login and sign in or create a demo session, then enter the clinic workspace.",
-      "Switch between Reception, Nurse, Doctor, Follow-up desk, and Admin views and confirm each view changes the queue, actions, and ownership context.",
+      "Use the six main workspaces: Queue, Case, AI, Operations, Builder, and Admin.",
+      "Switch between Reception, Nurse, Doctor, Follow-up desk, and Admin roles and confirm each role changes ownership context.",
       "Check the red-flag lane, waiting-time labels, follow-up due clock, and staff owner badges on the case board.",
     ],
     title: "2. Role and queue pass",
@@ -503,6 +514,8 @@ export const docsTesterWalkthrough = [
     steps: [
       "Use the agent command bar to ask for a doctor summary, medicine slip, referral, follow-up call sheet, or pictogram handout.",
       "Open the command palette and run named tools from the Clinic Agent Swarm.",
+      "Open the AI workspace for chat, tool runs, approvals, memory, MCP-style commands, and agent timeline.",
+      "Open Builder for Agentic Workflow Studio and click Canvas, Governor, Journey, Protocols, Shift, Simulation, and Marketplace.",
       "Review the live tool stream, agent memory, agent inbox, command replay, and simulation judge output for clear status and human approval boundaries.",
     ],
     title: "4. Agent operating system",
@@ -539,6 +552,17 @@ export const docsMcpMethods = [
   "tools/call",
   "resources/list",
   "resources/read",
+] as const;
+
+export const docsMcpToolGroups = [
+  "clinic.tools.list / clinic.tools.describe",
+  "clinic.queue.snapshot",
+  "clinic.safety.get_blockers",
+  "clinic.print.prepare_packet",
+  "clinic.literacy.prepare",
+  "clinic.sync.preview_queue",
+  "clinic.approval.request",
+  "clinic.demo.score_scenario",
 ] as const;
 
 export const docsPromptLibrary = [
