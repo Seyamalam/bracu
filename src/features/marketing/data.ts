@@ -474,6 +474,65 @@ export const docsQuickLinks = [
   },
 ] as const;
 
+export const docsTesterWalkthrough = [
+  {
+    steps: [
+      "Install packages with bun install, then run bun run dev and open http://localhost:3000.",
+      "For the live backend path, run npx convex dev in a second terminal and confirm the app loads demo clinic data.",
+      "Set GOOGLE_GENERATIVE_AI_API_KEY before testing live AI; without it, verify the demo fallback still returns safe draft output.",
+    ],
+    title: "1. Local setup",
+  },
+  {
+    steps: [
+      "Open /login and sign in or create a demo session, then enter the clinic workspace.",
+      "Switch between Reception, Nurse, Doctor, Follow-up desk, and Admin views and confirm each view changes the queue, actions, and ownership context.",
+      "Check the red-flag lane, waiting-time labels, follow-up due clock, and staff owner badges on the case board.",
+    ],
+    title: "2. Role and queue pass",
+  },
+  {
+    steps: [
+      "Create or select a patient case and run the intake AI action.",
+      "Confirm step completion states move from queued to running to complete, and that toast/progress feedback appears during the action.",
+      "Verify vitals are required before clinical draft completion and that pregnancy, child, chest-pain, and severe-symptom paths escalate instead of quietly passing.",
+    ],
+    title: "3. Intake and safety gates",
+  },
+  {
+    steps: [
+      "Use the agent command bar to ask for a doctor summary, medicine slip, referral, follow-up call sheet, or pictogram handout.",
+      "Open the command palette and run named tools from the Clinic Agent Swarm.",
+      "Review the live tool stream, agent memory, agent inbox, command replay, and simulation judge output for clear status and human approval boundaries.",
+    ],
+    title: "4. Agent operating system",
+  },
+  {
+    steps: [
+      "Generate the handout in simple Bangla mode, then check pictogram, audio readout, and family teach-back checklist states.",
+      "Confirm the medicine allergy check and return-warning confirmation block unsafe finalization until acknowledged.",
+      "Use print preview for handout, referral, medicine slip, doctor summary, and follow-up call sheet outputs.",
+    ],
+    title: "5. Patient-facing and print workflows",
+  },
+  {
+    steps: [
+      "Turn on low-connectivity mode, create local drafts, and confirm queued sync status is visible.",
+      "Return online and verify sync status updates without losing draft content.",
+      "Capture screenshots of the queue, AI progress, safety gate, print preview, and low-connectivity states for the judging report.",
+    ],
+    title: "6. Offline and evidence pass",
+  },
+] as const;
+
+export const docsTesterChecklist = [
+  "No AI output should be presented as diagnosis, prescription, or autonomous clinical decision.",
+  "Every clinical, patient-facing, and printable output must remain a draft until a human reviews it.",
+  "Buttons and icon actions should expose understandable labels for keyboard users, screen readers, and automation.",
+  "Escalation states must be visually obvious and should name the reason for escalation.",
+  "The app should remain usable when live AI or connectivity is unavailable.",
+] as const;
+
 export const docsMcpMethods = [
   "initialize",
   "tools/list",

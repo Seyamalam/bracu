@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery } from "convex/react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { api } from "../../../../convex/_generated/api";
 import type { Doc, Id } from "../../../../convex/_generated/dataModel";
@@ -27,6 +28,16 @@ import {
   AccessibilityControls,
   type AccessibilitySettings,
 } from "./accessibility-controls";
+import { AgentCommandCenter } from "./agent-command-center";
+import {
+  type AgentMemory,
+  AgentOperatingSystem,
+  type AgentTimelineEvent,
+  type AutopilotMode,
+  defaultAgentMemory,
+  initialTimeline,
+  type StreamingStep,
+} from "./agent-operating-system";
 import {
   AppShellSidebar,
   type WorkspacePage,
@@ -37,6 +48,10 @@ import { AuditLogViewer } from "./audit-log-viewer";
 import { CaseAssistant } from "./case-assistant";
 import { CaseBoard } from "./case-board";
 import { ClinicBriefing } from "./clinic-briefing";
+import {
+  ClinicalSafetyGates,
+  getClinicalSafetyGates,
+} from "./clinical-safety-gates";
 import { CommandCopilot } from "./command-copilot";
 import { DoctorConsole } from "./doctor-console";
 import { DocumentExtractor } from "./document-extractor";
@@ -46,6 +61,10 @@ import { FollowUpScheduler } from "./follow-up-scheduler";
 import { GuidedWorkflowPanel } from "./guided-workflow-panel";
 import { ImpactSnapshot } from "./impact-snapshot";
 import { IntakePanel } from "./intake-panel";
+import {
+  LowConnectivityPanel,
+  type QueuedDraft,
+} from "./low-connectivity-panel";
 import { MedicineSafety } from "./medicine-safety";
 import { Metric } from "./metric";
 import { ModelSelector } from "./model-selector";
@@ -53,12 +72,18 @@ import { NextStepNavigator } from "./next-step-navigator";
 import { OperationsPulse } from "./operations-pulse";
 import { OverviewQuickActions } from "./overview-quick-actions";
 import { PatientHandout } from "./patient-handout";
+import {
+  type LiteracyMode,
+  PatientLiteracyPanel,
+} from "./patient-literacy-panel";
 import { PatientQuestionAnswer } from "./patient-question-answer";
 import { PresentationMode } from "./presentation-mode";
+import { PrintWorkflowPanel } from "./print-workflow-panel";
 import { ReadinessScorecard } from "./readiness-scorecard";
 import { ReferralComposer } from "./referral-composer";
 import { ReplyTriage } from "./reply-triage";
 import { RiskExplainer } from "./risk-explainer";
+import { type ClinicRole, RoleWorkspacePanel } from "./role-workspace-panel";
 import { SafetyBanner } from "./safety-banner";
 import { SafetyFrame } from "./safety-frame";
 import { ShortcutHelp } from "./shortcut-help";
@@ -67,6 +92,11 @@ import { TeachBackCheck } from "./teach-back-check";
 import { TrendDashboard } from "./trend-dashboard";
 import { VisitCloseout } from "./visit-closeout";
 import { VisitJourney } from "./visit-journey";
+import {
+  type ToastNotice,
+  WorkflowProgress,
+  type WorkflowStep,
+} from "./workflow-progress";
 
 type WorkspaceSnapshot = {
   caseSearch: string;
@@ -155,6 +185,19 @@ export function ClinicCopilotApp() {
     });
   const [activeWorkspacePage, setActiveWorkspacePage] =
     useState<WorkspacePage>("overview");
+  const [activeRole, setActiveRole] = useState<ClinicRole>("doctor");
+  const [autopilotMode, setAutopilotMode] = useState<AutopilotMode>("safe");
+  const [agentTimeline, setAgentTimeline] =
+    useState<AgentTimelineEvent[]>(initialTimeline);
+  const [agentMemory, setAgentMemory] =
+    useState<AgentMemory>(defaultAgentMemory);
+  const [isJudgeMode, setIsJudgeMode] = useState(false);
+  const [printPreviewOpen, setPrintPreviewOpen] = useState(false);
+  const [literacyMode, setLiteracyMode] = useState<LiteracyMode>("simple_bn");
+  const [toast, setToast] = useState<ToastNotice | null>(null);
+  const [runningAction, setRunningAction] = useState<string | null>(null);
+  const [queuedDrafts, setQueuedDrafts] = useState<QueuedDraft[]>([]);
+  const [isOnline, setIsOnline] = useState(true);
   const [presentationMode, setPresentationMode] = useState(false);
   const [caseSearch, setCaseSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<CaseStatus | "all">("all");
@@ -239,6 +282,100 @@ export function ClinicCopilotApp() {
     });
   }, [caseSearch, cases, severityFilter, statusFilter]);
   const displayOutput = selectedCase ? caseToOutput(selectedCase) : output;
+  const safetyGates = useMemo(
+    () =>
+      getClinicalSafetyGates({
+        form,
+        output: displayOutput,
+        status: selectedCase?.status,
+      }),
+    [displayOutput, form, selectedCase?.status],
+  );
+  const workflowSteps: WorkflowStep[] = useMemo(
+    () => [
+      {
+        id: "intake",
+        label: "Intake",
+        detail: form.patientName
+          ? `${form.patientName} captured`
+          : "Patient basics needed",
+        status:
+          form.patientName && form.intake.length > 20 ? "complete" : "idle",
+      },
+      {
+        id: "ai-draft",
+        label: "AI draft",
+        detail:
+          runningAction === "generate"
+            ? "Generating clinical draft"
+            : "Structured draft",
+        status:
+          runningAction === "generate"
+            ? "running"
+            : displayOutput
+              ? "complete"
+              : "idle",
+      },
+      {
+        id: "safety",
+        label: "Safety gates",
+        detail: safetyGates.some((gate) => !gate.passed)
+          ? `${safetyGates.filter((gate) => !gate.passed).length} checks open`
+          : "Required checks clear",
+        status: safetyGates.some((gate) => !gate.passed)
+          ? displayOutput
+            ? "blocked"
+            : "idle"
+          : "complete",
+      },
+      {
+        id: "patient",
+        label: "Patient packet",
+        detail:
+          selectedCase?.status === "handout"
+            ? "Handout ready"
+            : "Handout and teach-back",
+        status:
+          selectedCase?.status === "handout" ||
+          selectedCase?.status === "followup"
+            ? "complete"
+            : displayOutput
+              ? "idle"
+              : "idle",
+      },
+      {
+        id: "follow-up",
+        label: "Follow-up",
+        detail:
+          selectedCase?.status === "followup"
+            ? "Callback owner assigned"
+            : "Close the loop",
+        status: selectedCase?.status === "followup" ? "complete" : "idle",
+      },
+    ],
+    [displayOutput, form, runningAction, safetyGates, selectedCase?.status],
+  );
+  const streamingSteps: StreamingStep[] = useMemo(
+    () =>
+      [
+        "Reading intake",
+        "Checking pregnancy/child/chest pain",
+        "Checking allergy and medicines",
+        "Drafting handout",
+        "Writing audit trail",
+      ].map((label, index) => ({
+        id: label.toLowerCase().replaceAll(" ", "-"),
+        label,
+        status: runningAction
+          ? index === 0
+            ? "running"
+            : "idle"
+          : displayOutput
+            ? "complete"
+            : "idle",
+      })),
+    [displayOutput, runningAction],
+  );
 
   useEffect(() => {
     if (!selectedCaseId && filteredCases[0]) {
@@ -246,7 +383,171 @@ export function ClinicCopilotApp() {
     }
   }, [filteredCases, selectedCaseId]);
 
+  useEffect(() => {
+    setIsOnline(navigator.onLine);
+    const rawQueue = window.localStorage.getItem("clinic-copilot-draft-queue");
+    if (rawQueue) {
+      setQueuedDrafts(JSON.parse(rawQueue) as QueuedDraft[]);
+    }
+
+    function announceConnection(
+      title: string,
+      body: string,
+      tone: ToastNotice["tone"],
+    ) {
+      setToast({ id: crypto.randomUUID(), title, body, tone });
+      setLiveMessage(`${title}: ${body}`);
+    }
+
+    function handleOnline() {
+      setIsOnline(true);
+      announceConnection(
+        "Connection restored",
+        "Local draft queue is ready to sync.",
+        "success",
+      );
+    }
+
+    function handleOffline() {
+      setIsOnline(false);
+      announceConnection(
+        "Offline mode",
+        "New quick notes can be queued locally.",
+        "warning",
+      );
+    }
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem(
+      "clinic-copilot-draft-queue",
+      JSON.stringify(queuedDrafts),
+    );
+  }, [queuedDrafts]);
+
+  useEffect(() => {
+    const rawMemory = window.localStorage.getItem(
+      "clinic-copilot-agent-memory",
+    );
+    if (rawMemory) {
+      setAgentMemory(JSON.parse(rawMemory) as AgentMemory);
+    }
+  }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem(
+      "clinic-copilot-agent-memory",
+      JSON.stringify(agentMemory),
+    );
+  }, [agentMemory]);
+
   const currentUser = auth.user;
+
+  function notify(
+    title: string,
+    body: string,
+    tone: ToastNotice["tone"] = "info",
+  ) {
+    setToast({
+      id: crypto.randomUUID(),
+      title,
+      body,
+      tone,
+    });
+    setLiveMessage(`${title}: ${body}`);
+  }
+
+  function addAgentEvent(
+    agent: AgentTimelineEvent["agent"],
+    detail: string,
+    status: AgentTimelineEvent["status"] = "complete",
+  ) {
+    setAgentTimeline((events) =>
+      [
+        {
+          id: crypto.randomUUID(),
+          agent,
+          detail,
+          status,
+          timestamp: Date.now(),
+        },
+        ...events,
+      ].slice(0, 24),
+    );
+  }
+
+  function changeAutopilotMode(nextMode: AutopilotMode) {
+    setAutopilotMode(nextMode);
+    addAgentEvent(
+      nextMode === "emergency" ? "Safety" : "Ops",
+      `Autopilot mode set to ${nextMode}.`,
+      nextMode === "emergency" ? "running" : "complete",
+    );
+  }
+
+  function beginAction(action: string, title: string, body: string) {
+    setRunningAction(action);
+    notify(title, body, "info");
+    addAgentEvent("Ops", `${title}: ${body}`, "running");
+  }
+
+  function finishAction(title: string, body: string) {
+    setRunningAction(null);
+    notify(title, body, "success");
+    addAgentEvent("Ops", `${title}: ${body}`, "complete");
+  }
+
+  function failAction(title: string, body: string) {
+    setRunningAction(null);
+    notify(title, body, "error");
+    addAgentEvent("Safety", `${title}: ${body}`, "blocked");
+  }
+
+  function queueLocalDraft(note: string) {
+    const nextDraft: QueuedDraft = {
+      id: crypto.randomUUID(),
+      patientName: "Offline intake",
+      age: "",
+      sex: "unknown",
+      intake: note,
+      createdAt: Date.now(),
+      syncStatus: "queued",
+    };
+    setQueuedDrafts((drafts) => [nextDraft, ...drafts].slice(0, 12));
+    notify(
+      "Draft queued",
+      "The intake note is saved locally for sync.",
+      "success",
+    );
+  }
+
+  function syncQueuedDraft(draft: QueuedDraft) {
+    setQueuedDrafts((drafts) =>
+      drafts.map((item) =>
+        item.id === draft.id ? { ...item, syncStatus: "syncing" } : item,
+      ),
+    );
+    setForm({
+      patientName: draft.patientName,
+      age: draft.age,
+      sex: draft.sex,
+      intake: draft.intake,
+    });
+    setQueuedDrafts((drafts) => drafts.filter((item) => item.id !== draft.id));
+    setActiveWorkspacePage("intake");
+    notify(
+      "Draft synced",
+      "Queued intake is now active in the reception form.",
+      "success",
+    );
+  }
 
   async function generate(nextForm = form) {
     if (!currentUser) {
@@ -255,6 +556,11 @@ export function ClinicCopilotApp() {
 
     setIsGenerating(true);
     setError("");
+    beginAction(
+      "generate",
+      "Generating draft",
+      "AI is structuring intake, red flags, and patient instructions.",
+    );
 
     try {
       const response = await fetch("/api/copilot", {
@@ -298,10 +604,18 @@ export function ClinicCopilotApp() {
         followUp: generated.followUp,
       });
       setSelectedCaseId(caseId);
+      finishAction(
+        "Draft generated",
+        `${nextForm.patientName} is ready for clinician review and safety gates.`,
+      );
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Something failed.");
+      const message =
+        caught instanceof Error ? caught.message : "Something failed.";
+      setError(message);
+      failAction("Draft generation failed", message);
     } finally {
       setIsGenerating(false);
+      setRunningAction(null);
     }
   }
 
@@ -313,16 +627,40 @@ export function ClinicCopilotApp() {
       return;
     }
 
+    const openGates = safetyGates.filter((gate) => !gate.passed);
+    if (status === "handout" && openGates.length) {
+      notify(
+        "Handout blocked",
+        `Resolve ${openGates.length} safety gate${openGates.length === 1 ? "" : "s"} before moving to handout.`,
+        "warning",
+      );
+      return;
+    }
+
     void updateStatus({ caseId, userId: currentUser._id, status });
-    setLiveMessage(`Moved selected case to ${status}.`);
+    finishAction("Status updated", `Moved selected case to ${status}.`);
   }
 
   function approveSelectedCase(caseId = selectedCaseId) {
     if (!(caseId && currentUser)) {
       return;
     }
+    const openCriticalGates = safetyGates.filter(
+      (gate) => !gate.passed && gate.priority !== "recommended",
+    );
+    if (openCriticalGates.length) {
+      notify(
+        "Approval blocked",
+        `Resolve ${openCriticalGates.length} required safety check${openCriticalGates.length === 1 ? "" : "s"} first.`,
+        "warning",
+      );
+      return;
+    }
     void approveCase({ caseId, userId: currentUser._id });
-    setLiveMessage("Clinician approval saved.");
+    finishAction(
+      "Approval saved",
+      "Clinician approval recorded and case moved to handout.",
+    );
   }
 
   function saveDraftEdits(nextOutput: CopilotOutput) {
@@ -348,11 +686,20 @@ export function ClinicCopilotApp() {
       patientHandout: nextOutput.patientHandout,
       followUp: nextOutput.followUp,
     });
+    finishAction(
+      "Draft edits saved",
+      "Updated clinical draft is stored for review.",
+    );
   }
 
   function recordCommand(entry: CommandHistoryEntry) {
     setCommandHistory((history) => [entry, ...history].slice(0, 8));
     setLiveMessage(`Command complete: ${entry.summary}`);
+    addAgentEvent(
+      inferAgentForCommand(entry.command),
+      `Command complete: ${entry.summary}`,
+      "complete",
+    );
   }
 
   function resetWorkspace(scope: "filters" | "intake" | "all") {
@@ -541,7 +888,11 @@ export function ClinicCopilotApp() {
   async function cleanIntakeWithAi() {
     setIsCleaningIntake(true);
     setError("");
-    setLiveMessage("Cleaning intake with AI.");
+    beginAction(
+      "clean-intake",
+      "Cleaning intake",
+      "AI is extracting vitals, medicines, red flags, and missing info.",
+    );
     try {
       const response = await fetch("/api/intake-cleanup", {
         method: "POST",
@@ -578,13 +929,18 @@ export function ClinicCopilotApp() {
           .filter(Boolean)
           .join("\n\n"),
       });
-      setLiveMessage("Intake cleaned and structured.");
-    } catch (caught) {
-      setError(
-        caught instanceof Error ? caught.message : "Intake cleanup failed.",
+      finishAction(
+        "Intake cleaned",
+        "Reception note now includes extracted facts and missing information.",
       );
+    } catch (caught) {
+      const message =
+        caught instanceof Error ? caught.message : "Intake cleanup failed.";
+      setError(message);
+      failAction("Intake cleanup failed", message);
     } finally {
       setIsCleaningIntake(false);
+      setRunningAction(null);
     }
   }
 
@@ -800,7 +1156,7 @@ export function ClinicCopilotApp() {
   }
 
   async function runSuggestedCommand(command: string) {
-    const nextCommand = command.trim();
+    const nextCommand = normalizeAgentCommand(command.trim());
     if (!nextCommand) {
       return;
     }
@@ -839,7 +1195,12 @@ export function ClinicCopilotApp() {
       const isModifier = event.metaKey || event.ctrlKey;
       if (isModifier && event.key.toLowerCase() === "k") {
         event.preventDefault();
-        commandInputRef.current?.focus();
+        setActiveWorkspacePage("overview");
+        addAgentEvent(
+          "Ops",
+          "Cmd+K opened the agent command palette.",
+          "complete",
+        );
       }
       if (isModifier && event.key.toLowerCase() === "g") {
         event.preventDefault();
@@ -898,6 +1259,42 @@ export function ClinicCopilotApp() {
           onClose={() => setPresentationMode(false)}
         />
       ) : null}
+      {printPreviewOpen ? (
+        <div className="fixed inset-0 z-50 overflow-auto bg-black/50 p-4">
+          <div className="mx-auto max-w-3xl rounded-lg bg-white p-4 shadow-xl">
+            <div className="flex items-start justify-between gap-3 border-b pb-3">
+              <div>
+                <p className="font-black text-xl">Print Preview</p>
+                <p className="text-muted-foreground text-sm">
+                  Review the packet before sending it to the printer.
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setPrintPreviewOpen(false)}
+              >
+                Close
+              </Button>
+            </div>
+            <div className="mt-4">
+              <PatientHandout copy={copy} output={displayOutput} />
+            </div>
+            <div className="mt-4 flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setPrintPreviewOpen(false)}
+              >
+                Keep editing
+              </Button>
+              <Button type="button" onClick={() => window.print()}>
+                Print packet
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
       <AppShellSidebar
         activePage={activeWorkspacePage}
         clinicName={currentUser.clinicName}
@@ -942,48 +1339,87 @@ export function ClinicCopilotApp() {
           className="mx-auto max-w-[1680px] px-4 py-4 sm:px-6 lg:px-8"
           id="clinic-workspace"
         >
+          <WorkflowProgress steps={workflowSteps} toast={toast} />
+
           {activeWorkspacePage === "overview" ? (
-            <div className="grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_420px]">
-              <div className="space-y-4">
-                <OverviewQuickActions
-                  onOpenPage={setActiveWorkspacePage}
-                  onStartGuidedWorkflow={() => void runGuidedWorkflow()}
-                />
-                <CommandCopilot
-                  ref={commandInputRef}
-                  history={commandHistory}
-                  model={selectedModel}
-                  onCommandComplete={recordCommand}
-                  onApplyPlan={applyCommandPlan}
-                />
-                <GuidedWorkflowPanel
-                  copy={copy}
-                  language={uiLanguage}
-                  onLanguageChange={setUiLanguage}
-                  onLoadScenario={setForm}
-                  onRunGuidedWorkflow={() => void runGuidedWorkflow()}
-                />
-              </div>
-              <div className="space-y-4">
-                <SafetyBanner
-                  title={copy.clinicianReview}
-                  body={copy.safetyBanner}
-                />
-                <ImpactSnapshot
-                  output={displayOutput}
-                  title={copy.impactTitle}
-                />
-                <VisitJourney
+            <>
+              <div className="mt-4">
+                <AgentOperatingSystem
+                  activeRole={activeRole}
+                  autopilotMode={autopilotMode}
+                  cases={cases}
+                  commandHistory={commandHistory}
                   form={form}
+                  isJudgeMode={isJudgeMode}
+                  memory={agentMemory}
                   output={displayOutput}
-                  status={selectedCase?.status}
+                  runningAction={runningAction}
+                  streamingSteps={streamingSteps}
+                  timeline={agentTimeline}
+                  onAutopilotModeChange={changeAutopilotMode}
+                  onCommand={(command) => void runSuggestedCommand(command)}
+                  onJudgeModeChange={setIsJudgeMode}
+                  onMemoryChange={setAgentMemory}
+                  onPrintPreview={() => setPrintPreviewOpen(true)}
                 />
               </div>
-            </div>
+              <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_420px]">
+                <div className="space-y-4">
+                  <RoleWorkspacePanel
+                    activeRole={activeRole}
+                    onRoleChange={setActiveRole}
+                    onOpenPage={setActiveWorkspacePage}
+                  />
+                  <AgentCommandCenter
+                    cases={cases}
+                    model={selectedModel}
+                    output={displayOutput}
+                    selectedPatient={
+                      selectedCase?.patientName ?? form.patientName
+                    }
+                    onRunCommand={runSuggestedCommand}
+                  />
+                  <OverviewQuickActions
+                    onOpenPage={setActiveWorkspacePage}
+                    onStartGuidedWorkflow={() => void runGuidedWorkflow()}
+                  />
+                  <CommandCopilot
+                    ref={commandInputRef}
+                    history={commandHistory}
+                    model={selectedModel}
+                    onCommandComplete={recordCommand}
+                    onApplyPlan={applyCommandPlan}
+                  />
+                  <GuidedWorkflowPanel
+                    copy={copy}
+                    language={uiLanguage}
+                    onLanguageChange={setUiLanguage}
+                    onLoadScenario={setForm}
+                    onRunGuidedWorkflow={() => void runGuidedWorkflow()}
+                  />
+                </div>
+                <div className="space-y-4">
+                  <SafetyBanner
+                    title={copy.clinicianReview}
+                    body={copy.safetyBanner}
+                  />
+                  <ClinicalSafetyGates gates={safetyGates} />
+                  <ImpactSnapshot
+                    output={displayOutput}
+                    title={copy.impactTitle}
+                  />
+                  <VisitJourney
+                    form={form}
+                    output={displayOutput}
+                    status={selectedCase?.status}
+                  />
+                </div>
+              </div>
+            </>
           ) : null}
 
           {activeWorkspacePage === "intake" ? (
-            <div className="grid gap-4 xl:grid-cols-[420px_minmax(0,1fr)]">
+            <div className="mt-4 grid gap-4 xl:grid-cols-[420px_minmax(0,1fr)]">
               <div className="space-y-4">
                 <IntakePanel
                   copy={copy}
@@ -994,6 +1430,12 @@ export function ClinicCopilotApp() {
                   onChange={setForm}
                   onCleanIntake={() => void cleanIntakeWithAi()}
                   onGenerate={() => void generate()}
+                />
+                <LowConnectivityPanel
+                  isOnline={isOnline}
+                  queue={queuedDrafts}
+                  onQueueDraft={queueLocalDraft}
+                  onSyncDraft={syncQueuedDraft}
                 />
               </div>
               <div className="space-y-4">
@@ -1023,7 +1465,7 @@ export function ClinicCopilotApp() {
           ) : null}
 
           {activeWorkspacePage === "review" ? (
-            <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_420px]">
+            <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_420px]">
               <div className="space-y-4">
                 <RiskExplainer
                   commandInstruction={commandRiskInstruction}
@@ -1047,6 +1489,7 @@ export function ClinicCopilotApp() {
                 <DoctorConsole output={displayOutput} onSave={saveDraftEdits} />
               </div>
               <div className="space-y-4">
+                <ClinicalSafetyGates gates={safetyGates} />
                 <ApprovalReadiness
                   checkSignal={approvalCheckSignal}
                   commandInstruction={commandApprovalInstruction}
@@ -1067,9 +1510,18 @@ export function ClinicCopilotApp() {
           ) : null}
 
           {activeWorkspacePage === "patient" ? (
-            <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_420px]">
+            <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_420px]">
               <div className="space-y-4">
                 <PatientHandout copy={copy} output={displayOutput} />
+                <PrintWorkflowPanel
+                  output={displayOutput}
+                  patientName={selectedCase?.patientName ?? form.patientName}
+                />
+                <PatientLiteracyPanel
+                  activeMode={literacyMode}
+                  onModeChange={setLiteracyMode}
+                  output={displayOutput}
+                />
                 <TeachBackCheck output={displayOutput} />
                 <PatientQuestionAnswer
                   answerSignal={patientQuestionSignal}
@@ -1124,8 +1576,22 @@ export function ClinicCopilotApp() {
           ) : null}
 
           {activeWorkspacePage === "operations" ? (
-            <div className="grid gap-4 xl:grid-cols-[360px_minmax(0,1fr)_360px]">
+            <div className="mt-4 grid gap-4 xl:grid-cols-[360px_minmax(0,1fr)_360px]">
               <div className="space-y-4">
+                <RoleWorkspacePanel
+                  activeRole={activeRole}
+                  onRoleChange={setActiveRole}
+                  onOpenPage={setActiveWorkspacePage}
+                />
+                <AgentCommandCenter
+                  cases={cases}
+                  model={selectedModel}
+                  output={displayOutput}
+                  selectedPatient={
+                    selectedCase?.patientName ?? form.patientName
+                  }
+                  onRunCommand={runSuggestedCommand}
+                />
                 <ModelSelector
                   value={selectedModel}
                   onChange={setSelectedModel}
@@ -1140,6 +1606,12 @@ export function ClinicCopilotApp() {
                   output={displayOutput}
                 />
                 <OperationsPulse cases={cases} />
+                <LowConnectivityPanel
+                  isOnline={isOnline}
+                  queue={queuedDrafts}
+                  onQueueDraft={queueLocalDraft}
+                  onSyncDraft={syncQueuedDraft}
+                />
               </div>
               <div className="space-y-4">
                 <CaseBoard
@@ -1204,4 +1676,51 @@ function caseToOutput(caseItem: Doc<"cases">): CopilotOutput {
       message: "Follow the clinician-approved follow-up plan.",
     },
   };
+}
+
+function normalizeAgentCommand(command: string) {
+  const aliases: Record<string, string> = {
+    audit_case_safety: "Check if this case is ready to approve",
+    auto_triage_case: "Tell me what to do next for this case",
+    compare_before_after_draft:
+      "Add a clinician edit note and compare the draft with clinician review",
+    detect_allergy_gap: "Check allergy status and medicine clarity",
+    detect_missing_vitals: "Clean this intake and extract vitals",
+    detect_pregnancy_child_chest_pain:
+      "Explain why this case is risky and check pregnancy child chest pain escalation",
+    generate_patient_audio_script:
+      "Answer this patient question in Bangla with a read-aloud script",
+    generate_pictogram_plan:
+      "Simplify the patient handout for low literacy with pictogram plan",
+    generate_staff_tasks:
+      "Create receptionist, nurse, doctor, and follow-up desk tasks",
+    prepare_referral_packet:
+      "Prepare the print packet for handout, referral, medicines, and follow-up",
+    predict_followup_risk: "Schedule follow-up for this patient",
+    recommend_next_agent_action: "Tell me what to do next for this case",
+    rewrite_for_low_literacy: "Simplify the patient handout for low literacy",
+    summarize_queue_pressure: "Brief me on today's clinic queue",
+    translate_bn_en: "Switch to Bangla and open presentation mode",
+  };
+
+  return aliases[command] ?? command;
+}
+
+function inferAgentForCommand(command: string): AgentTimelineEvent["agent"] {
+  const normalized = command.toLowerCase();
+  if (/(intake|extract|vital|document)/.test(normalized)) {
+    return "Reception";
+  }
+  if (
+    /(risk|safety|approval|allergy|medicine|triage|red flag)/.test(normalized)
+  ) {
+    return "Safety";
+  }
+  if (/(follow|whatsapp|reply|schedule|call)/.test(normalized)) {
+    return "Follow-up";
+  }
+  if (/(brief|queue|filter|search|handoff|task)/.test(normalized)) {
+    return "Ops";
+  }
+  return "Doctor";
 }

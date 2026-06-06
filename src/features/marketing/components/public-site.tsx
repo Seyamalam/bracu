@@ -15,6 +15,8 @@ import {
   docsMcpMethods,
   docsPromptLibrary,
   docsQuickLinks,
+  docsTesterChecklist,
+  docsTesterWalkthrough,
   featureCatalog,
   featurePillars,
   homepageHighlights,
@@ -219,10 +221,77 @@ function DocsPage() {
           ))}
         </div>
       </section>
+      <DocsTesterSection />
       <DocsMcpSection />
       <DocsAiSection />
       <DocsBuildSection />
     </>
+  );
+}
+
+function DocsTesterSection() {
+  return (
+    <section className="bg-white">
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="grid gap-8 lg:grid-cols-[0.78fr_1.22fr]">
+          <div>
+            <p className="font-semibold text-primary text-sm uppercase tracking-[0.16em]">
+              Tester walkthrough
+            </p>
+            <h2 className="mt-3 font-black text-3xl tracking-normal sm:text-5xl">
+              Step-by-step proof path for the full clinic demo.
+            </h2>
+            <p className="mt-4 text-muted-foreground text-lg leading-8">
+              Use this route when validating the hackathon build locally or
+              preparing a judge-facing product report. It covers setup, role
+              workspaces, agent tools, clinical safety gates, print workflows,
+              and low-connectivity behavior.
+            </p>
+            <div className="mt-6 border border-border bg-[#fbfaf6] p-5">
+              <h3 className="font-bold text-xl">Acceptance checklist</h3>
+              <ul className="mt-4 space-y-3">
+                {docsTesterChecklist.map((item) => (
+                  <li
+                    className="flex gap-3 text-muted-foreground text-sm leading-6"
+                    key={item}
+                  >
+                    <CheckCircle2
+                      aria-hidden="true"
+                      className="mt-0.5 shrink-0 text-primary"
+                      size={18}
+                    />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+          <div className="grid gap-3">
+            {docsTesterWalkthrough.map((group) => (
+              <article
+                className="border border-border bg-[#fffdf8] p-5"
+                key={group.title}
+              >
+                <h3 className="font-bold text-xl">{group.title}</h3>
+                <ol className="mt-4 space-y-3">
+                  {group.steps.map((step, stepIndex) => (
+                    <li
+                      className="grid grid-cols-[2rem_1fr] gap-3 text-muted-foreground text-sm leading-6"
+                      key={step}
+                    >
+                      <span className="flex size-7 items-center justify-center border border-border bg-white font-bold text-primary text-xs">
+                        {stepIndex + 1}
+                      </span>
+                      <span>{step}</span>
+                    </li>
+                  ))}
+                </ol>
+              </article>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
 

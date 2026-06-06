@@ -155,6 +155,7 @@ export function IntakePanel({
           <div className="mt-2 grid gap-2">
             {demoScenarios.map((scenario) => (
               <Button
+                aria-label={`Load ${scenario.label} demo scenario: ${scenario.focus}`}
                 className="h-auto justify-start px-3 py-2 text-left"
                 key={scenario.label}
                 type="button"
@@ -186,6 +187,7 @@ export function IntakePanel({
           <div className="mt-1 grid grid-cols-4 gap-2">
             {sexOptions.map((option) => (
               <Button
+                aria-label={`Set patient sex to ${option}`}
                 className={cn(
                   "px-1 text-[0.72rem] capitalize",
                   form.sex === option && "bg-primary text-primary-foreground",
@@ -211,6 +213,11 @@ export function IntakePanel({
         </FormField>
 
         <Button
+          aria-label={
+            isListening
+              ? "Voice intake is listening"
+              : "Start Bangla voice intake"
+          }
           className="mb-3 w-full"
           type="button"
           variant="outline"
@@ -221,6 +228,7 @@ export function IntakePanel({
         </Button>
 
         <Button
+          aria-label="Clean intake note with AI"
           className="mb-3 w-full"
           type="button"
           variant="outline"
@@ -250,6 +258,7 @@ export function IntakePanel({
         <div className="grid grid-cols-3 gap-2">
           {sampleIntakes.map((sample) => (
             <Button
+              aria-label={`Load sample intake: ${sample.label}`}
               className="h-11 px-2 text-xs"
               key={sample.label}
               type="button"

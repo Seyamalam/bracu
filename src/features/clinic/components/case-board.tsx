@@ -11,6 +11,7 @@ import { SectionHeading } from "./section-heading";
 
 type CaseBoardItem = {
   _id: Id<"cases">;
+  _creationTime: number;
   patientName: string;
   age: number;
   language: "bn" | "en" | "mixed";
@@ -19,6 +20,10 @@ type CaseBoardItem = {
   severity: "low" | "medium" | "high";
   status: CaseStatus;
   approvedAt?: number;
+  followUp?: {
+    timing: string;
+    message: string;
+  };
 };
 
 export function CaseBoard({
@@ -101,6 +106,7 @@ export function CaseBoard({
           </div>
         </div>
         <div className="space-y-3">
+          <RedFlagLane cases={cases ?? []} onSelectCase={onSelectCase} />
           {(cases ?? []).map((caseItem) => (
             <div
               className={
@@ -111,6 +117,7 @@ export function CaseBoard({
               key={caseItem._id}
             >
               <button
+                aria-label={`Select case for ${caseItem.patientName}, ${caseItem.severity} priority, ${caseItem.status} status`}
                 className="w-full text-left"
                 type="button"
                 onClick={() => onSelectCase(caseItem._id)}
@@ -125,15 +132,35 @@ export function CaseBoard({
                   </div>
                   <SeverityBadge severity={caseItem.severity} />
                 </div>
-                <Badge className="mt-2 capitalize" variant="outline">
-                  {caseItem.approvedAt ? "approved" : caseItem.status}
-                </Badge>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <Badge className="capitalize" variant="outline">
+                    {caseItem.approvedAt ? "approved" : caseItem.status}
+                  </Badge>
+                  <Badge
+                    variant={
+                      caseItem.redFlagCount ? "destructive" : "secondary"
+                    }
+                  >
+                    {caseItem.redFlagCount ? "red flag lane" : "routine lane"}
+                  </Badge>
+                  <Badge variant="outline">
+                    {waitingTime(caseItem._creationTime)}
+                  </Badge>
+                  <Badge variant="outline">{ownerForCase(caseItem)}</Badge>
+                </div>
+                {caseItem.status === "followup" || caseItem.followUp ? (
+                  <p className="mt-2 rounded-md bg-[#f7f4ee] px-2 py-1 text-muted-foreground text-xs">
+                    Follow-up clock:{" "}
+                    {caseItem.followUp?.timing ?? "timing not set"}
+                  </p>
+                ) : null}
                 <p className="mt-2 line-clamp-2 text-muted-foreground text-sm">
                   {caseItem.chiefComplaint}
                 </p>
               </button>
               <div className="mt-3 grid grid-cols-3 gap-2">
                 <Button
+                  aria-label={`Approve case for ${caseItem.patientName}`}
                   type="button"
                   variant={caseItem.approvedAt ? "secondary" : "outline"}
                   onClick={() => onApproveCase(caseItem._id)}
@@ -141,6 +168,7 @@ export function CaseBoard({
                   Approve
                 </Button>
                 <Button
+                  aria-label={`Move ${caseItem.patientName} to handout`}
                   type="button"
                   variant="outline"
                   onClick={() => onStatusChange(caseItem._id, "handout")}
@@ -148,6 +176,7 @@ export function CaseBoard({
                   Handout
                 </Button>
                 <Button
+                  aria-label={`Move ${caseItem.patientName} to follow-up`}
                   type="button"
                   variant="outline"
                   onClick={() => onStatusChange(caseItem._id, "followup")}
@@ -166,4 +195,67 @@ export function CaseBoard({
       </CardContent>
     </Card>
   );
+}
+
+function RedFlagLane({
+  cases,
+  onSelectCase,
+}: {
+  cases: CaseBoardItem[];
+  onSelectCase: (caseId: Id<"cases">) => void;
+}) {
+  const urgentCases = cases.filter(
+    (caseItem) => caseItem.redFlagCount > 0 || caseItem.severity === "high",
+  );
+
+  if (!urgentCases.length) {
+    return null;
+  }
+
+  return (
+    <div className="rounded-lg border border-red-200 bg-red-50 p-3">
+      <p className="font-semibold text-red-950 text-sm">Red Flag Lane</p>
+      <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
+        {urgentCases.map((caseItem) => (
+          <button
+            aria-label={`Open urgent case for ${caseItem.patientName}`}
+            className="shrink-0 rounded-md border border-red-200 bg-white px-3 py-2 text-left"
+            key={caseItem._id}
+            type="button"
+            onClick={() => onSelectCase(caseItem._id)}
+          >
+            <p className="font-semibold text-xs">{caseItem.patientName}</p>
+            <p className="text-red-800 text-xs">
+              {caseItem.redFlagCount} flags ·{" "}
+              {waitingTime(caseItem._creationTime)}
+            </p>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function waitingTime(createdAt: number) {
+  const minutes = Math.max(0, Math.round((Date.now() - createdAt) / 60_000));
+  if (minutes < 1) {
+    return "just arrived";
+  }
+  if (minutes < 60) {
+    return `${minutes}m waiting`;
+  }
+  return `${Math.floor(minutes / 60)}h ${minutes % 60}m waiting`;
+}
+
+function ownerForCase(caseItem: CaseBoardItem) {
+  if (caseItem.status === "waiting") {
+    return "owner: reception";
+  }
+  if (caseItem.status === "review") {
+    return caseItem.severity === "high" ? "owner: doctor" : "owner: nurse";
+  }
+  if (caseItem.status === "handout") {
+    return "owner: doctor";
+  }
+  return "owner: follow-up desk";
 }

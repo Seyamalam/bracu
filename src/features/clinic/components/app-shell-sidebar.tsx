@@ -83,6 +83,7 @@ export function AppShellSidebar({
             const isActive = activePage === item.id;
             return (
               <button
+                aria-label={`Open ${item.label} workspace: ${item.description}`}
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
                   "flex w-full items-start gap-3 rounded-md border-l-4 border-transparent px-3 py-2.5 text-left transition hover:bg-[#eaf6f1]",
@@ -139,6 +140,7 @@ export function AppShellSidebar({
             const isActive = activePage === item.id;
             return (
               <button
+                aria-label={`Open ${item.label} workspace`}
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
                   "flex shrink-0 items-center gap-2 rounded-md border border-border bg-background px-3 py-2 font-semibold text-xs",
