@@ -376,26 +376,27 @@ External agent & Integrate safely & MCP stdio server and HTTP demo endpoint. \\
 
 \begin{center}
 \begin{tikzpicture}[
-  node distance=0.33in,
-  box/.style={rectangle,rounded corners,draw=clinicGreen,fill=white,thick,align=center,minimum height=0.42in,text width=1.35in,font=\small},
+  node distance=0.3in and 0.38in,
+  box/.style={rectangle,rounded corners,draw=clinicGreen,fill=white,thick,align=center,minimum height=0.42in,text width=1.65in,font=\small},
   guard/.style={diamond,aspect=2.3,draw=clinicDanger,fill=clinicMint,thick,align=center,text width=1.15in,font=\small},
   arrow/.style={-{Latex[length=2.2mm]},thick,color=clinicGreen}
 ]
 \node[box] (a) {User or MCP call};
-\node[box,right=of a] (b) {Input validation};
-\node[box,right=of b] (c) {Role context};
-\node[box,right=of c] (d) {AI or fallback};
-\node[guard,below=of c] (e) {Schema and safety gates};
-\node[box,right=of e] (f) {Human review};
-\node[box,right=of f] (g) {Draft output};
-\node[box,right=of g] (h) {Audit receipt};
+\node[box,below=of a] (b) {Input validation};
+\node[box,below=of b] (c) {Role context};
+\node[box,below=of c] (d) {AI or fallback};
+\node[guard,below=of d] (e) {Schema and safety gates};
+\node[box,below left=of e] (f) {Human review};
+\node[box,below right=of e] (g) {Draft output};
+\node[box,below=0.65in of e] (h) {Audit receipt};
 \draw[arrow] (a) -- (b);
 \draw[arrow] (b) -- (c);
 \draw[arrow] (c) -- (d);
-\draw[arrow] (d) |- (e);
+\draw[arrow] (d) -- (e);
 \draw[arrow] (e) -- (f);
-\draw[arrow] (f) -- (g);
-\draw[arrow] (g) -- (h);
+\draw[arrow] (e) -- (g);
+\draw[arrow] (f) |- (h);
+\draw[arrow] (g) |- (h);
 \end{tikzpicture}
 \end{center}
 
@@ -440,29 +441,30 @@ Operations & Rate limits, monitoring, error reporting, backup/restore, incident 
 
 \begin{center}
 \begin{tikzpicture}[
-  node distance=0.35in,
-  box/.style={rectangle,rounded corners,draw=clinicGreen,fill=clinicMint,thick,align=center,minimum height=0.42in,text width=1.24in,font=\small},
-  store/.style={cylinder,shape border rotate=90,draw=clinicGreen,fill=white,thick,align=center,minimum height=0.42in,text width=1.05in,font=\small},
+  node distance=0.32in and 0.42in,
+  box/.style={rectangle,rounded corners,draw=clinicGreen,fill=clinicMint,thick,align=center,minimum height=0.42in,text width=1.45in,font=\small},
+  store/.style={cylinder,shape border rotate=90,draw=clinicGreen,fill=white,thick,align=center,minimum height=0.42in,text width=1.15in,font=\small},
   arrow/.style={-{Latex[length=2.2mm]},thick,color=clinicGreen}
 ]
 \node[box] (u) {Hospital staff};
-\node[box,right=of u] (auth) {Identity and RBAC};
-\node[box,right=of auth] (app) {Clinic Copilot app};
-\node[box,right=of app] (api) {Validated API routes};
-\node[store,below=of api] (db) {Convex data};
-\node[box,right=of api] (local) {Local LM Studio};
+\node[box,below=of u] (auth) {Identity and RBAC};
+\node[box,below=of auth] (app) {Clinic Copilot app};
+\node[box,below=of app] (api) {Validated API routes};
+\node[store,below left=of api] (db) {Convex data};
+\node[box,below=of api] (mcp) {MCP server};
+\node[box,below right=of api] (local) {Local LM Studio};
 \node[box,below=of local] (cloud) {Cloud Gemini};
-\node[box,above=of local] (mcp) {MCP server};
-\node[store,right=of cloud] (audit) {Audit log};
+\node[store,below=0.72in of mcp] (audit) {Audit log};
 \draw[arrow] (u) -- (auth);
 \draw[arrow] (auth) -- (app);
 \draw[arrow] (app) -- (api);
 \draw[arrow] (api) -- (db);
-\draw[arrow] (api) -- (local);
-\draw[arrow] (api) -- (cloud);
 \draw[arrow] (api) -- (mcp);
-\draw[arrow] (api) -- (audit);
-\draw[arrow] (mcp) |- (audit);
+\draw[arrow] (api) -- (local);
+\draw[arrow] (local) -- (cloud);
+\draw[arrow] (db) |- (audit);
+\draw[arrow] (mcp) -- (audit);
+\draw[arrow] (cloud) |- (audit);
 \end{tikzpicture}
 \end{center}
 
@@ -524,20 +526,20 @@ For demonstrations, training, and offline-style use, the app can return safe det
 
 \begin{center}
 \begin{tikzpicture}[
-  node distance=0.35in,
-  box/.style={rectangle,rounded corners,draw=clinicGreen,fill=clinicMint,thick,align=center,minimum height=0.42in,text width=1.25in,font=\small},
+  node distance=0.32in and 0.42in,
+  box/.style={rectangle,rounded corners,draw=clinicGreen,fill=clinicMint,thick,align=center,minimum height=0.42in,text width=1.55in,font=\small},
   choice/.style={diamond,aspect=2.1,draw=clinicGold,fill=white,thick,align=center,text width=0.95in,font=\small},
   arrow/.style={-{Latex[length=2.2mm]},thick,color=clinicGreen}
 ]
 \node[box] (facility) {Small hospital or clinic};
-\node[box,right=of facility] (browser) {Browser or tablet};
-\node[box,right=of browser] (app) {Clinic Copilot BD};
-\node[choice,right=of app] (mode) {AI mode};
-\node[box,above=of mode] (local) {Local LM Studio};
-\node[box,right=of mode] (cloud) {Cloud Gemini};
-\node[box,below=of mode] (fallback) {Safe fallback};
-\node[box,below=of app] (mcp) {MCP clients};
-\node[box,right=of mcp] (tools) {Queue, safety, packets, approvals};
+\node[box,below=of facility] (browser) {Browser or tablet};
+\node[box,below=of browser] (app) {Clinic Copilot BD};
+\node[choice,below=of app] (mode) {AI mode};
+\node[box,below left=of mode] (local) {Local LM Studio};
+\node[box,below=of mode] (cloud) {Cloud Gemini};
+\node[box,below right=of mode] (fallback) {Safe fallback};
+\node[box,below=0.75in of cloud] (mcp) {MCP clients};
+\node[box,below=of mcp] (tools) {Queue, safety, packets, approvals};
 \draw[arrow] (facility) -- (browser);
 \draw[arrow] (browser) -- (app);
 \draw[arrow] (app) -- (mode);
@@ -545,7 +547,7 @@ For demonstrations, training, and offline-style use, the app can return safe det
 \draw[arrow] (mode) -- (cloud);
 \draw[arrow] (mode) -- (fallback);
 \draw[arrow] (mcp) -- (app);
-\draw[arrow] (app) |- (tools);
+\draw[arrow] (app) -- (tools);
 \end{tikzpicture}
 \end{center}
 
