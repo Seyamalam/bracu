@@ -202,7 +202,7 @@ The following screenshots were captured from the running app for this PDF report
 
 \screenshot{artifacts/health-worker-latex-main/01-public-home.png}{Public home and product positioning}{The first impression frames Clinic Copilot BD as a practical health worker assistant with local/cloud AI and MCP-ready tools.}
 
-\screenshot{artifacts/health-worker-latex-main/02-judge-mode.png}{Judge mode}{A short hackathon evaluation path for reviewers: open queue, show case workflow, show safety, show Copilot, prove MCP.}
+\screenshot{artifacts/health-worker-latex-main/02-judge-mode.png}{Evaluation route}{A compact review path for understanding the queue, case workflow, safety gates, Copilot, and MCP evidence.}
 
 \screenshot{artifacts/health-worker-latex-main/03-docs-mcp.png}{Documentation and MCP proof path}{The docs give technical reviewers a reproducible path through local AI, cloud AI, MCP, and the demo workflow.}
 
@@ -236,6 +236,25 @@ Out-of-pocket burden & 79.3\% of current health expenditure in 2023 & Avoidable 
 Community clinic model & One community health care provider assisted by two community health workers & The product maps to the team structure used in local clinics. \\
 Private facility footprint & A 2021 brief cites 9,529 DGHS-registered private diagnostic centers in 2020 and reports around 11,940 private hospitals, clinics, and diagnostic centers & Small private facilities are a large fragmented market for lightweight workflow software. \\
 Digital strategy alignment & Bangladesh Digital Health Strategy 2023-2027 emphasizes mHealth, AI, interoperability, privacy, and service innovation & The project fits national direction, not just hackathon novelty. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Global Healthcare Constraints}
+
+The same pressures visible in Bangladesh are part of a wider global pattern: too few health workers, incomplete access to essential services, high out-of-pocket exposure, and frontline teams that need practical support rather than another generic chatbot.
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\linewidth}{@{}L{1.9in}L{1.85in}Y@{}}
+\toprule
+\textbf{Constraint} & \textbf{Global signal} & \textbf{Why this supports the project} \\
+\midrule
+Health worker shortage & WHO estimates a projected shortfall of 11 million health workers by 2030, mostly in low- and lower-middle-income countries. & Decision support must help scarce staff work safely, not assume more doctors are immediately available. \\
+Essential service gaps & WHO and World Bank estimate that about 4.6 billion people were not fully covered by essential health services in 2023. & Frontline and primary-care workflows need tools that improve access, triage, education, and follow-up at the first point of care. \\
+Financial hardship & WHO reports that 2.1 billion people faced financial hardship from health expenses in 2022, including 1.6 billion people living in or pushed deeper into poverty. & Reducing avoidable revisits, missed warning signs, and unclear instructions has direct household value. \\
+Low physician density & World Bank physician-density data shows low-income countries at roughly 0.4 physicians per 1,000 people and lower-middle-income countries around 0.7 in 2022. & The product is designed for nurse, CHW, reception, and clinician teamwork in settings where physician time is limited. \\
+Need for digital job aids & Digital health literature highlights training, communication, job aids, supervision, and decision support as useful roles for technology in low-resource health workforces. & Clinic Copilot BD is a bounded workflow assistant: it supports staff tasks, safety checks, handoff, and education without claiming autonomous medical authority. \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -302,28 +321,30 @@ Research and evaluation & Structured case scenarios, measurable outputs, and rep
 
 \begin{center}
 \begin{tikzpicture}[
-  node distance=0.32in,
-  box/.style={rectangle,rounded corners,draw=clinicGreen,fill=clinicMint,thick,align=center,minimum height=0.42in,text width=1.12in,font=\small},
+  node distance=0.28in and 0.42in,
+  box/.style={rectangle,rounded corners,draw=clinicGreen,fill=clinicMint,thick,align=center,minimum height=0.42in,text width=1.65in,font=\small},
   arrow/.style={-{Latex[length=2.2mm]},thick,color=clinicGreen}
 ]
 \node[box] (a) {Patient story};
-\node[box,right=of a] (b) {Intake cleanup};
-\node[box,right=of b] (c) {Safety blockers};
-\node[box,right=of c] (d) {Missing questions};
-\node[box,right=of d] (e) {Draft support};
-\node[box,below=of c] (f) {Human review};
-\node[box,right=of f] (g) {Patient education};
-\node[box,right=of g] (h) {Follow-up};
-\node[box,right=of h] (i) {Audit receipt};
+\node[box,below=of a] (b) {Intake cleanup};
+\node[box,below=of b] (c) {Safety blockers};
+\node[box,below left=of c] (d) {Missing questions};
+\node[box,below right=of c] (e) {Draft support};
+\node[box,below=0.72in of c] (f) {Human review};
+\node[box,below left=of f] (g) {Patient education};
+\node[box,below right=of f] (h) {Follow-up};
+\node[box,below=0.72in of f] (i) {Audit receipt};
 \draw[arrow] (a) -- (b);
 \draw[arrow] (b) -- (c);
 \draw[arrow] (c) -- (d);
-\draw[arrow] (d) -- (e);
+\draw[arrow] (c) -- (e);
+\draw[arrow] (d) |- (f);
 \draw[arrow] (e) |- (f);
 \draw[arrow] (f) -- (g);
-\draw[arrow] (g) -- (h);
-\draw[arrow] (h) -- (i);
-\draw[arrow,color=clinicDanger] (c) -- node[left,font=\scriptsize,color=clinicDanger]{red flag} (f);
+\draw[arrow] (f) -- (h);
+\draw[arrow] (g) |- (i);
+\draw[arrow] (h) |- (i);
+\draw[arrow,color=clinicDanger] (c) -- node[right,font=\scriptsize,color=clinicDanger]{red flag} (f);
 \end{tikzpicture}
 \end{center}
 
@@ -555,11 +576,19 @@ For demonstrations, training, and offline-style use, the app can return safe det
 
 \subsection{AI workflow}
 
-Local LM Studio provider; cloud Google Gemini provider; no-key deterministic fallback; mixed Bangla/English intake cleanup; clinical draft generation; SOAP-style support; missing question finder; current-case AI Q\&A; command copilot; draft edit support; document extraction; clinic briefing; next-step navigator.
+\begin{itemize}
+  \item Local LM Studio provider, cloud Google Gemini provider, and no-key deterministic fallback.
+  \item Mixed Bangla/English intake cleanup, clinical draft generation, SOAP-style support, and missing question finder.
+  \item Current-case AI Q\&A, command copilot, draft edit support, document extraction, clinic briefing, and next-step navigator.
+\end{itemize}
 
 \subsection{Safety}
 
-Red-flag summary; vitals requirement checks; allergy gap checks; medicine clarity checker; pregnancy/child/chest-pain escalation patterns; approval readiness guard; visit closeout checklist; risk explanation; human-review boundary; AI run receipts; approvals inbox; audit log viewer.
+\begin{itemize}
+  \item Red-flag summary, vitals requirement checks, allergy gap checks, and medicine clarity checker.
+  \item Pregnancy, child, and chest-pain escalation patterns plus approval readiness guard and visit closeout checklist.
+  \item Risk explanation, human-review boundary, AI run receipts, approvals inbox, and audit log viewer.
+\end{itemize}
 
 \subsection{Health worker operations}
 
@@ -622,15 +651,15 @@ Runtime & Bun. \\
 
 \begin{center}
 \begin{tikzpicture}[
-  node distance=0.25in,
-  box/.style={rectangle,rounded corners,draw=clinicGreen,fill=clinicMint,thick,align=center,minimum height=0.42in,text width=1.25in,font=\small},
+  node distance=0.28in,
+  box/.style={rectangle,rounded corners,draw=clinicGreen,fill=clinicMint,thick,align=center,minimum height=0.42in,text width=2.1in,font=\small},
   arrow/.style={-{Latex[length=2.2mm]},thick,color=clinicGreen}
 ]
 \node[box] (a) {Small clinics and hospitals};
-\node[box,right=of a] (b) {Daily workload relief};
-\node[box,right=of b] (c) {Sticky workflow data};
-\node[box,right=of c] (d) {Department expansion};
-\node[box,right=of d] (e) {Large hospital and NGO pilots};
+\node[box,below=of a] (b) {Daily workload relief};
+\node[box,below=of b] (c) {Sticky workflow data};
+\node[box,below=of c] (d) {Department expansion};
+\node[box,below=of d] (e) {Large hospital and NGO pilots};
 \draw[arrow] (a) -- (b);
 \draw[arrow] (b) -- (c);
 \draw[arrow] (c) -- (d);
@@ -638,23 +667,12 @@ Runtime & Bun. \\
 \end{tikzpicture}
 \end{center}
 
-\section{Demo Script for Judges}
-
-\begin{enumerate}
-  \item \textbf{Field problem.} Show a mixed Bangla-English symptom story and explain that the product asks what is missing, risky, escalated, and understandable to the family.
-  \item \textbf{Intake to structured support.} Load the case workspace and generate draft support.
-  \item \textbf{Safety blockers.} Show missing vitals, allergy checks, medicine safety, and approval readiness.
-  \item \textbf{Patient communication.} Show handout, teach-back, pictogram/audio script support, and follow-up.
-  \item \textbf{Operations.} Show queue pressure, red-flag lane, owner badges, and follow-up due panel.
-  \item \textbf{MCP and model flexibility.} Run MCP smoke or MCP Explorer and explain local LM Studio, cloud Gemini, and fallback operation.
-\end{enumerate}
-
 \section{Validation Proof}
 
 \begin{itemize}
   \item The refreshed screenshot run completed from a production build through public pages, authenticated workspace, AI actions, drawer views, and MCP Explorer.
   \item The app is currently reachable at \texttt{http://localhost:3000}.
-  \item The screenshot command used a temporary server on port \texttt{3003} and saved focused images into \texttt{artifacts/health-worker-latex-main}.
+  \item The screenshot command used a temporary server on port \texttt{3003} and saved focused report images into the LaTeX asset folder.
   \item PDF compilation uses \texttt{tectonic}.
 \end{itemize}
 
@@ -690,17 +708,22 @@ Field UX must be tested with real CHWs and clinic staff & Current app is a proto
 \section{Source Notes}
 
 \begin{itemize}
-  \item World Bank Open Data, Bangladesh population: 173,562,364 in 2024. \url{https://data.worldbank.org/indicator/SP.POP.TOTL?locations=BD}
-  \item World Bank Open Data, physicians per 1,000 people: 0.722 in 2023. \url{https://data.worldbank.org/indicator/SH.MED.PHYS.ZS?locations=BD}
-  \item World Bank Open Data, out-of-pocket expenditure share of current health expenditure: 79.30711365\% in 2023. \url{https://data.worldbank.org/indicator/SH.XPD.OOPC.CH.ZS?locations=BD}
-  \item WHO feature story on Bangladesh community health workers and community clinics. \url{https://www.who.int/news-room/feature-stories/detail/bangladesh-community-health-workers-at-the-heart-of-a-stronger-health-system-and-the-fight-against-covid-19}
-  \item CHW Central profile of BRAC Shasthya Shebika and Shasthya Kormi programs. \url{https://chwcentral.org/the-brac-shasthya-shebika-and-shasthya-kormi-community-health-workers-in-bangladesh/}
-  \item Frontline Health Workers Coalition article citing Shasthya Shebika scale and maternal health reach. \url{https://www.frontlinehealthworkers.org/blog/weve-made-staggering-progress-maternal-health-bangladesh-where-next}
-  \item Data for Impact brief on private health care data collection in Bangladesh. \url{https://www.data4impactproject.org/wp-content/uploads/2021/05/Improving-Private-Health-Care-Data-Collection_fs-21-517_d4i-1.pdf}
-  \item Human Resources for Health article on Bangladesh health workforce crisis. \url{https://pmc.ncbi.nlm.nih.gov/articles/PMC3037300/}
-  \item PLOS ONE study on working conditions of clinical health workers in Bangladesh primary and secondary healthcare facilities. \url{https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0294224}
-  \item Bangladesh Digital Health Strategy 2023-2027 summary. \url{https://dig.watch/resource/the-bangladesh-digital-health-strategy-2023-2027}
-  \item Digital health intervention study in Bangladesh using community health workers, smart health kit, AI-based mobile app, household visits, risk assessment, and digital referrals. \url{https://link.springer.com/article/10.1186/s12889-025-22770-9}
+  \item World Bank Open Data, Bangladesh population: 173,562,364 in 2024. \href{https://data.worldbank.org/indicator/SP.POP.TOTL?locations=BD}{World Bank population indicator}.
+  \item World Bank Open Data, physicians per 1,000 people: 0.722 in 2023. \href{https://data.worldbank.org/indicator/SH.MED.PHYS.ZS?locations=BD}{World Bank physicians indicator}.
+  \item World Bank Open Data, out-of-pocket expenditure share of current health expenditure: 79.30711365\% in 2023. \href{https://data.worldbank.org/indicator/SH.XPD.OOPC.CH.ZS?locations=BD}{World Bank out-of-pocket expenditure indicator}.
+  \item WHO and World Bank Universal Health Coverage reporting: about 4.6 billion people not fully covered by essential services in 2023, and 2.1 billion people facing financial hardship from health expenses in 2022. \href{https://www.who.int/news-room/fact-sheets/detail/universal-health-coverage-\%28uhc\%29}{WHO UHC fact sheet}.
+  \item WHO health workforce topic page: projected shortfall of 11 million health workers by 2030, mostly in low- and lower-middle-income countries. \href{https://www.who.int/health-topics/health-workforce}{WHO health workforce}.
+  \item BMJ Global Health reassessment of global workforce shortage: 15 million health workers in 2020 decreasing to 10 million by 2030. \href{https://gh.bmj.com/content/7/6/e009316}{BMJ Global Health workforce study}.
+  \item World Bank Open Data physicians indicator showing low-income and lower-middle-income physician density by income group. \href{https://data.worldbank.org/indicator/SH.MED.PHYS.ZS}{World Bank global physicians indicator}.
+  \item WHO feature story on Bangladesh community health workers and community clinics. \href{https://www.who.int/news-room/feature-stories/detail/bangladesh-community-health-workers-at-the-heart-of-a-stronger-health-system-and-the-fight-against-covid-19}{WHO Bangladesh CHW story}.
+  \item CHW Central profile of BRAC Shasthya Shebika and Shasthya Kormi programs. \href{https://chwcentral.org/the-brac-shasthya-shebika-and-shasthya-kormi-community-health-workers-in-bangladesh/}{CHW Central BRAC profile}.
+  \item Frontline Health Workers Coalition article citing Shasthya Shebika scale and maternal health reach. \href{https://www.frontlinehealthworkers.org/blog/weve-made-staggering-progress-maternal-health-bangladesh-where-next}{Frontline Health Workers Coalition article}.
+  \item Data for Impact brief on private health care data collection in Bangladesh. \href{https://www.data4impactproject.org/wp-content/uploads/2021/05/Improving-Private-Health-Care-Data-Collection_fs-21-517_d4i-1.pdf}{Data for Impact Bangladesh private healthcare brief}.
+  \item Human Resources for Health article on Bangladesh health workforce crisis. \href{https://pmc.ncbi.nlm.nih.gov/articles/PMC3037300/}{Bangladesh health workforce crisis article}.
+  \item PLOS ONE study on working conditions of clinical health workers in Bangladesh primary and secondary healthcare facilities. \href{https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0294224}{PLOS ONE working conditions study}.
+  \item Bangladesh Digital Health Strategy 2023-2027 summary. \href{https://dig.watch/resource/the-bangladesh-digital-health-strategy-2023-2027}{Bangladesh Digital Health Strategy summary}.
+  \item Digital health intervention study in Bangladesh using community health workers, smart health kit, AI-based mobile app, household visits, risk assessment, and digital referrals. \href{https://link.springer.com/article/10.1186/s12889-025-22770-9}{BMC Public Health digital health intervention study}.
+  \item Johns Hopkins Center for Global Digital Health Innovation overview of digital strategies for frontline workers, including job aids, supervision, communication, and data for decision-making. \href{https://publichealth.jhu.edu/center-for-global-digital-health-innovation/digital-strategies-for-frontline-workers-delivering-child-health}{Johns Hopkins frontline worker digital strategies}.
 \end{itemize}
 
 \end{document}
