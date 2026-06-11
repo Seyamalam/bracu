@@ -12,7 +12,7 @@ Prepared for the **Health Worker Assistant** hackathon segment:
 
 **Report status:** live prototype evidence, refreshed screenshots, MCP-ready architecture, synthetic-data demo, production hardening plan.
 
-**Date:** June 11, 2026
+**Date:** June 12, 2026
 
 ![Clinic Copilot BD public home](artifacts/health-worker-report/public-home.png)
 
