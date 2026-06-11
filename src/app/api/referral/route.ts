@@ -1,7 +1,12 @@
-import { google } from "@ai-sdk/google";
 import { generateText, Output } from "ai";
 import { z } from "zod";
 import { demoReferralOutput, modelOptions } from "@/features/clinic/data";
+import {
+  buildPromptForProvider,
+  hasAiProvider,
+  logAiProviderError,
+  resolveAiModel,
+} from "@/lib/ai-provider";
 
 export const runtime = "nodejs";
 
@@ -40,7 +45,7 @@ export async function POST(request: Request) {
     );
   }
 
-  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+  if (!hasAiProvider()) {
     return Response.json({
       output: { ...demoReferralOutput, documentType },
       mode: "demo",
@@ -48,19 +53,17 @@ export async function POST(request: Request) {
   }
 
   const allowedModels = modelOptions.map((option) => option.value);
-  const model =
-    requestedModel !== "env" &&
-    (allowedModels as readonly string[]).includes(requestedModel)
-      ? requestedModel
-      : (process.env.GOOGLE_GENERATIVE_AI_MODEL ?? "gemini-2.5-flash");
+  const resolvedModel = resolveAiModel(requestedModel, allowedModels);
 
-  const result = await generateText({
-    model: google(model),
-    output: Output.object({ schema: referralSchema }),
-    temperature: 0.1,
-    system:
-      "You create clinician-reviewable clinic paperwork for Bangladesh primary care. You may draft referral letters and visit summaries. Do not diagnose, prescribe, or claim a final treatment plan. Use cautious clinical documentation language, include red flags, and clearly require clinician review.",
-    prompt: `Patient: ${patientName}
+  try {
+    const result = await generateText({
+      model: resolvedModel.model,
+      output: Output.object({ schema: referralSchema }),
+      temperature: 0.1,
+      ...buildPromptForProvider(resolvedModel.provider, {
+        system:
+          "You create clinician-reviewable clinic paperwork for Bangladesh primary care. You may draft referral letters and visit summaries. Do not diagnose, prescribe, or claim a final treatment plan. Use cautious clinical documentation language, include red flags, and clearly require clinician review.",
+        prompt: `Patient: ${patientName}
 Document type: ${documentType}
 Case summary:
 ${caseSummary}
@@ -76,7 +79,15 @@ ${followUp || "Not specified"}
 
 Operator instruction:
 ${instruction || "No extra instruction"}`,
-  });
+      }),
+    });
 
-  return Response.json({ output: result.output, mode: "live" });
+    return Response.json({ output: result.output, mode: "live" });
+  } catch (error) {
+    logAiProviderError("api/referral", error);
+    return Response.json({
+      output: { ...demoReferralOutput, documentType },
+      mode: "fallback",
+    });
+  }
 }

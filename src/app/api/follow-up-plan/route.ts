@@ -1,7 +1,12 @@
-import { google } from "@ai-sdk/google";
 import { generateText, Output } from "ai";
 import { z } from "zod";
 import { demoFollowUpPlan, modelOptions } from "@/features/clinic/data";
+import {
+  buildPromptForProvider,
+  hasAiProvider,
+  logAiProviderError,
+  resolveAiModel,
+} from "@/lib/ai-provider";
 
 export const runtime = "nodejs";
 
@@ -35,25 +40,22 @@ export async function POST(request: Request) {
     );
   }
 
-  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+  if (!hasAiProvider()) {
     return Response.json({ output: demoFollowUpPlan, mode: "demo" });
   }
 
   const allowedModels = modelOptions.map((option) => option.value);
-  const model =
-    requestedModel !== "env" &&
-    (allowedModels as readonly string[]).includes(requestedModel)
-      ? requestedModel
-      : (process.env.GOOGLE_GENERATIVE_AI_MODEL ?? "gemini-2.5-flash");
+  const resolvedModel = resolveAiModel(requestedModel, allowedModels);
 
   try {
     const result = await generateText({
-      model: google(model),
+      model: resolvedModel.model,
       output: Output.object({ schema: followUpPlanSchema }),
       temperature: 0.1,
-      system:
-        "You create safe operational follow-up schedules for a Bangladesh primary-care clinic. Do not diagnose, prescribe, or make treatment decisions. Produce callback timing, preferred channel, staff owner, script, reminders, escalation rules, closure criteria, and short suggested Clinic Copilot commands.",
-      prompt: `Patient: ${patientName}
+      ...buildPromptForProvider(resolvedModel.provider, {
+        system:
+          "You create safe operational follow-up schedules for a Bangladesh primary-care clinic. Do not diagnose, prescribe, or make treatment decisions. Produce callback timing, preferred channel, staff owner, script, reminders, escalation rules, closure criteria, and short suggested Clinic Copilot commands.",
+        prompt: `Patient: ${patientName}
 Current priority: ${severity}
 Case summary:
 ${caseSummary}
@@ -69,10 +71,12 @@ ${redFlags.join("\n") || "None provided"}
 
 Operator instruction:
 ${instruction || "Use standard safe follow-up planning."}`,
+      }),
     });
 
     return Response.json({ output: result.output, mode: "live" });
-  } catch {
+  } catch (error) {
+    logAiProviderError("api/follow-up-plan", error);
     return Response.json({ output: demoFollowUpPlan, mode: "fallback" });
   }
 }

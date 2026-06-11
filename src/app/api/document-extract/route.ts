@@ -1,10 +1,15 @@
-import { google } from "@ai-sdk/google";
 import { generateText, Output } from "ai";
 import { z } from "zod";
 import {
   demoDocumentExtractionOutput,
   modelOptions,
 } from "@/features/clinic/data";
+import {
+  buildPromptForProvider,
+  hasAiProvider,
+  logAiProviderError,
+  resolveAiModel,
+} from "@/lib/ai-provider";
 
 export const runtime = "nodejs";
 
@@ -32,7 +37,7 @@ export async function POST(request: Request) {
     );
   }
 
-  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+  if (!hasAiProvider()) {
     return Response.json({
       output: demoDocumentExtractionOutput,
       mode: "demo",
@@ -40,25 +45,24 @@ export async function POST(request: Request) {
   }
 
   const allowedModels = modelOptions.map((option) => option.value);
-  const model =
-    requestedModel !== "env" &&
-    (allowedModels as readonly string[]).includes(requestedModel)
-      ? requestedModel
-      : (process.env.GOOGLE_GENERATIVE_AI_MODEL ?? "gemini-2.5-flash");
+  const resolvedModel = resolveAiModel(requestedModel, allowedModels);
 
   try {
     const result = await generateText({
-      model: google(model),
+      model: resolvedModel.model,
       output: Output.object({ schema: documentExtractionSchema }),
       temperature: 0.1,
-      system:
-        "You extract structured facts from clinic prescription, lab report, OCR, or attached document text for Clinic Copilot BD. Do not diagnose, prescribe, or invent values. Preserve uncertainty. Extract vitals, lab values with units when present, medicines with dose/frequency when present, safety issues, clarifications, a concise intake addendum, and short suggested Clinic Copilot commands.",
-      prompt: `Attached clinic document text:
+      ...buildPromptForProvider(resolvedModel.provider, {
+        system:
+          "You extract structured facts from clinic prescription, lab report, OCR, or attached document text for Clinic Copilot BD. Do not diagnose, prescribe, or invent values. Preserve uncertainty. Extract vitals, lab values with units when present, medicines with dose/frequency when present, safety issues, clarifications, a concise intake addendum, and short suggested Clinic Copilot commands.",
+        prompt: `Attached clinic document text:
 ${documentText}`,
+      }),
     });
 
     return Response.json({ output: result.output, mode: "live" });
-  } catch {
+  } catch (error) {
+    logAiProviderError("api/document-extract", error);
     return Response.json({
       output: fallbackExtraction(documentText),
       mode: "fallback",

@@ -1,7 +1,12 @@
-import { google } from "@ai-sdk/google";
 import { generateText, Output } from "ai";
 import { z } from "zod";
 import { demoStaffHandoff, modelOptions } from "@/features/clinic/data";
+import {
+  buildPromptForProvider,
+  hasAiProvider,
+  logAiProviderError,
+  resolveAiModel,
+} from "@/lib/ai-provider";
 
 export const runtime = "nodejs";
 
@@ -36,25 +41,22 @@ export async function POST(request: Request) {
     );
   }
 
-  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+  if (!hasAiProvider()) {
     return Response.json({ output: demoStaffHandoff, mode: "demo" });
   }
 
   const allowedModels = modelOptions.map((option) => option.value);
-  const model =
-    requestedModel !== "env" &&
-    (allowedModels as readonly string[]).includes(requestedModel)
-      ? requestedModel
-      : (process.env.GOOGLE_GENERATIVE_AI_MODEL ?? "gemini-2.5-flash");
+  const resolvedModel = resolveAiModel(requestedModel, allowedModels);
 
   try {
     const result = await generateText({
-      model: google(model),
+      model: resolvedModel.model,
       output: Output.object({ schema: staffHandoffSchema }),
       temperature: 0.1,
-      system:
-        "You create a safe clinic operations handoff for a Bangla-English primary care workflow. Split tasks by receptionist, nurse, doctor, and follow-up desk. Do not diagnose, prescribe, or imply autonomous care decisions. Make tasks specific, short, and ready for a busy clinic team. Include safety notes and a spoken handoff script.",
-      prompt: `Patient: ${patientName}
+      ...buildPromptForProvider(resolvedModel.provider, {
+        system:
+          "You create a safe clinic operations handoff for a Bangla-English primary care workflow. Split tasks by receptionist, nurse, doctor, and follow-up desk. Do not diagnose, prescribe, or imply autonomous care decisions. Make tasks specific, short, and ready for a busy clinic team. Include safety notes and a spoken handoff script.",
+        prompt: `Patient: ${patientName}
 Current priority: ${severity}
 Case summary:
 ${caseSummary}
@@ -70,10 +72,12 @@ ${followUp || "None provided"}
 
 Operator instruction:
 ${instruction || "No extra instruction"}`,
+      }),
     });
 
     return Response.json({ output: result.output, mode: "live" });
-  } catch {
+  } catch (error) {
+    logAiProviderError("api/staff-handoff", error);
     return Response.json({ output: demoStaffHandoff, mode: "fallback" });
   }
 }

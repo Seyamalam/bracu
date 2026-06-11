@@ -1,7 +1,12 @@
-import { google } from "@ai-sdk/google";
 import { generateText, Output } from "ai";
 import { z } from "zod";
 import { demoClinicBriefing, modelOptions } from "@/features/clinic/data";
+import {
+  buildPromptForProvider,
+  hasAiProvider,
+  logAiProviderError,
+  resolveAiModel,
+} from "@/lib/ai-provider";
 
 export const runtime = "nodejs";
 
@@ -50,31 +55,30 @@ export async function POST(request: Request) {
     });
   }
 
-  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+  if (!hasAiProvider()) {
     return Response.json({ output: demoClinicBriefing, mode: "demo" });
   }
 
   const allowedModels = modelOptions.map((option) => option.value);
-  const model =
-    requestedModel !== "env" &&
-    (allowedModels as readonly string[]).includes(requestedModel)
-      ? requestedModel
-      : (process.env.GOOGLE_GENERATIVE_AI_MODEL ?? "gemini-2.5-flash");
+  const resolvedModel = resolveAiModel(requestedModel, allowedModels);
 
   try {
     const result = await generateText({
-      model: google(model),
+      model: resolvedModel.model,
       output: Output.object({ schema: briefingSchema }),
       temperature: 0.1,
-      system:
-        "You summarize a Bangladesh primary-care clinic queue for operational use. You do not diagnose or prescribe. Prioritize safety review, follow-up closure, paperwork gaps, and next actions. Keep it concise and useful for a product demo.",
-      prompt: `Clinic: ${clinicName}
+      ...buildPromptForProvider(resolvedModel.provider, {
+        system:
+          "You summarize a Bangladesh primary-care clinic queue for operational use. You do not diagnose or prescribe. Prioritize safety review, follow-up closure, paperwork gaps, and next actions. Keep it concise and useful for a product demo.",
+        prompt: `Clinic: ${clinicName}
 Current queue JSON:
 ${JSON.stringify(cases.data)}`,
+      }),
     });
 
     return Response.json({ output: result.output, mode: "live" });
-  } catch {
+  } catch (error) {
+    logAiProviderError("api/clinic-brief", error);
     return Response.json({ output: demoClinicBriefing, mode: "fallback" });
   }
 }

@@ -1,7 +1,12 @@
-import { google } from "@ai-sdk/google";
 import { generateText, Output } from "ai";
 import { z } from "zod";
 import { demoFollowUpMessage, modelOptions } from "@/features/clinic/data";
+import {
+  buildPromptForProvider,
+  hasAiProvider,
+  logAiProviderError,
+  resolveAiModel,
+} from "@/lib/ai-provider";
 
 export const runtime = "nodejs";
 
@@ -30,7 +35,7 @@ export async function POST(request: Request) {
     );
   }
 
-  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+  if (!hasAiProvider()) {
     return Response.json({
       output: { ...demoFollowUpMessage, channel },
       mode: "demo",
@@ -38,19 +43,17 @@ export async function POST(request: Request) {
   }
 
   const allowedModels = modelOptions.map((option) => option.value);
-  const model =
-    requestedModel !== "env" &&
-    (allowedModels as readonly string[]).includes(requestedModel)
-      ? requestedModel
-      : (process.env.GOOGLE_GENERATIVE_AI_MODEL ?? "gemini-2.5-flash");
+  const resolvedModel = resolveAiModel(requestedModel, allowedModels);
 
-  const result = await generateText({
-    model: google(model),
-    output: Output.object({ schema: followUpMessageSchema }),
-    temperature: 0.1,
-    system:
-      "You compose safe clinic follow-up messages for Bangladesh primary care. Produce Bangla and English versions. Do not diagnose, prescribe, or make treatment promises. Keep messages short enough for patient messaging, include urgent return signs, and remind that clinicians approve care decisions.",
-    prompt: `Patient: ${patientName}
+  try {
+    const result = await generateText({
+      model: resolvedModel.model,
+      output: Output.object({ schema: followUpMessageSchema }),
+      temperature: 0.1,
+      ...buildPromptForProvider(resolvedModel.provider, {
+        system:
+          "You compose safe clinic follow-up messages for Bangladesh primary care. Produce Bangla and English versions. Do not diagnose, prescribe, or make treatment promises. Keep messages short enough for patient messaging, include urgent return signs, and remind that clinicians approve care decisions.",
+        prompt: `Patient: ${patientName}
 Channel: ${channel}
 Case summary:
 ${caseSummary}
@@ -63,7 +66,15 @@ ${followUpMessage || "Not specified"}
 
 Operator instruction:
 ${instruction || "No extra instruction"}`,
-  });
+      }),
+    });
 
-  return Response.json({ output: result.output, mode: "live" });
+    return Response.json({ output: result.output, mode: "live" });
+  } catch (error) {
+    logAiProviderError("api/follow-up", error);
+    return Response.json({
+      output: { ...demoFollowUpMessage, channel },
+      mode: "fallback",
+    });
+  }
 }

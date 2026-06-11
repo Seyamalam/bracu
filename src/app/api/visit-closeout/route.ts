@@ -1,7 +1,12 @@
-import { google } from "@ai-sdk/google";
 import { generateText, Output } from "ai";
 import { z } from "zod";
 import { demoVisitCloseout, modelOptions } from "@/features/clinic/data";
+import {
+  buildPromptForProvider,
+  hasAiProvider,
+  logAiProviderError,
+  resolveAiModel,
+} from "@/lib/ai-provider";
 
 export const runtime = "nodejs";
 
@@ -31,25 +36,22 @@ export async function POST(request: Request) {
     );
   }
 
-  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+  if (!hasAiProvider()) {
     return Response.json({ output: demoVisitCloseout, mode: "demo" });
   }
 
   const allowedModels = modelOptions.map((option) => option.value);
-  const model =
-    requestedModel !== "env" &&
-    (allowedModels as readonly string[]).includes(requestedModel)
-      ? requestedModel
-      : (process.env.GOOGLE_GENERATIVE_AI_MODEL ?? "gemini-2.5-flash");
+  const resolvedModel = resolveAiModel(requestedModel, allowedModels);
 
   try {
     const result = await generateText({
-      model: google(model),
+      model: resolvedModel.model,
       output: Output.object({ schema: visitCloseoutSchema }),
       temperature: 0.1,
-      system:
-        "You create a safe operational visit closeout for a Bangladesh primary-care clinic. Do not diagnose, prescribe, approve care, or imply the AI has authority. Package the case into staff closeout steps, patient-before-leaving checks, follow-up closure rules, audit notes, print packet items, and short suggested Clinic Copilot commands. Be conservative: unresolved red flags, unclear medicines, missing vitals, pregnancy, children, chest pain, diabetes wounds, dehydration, or worsening symptoms should require review or block closeout.",
-      prompt: `Patient: ${patientName}
+      ...buildPromptForProvider(resolvedModel.provider, {
+        system:
+          "You create a safe operational visit closeout for a Bangladesh primary-care clinic. Do not diagnose, prescribe, approve care, or imply the AI has authority. Package the case into staff closeout steps, patient-before-leaving checks, follow-up closure rules, audit notes, print packet items, and short suggested Clinic Copilot commands. Be conservative: unresolved red flags, unclear medicines, missing vitals, pregnancy, children, chest pain, diabetes wounds, dehydration, or worsening symptoms should require review or block closeout.",
+        prompt: `Patient: ${patientName}
 Case summary: ${caseSummary}
 Severity: ${String(body.severity ?? "medium")}
 Red flags: ${JSON.stringify(body.redFlags ?? [])}
@@ -57,10 +59,12 @@ Missing questions: ${JSON.stringify(body.missingQuestions ?? [])}
 Follow-up: ${String(body.followUp ?? "")}
 Operator instruction:
 ${instruction || "Use standard safe visit closeout."}`,
+      }),
     });
 
     return Response.json({ output: result.output, mode: "live" });
-  } catch {
+  } catch (error) {
+    logAiProviderError("api/visit-closeout", error);
     return Response.json({ output: demoVisitCloseout, mode: "fallback" });
   }
 }

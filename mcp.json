@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "clinic-copilot-bd": {
+      "command": "/Users/seyam/.bun/bin/bun",
+      "args": ["/Users/seyam/Work/bracu/scripts/mcp-stdio.ts"],
+      "env": {
+        "AI_PROVIDER": "lmstudio",
+        "LMSTUDIO_MODEL": "google/gemma-4-12b"
+      }
+    }
+  }
+}

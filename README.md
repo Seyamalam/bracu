@@ -1,139 +1,228 @@
 # Clinic Copilot BD
 
-AI clinical documentation and patient communication assistant for low-resource clinics in Bangladesh.
+Bangla-first clinic operations with local or cloud AI, realtime case workflow,
+and MCP-ready external-agent tools.
 
-This is a fast, bilingual clinic workflow that turns Bengali/English intake notes into structured visit summaries, doctor checklists, patient-friendly discharge instructions, and follow-up tasks.
+Clinic Copilot BD is not a diagnosis or prescription engine. It is a clinic
+workflow copilot for low-resource Bangladesh clinics: reception captures messy
+Bangla/English intake, AI turns it into draft support, clinicians review safety,
+families receive plain instructions, and staff own follow-up.
 
-## Product Positioning
+## What It Supports
 
-Clinic Copilot BD is not a diagnosis or prescription engine. It is a clinical workflow copilot that helps trained clinicians document visits faster, ask better intake questions, communicate clearly with patients, and spot safety red flags.
+- Local AI with LM Studio through the AI SDK OpenAI-compatible provider.
+- Cloud AI with Google Gemini through `@ai-sdk/google`.
+- No-key deterministic fallback output so demos and tests keep working without
+  any model provider.
+- Stdio MCP server for LM Studio, Claude, Codex, Cursor, and similar local MCP
+  clients.
+- HTTP JSON-RPC MCP demo endpoint at `/api/mcp` for curl, public docs, and the
+  in-app MCP Explorer.
+- Convex-backed clinic workspace with realtime queue, cases, audit logs, and
+  role-aware workflow.
 
-## Core Demo
+## Public Demo Surface
 
-- Public landing site with feature, mission, pitch, judge, and login pages
-- Interactive public homepage with MCP data-layer pitch, command preview, proof stats, feature catalog, and generated clinic visuals
-- Public docs page for MCP usage, AI provenance, prompt categories, and deployment notes
-- Judge Mode route at `/judge` with a clean 3-minute demo script
-- Expanded pitch page with product score map, differentiators, demo runbook, and operational proof
-- Generated product visuals and custom Clinic Copilot BD logo
-- Model Context Protocol endpoint at `/api/mcp` for demo-safe external-agent
-  tools, resources, safety gates, queue snapshots, print packets, literacy
-  drafts, sync previews, approval envelopes, and scenario scorecards
-- Authenticated clinic workspace with desktop sidebar and mobile bottom navigation
-- Temporary email/password clinic access
-- Guided demo mode with a 3-minute story rail
-- Natural-language Command Copilot for operating the app by typing
-- Agentic Workflow Studio with canvas-style workflow builder, safety governor,
-  patient journey map, protocol library, shift copilot, simulation lab, and
-  workflow template marketplace
-- Agent Command Center and agent tooling available through the Ask Copilot
-  drawer, Help drawer, Admin, and public docs instead of crowding every page
-- Global Ask Copilot launcher on every non-Copilot workspace
-- Copilot workspace with Codex-style threads, one chat input, inline safety
-  context, and a closed-by-default workspace navigation overlay
-- Sidebar Help drawer for shortcuts, safety reminders, common Copilot asks, and
-  a public docs link
-- AI Run Receipts for tool inputs, output type, safety checks, status, role, and timestamp
-- Approvals Inbox for vitals, allergies, red flags, patient packet print approval, and escalation acknowledgment
-- MCP Explorer in Admin for inspecting schemas and running demo-safe JSON-RPC calls
-- Current-case AI Q&A assistant
-- Readiness scorecard for safety, accessibility, workflow coverage, and operating proof
-- Clinic Display accessibility controls for large text, high contrast, and calm motion
-- Reception intake in Bangla or English
-- AI generated chief complaint, timeline, severity, missing questions, and red flags
-- Doctor console with SOAP note, checklist, and safety framing
-- Patient handout in Bangla/English with medicine schedule and return warnings
-- Patient teach-back checklist to confirm family understanding before discharge
-- Medicine safety clarity checker
-- AI document extraction for prescription, lab, or OCR text
-- AI risk explanation, staff handoff, approval guard, visit closeout, and next-step navigator
-- AI referral, visit summary, patient question answer, reply triage, and follow-up scheduler
-- Voice intake where browser speech recognition is available
-- Realtime case board powered by Convex
-- Clinic trend dashboard for anonymized severity/follow-up signals
-- Operations Pulse for live queue pressure and staffing focus
-- Impact snapshot for time saved, missing questions found, and red flags caught
-- Visit Journey progress rail from intake through follow-up
-- Clinician approval workflow and audit log viewer
-- Follow-up due panel
-- Full-screen presentation mode
-- Responsive mobile-first interface for clinic desks and phones
+- `/` landing page with model-provider and MCP positioning.
+- `/features` complete workflow and feature catalog.
+- `/docs` setup docs for AI providers, MCP clients, QA, and deployment.
+- `/judge` three-minute judging route.
+- `/mission` safety and care principles.
+- `/pitch` product pitch, screenshots, differentiators, and demo runbook.
+- `/login` demo authentication.
+
+## Clinic Workspace
+
+- `/clinic/queue` queue board, role selection, red-flag lane, follow-up due
+  panel, and guided demo start.
+- `/clinic/case` case review, intake AI, SOAP support, safety review, staff
+  handoff, risk explanation, referral, medicine safety, approval readiness, and
+  visit closeout.
+- `/clinic/copilot` Codex-style Copilot workspace with threads, tool runs, run
+  receipts, approvals inbox, agent timeline, and memory surfaces.
+- `/clinic/operations` model controls, accessibility controls, readiness
+  scorecard, live queue, trends, clinic briefing, and audit log.
+- `/clinic/builder` Agentic Workflow Studio with canvas, Safety Governor,
+  patient journey, protocols, shift copilot, simulation lab, and templates.
+- `/clinic/admin` MCP Explorer, admin tools, and external-agent proof points.
+
+## AI And Agent Features
+
+- Mixed Bangla/English intake cleanup.
+- Clinical draft generation with chief complaint, severity, missing questions,
+  red flags, SOAP support, checklist, handout, and follow-up.
+- Natural-language Command Copilot.
+- Named agent command aliases.
+- Current-case Q&A assistant.
+- Draft edit support.
+- Medicine safety clarity checker.
+- Document extraction for prescription, lab, and OCR text.
+- Follow-up composer and scheduler.
+- Patient question answer assistant.
+- Reply triage for incoming patient messages.
+- Referral and visit summary composer.
+- Staff handoff generator.
+- Risk explanation.
+- Next-step navigator.
+- Approval readiness guard.
+- Visit closeout packet.
+- AI Run Receipts and Approvals Inbox.
+- Browser QA path that exercises real AI fallback UI actions.
+
+## Safety Principles
+
+- AI output is draft support only.
+- The product avoids diagnosis and prescription claims.
+- Clinicians remain responsible for medical decisions.
+- Patient-facing output requires human review.
+- Red flags, missing vitals, allergy gaps, pregnancy/child/chest-pain patterns,
+  and urgent symptoms are escalated instead of hidden.
+- MCP tool outputs include safety envelopes and human-review boundaries.
+- Demo data is synthetic.
+
+## Model Providers
+
+### Local LM Studio
+
+Start LM Studio's local server on `http://127.0.0.1:1234`, then run:
+
+```bash
+AI_PROVIDER=lmstudio LMSTUDIO_MODEL='google/gemma-4-12b' bun run dev
+```
+
+Optional local settings:
+
+```bash
+LMSTUDIO_BASE_URL=http://127.0.0.1:1234/v1
+LMSTUDIO_MODEL=google/gemma-4-12b
+LMSTUDIO_TIMEOUT_MS=45000
+LMSTUDIO_MAX_OUTPUT_TOKENS=4096
+AI_DEBUG_ERRORS=1
+```
+
+LM Studio models may not support system messages, so the app folds system
+instructions into the user prompt for local-model calls. Some local models can
+still return invalid structured JSON; every route has a controlled fallback.
+
+### Cloud Google Gemini
+
+```bash
+GOOGLE_GENERATIVE_AI_API_KEY=your_key_here
+GOOGLE_GENERATIVE_AI_MODEL=gemini-2.5-flash
+```
+
+Gemini is used through the same AI SDK route layer. The app keeps provider
+failure fallback behavior even when a cloud key is present.
+
+### No Provider
+
+With no provider configured, all AI routes return safe deterministic demo
+responses. This keeps public demos, browser QA, and route tests usable.
 
 ## MCP Support
 
-Clinic Copilot BD includes a demo-safe Model Context Protocol endpoint:
+This project exposes MCP in two ways:
 
-```txt
-GET  /api/mcp
-POST /api/mcp
-```
+- `scripts/mcp-stdio.ts`: real stdio MCP server for local MCP clients.
+- `/api/mcp`: HTTP JSON-RPC demo endpoint for curl and the in-app MCP Explorer.
 
-The endpoint speaks JSON-RPC 2.0 over POST and supports:
+The MCP tool catalog includes:
 
-- `initialize`
-- `tools/list`
-- `tools/call`
-- `resources/list`
-- `resources/read`
+- `clinic.demo_manifest`
+- `clinic.list_demo_scenarios`
+- `clinic.workflow_brief`
+- `clinic.tools.list`
+- `clinic.tools.describe`
+- `clinic.queue.snapshot`
+- `clinic.safety.get_blockers`
+- `clinic.print.prepare_packet`
+- `clinic.literacy.prepare`
+- `clinic.sync.preview_queue`
+- `clinic.approval.request`
+- `clinic.demo.score_scenario`
 
-Available MCP tools:
-
-- `clinic.demo_manifest` returns the public server manifest, resources, tools, and safety posture.
-- `clinic.list_demo_scenarios` returns the synthetic Bangladesh-native demo scenarios.
-- `clinic.workflow_brief` converts messy intake notes into draft operational support using Gemini when configured, with a demo fallback when no key is present.
-- `clinic.tools.list` and `clinic.tools.describe` expose the role-aware external-agent tool registry.
-- `clinic.queue.snapshot` returns red-flag lane, waiting-time, follow-up due, and owner badge signals.
-- `clinic.safety.get_blockers` checks vitals, allergy status, pregnancy/child/chest-pain escalation, and return-warning confirmation.
-- `clinic.print.prepare_packet` prepares draft handout, referral, medicine slip, follow-up call sheet, or doctor summary packets.
-- `clinic.literacy.prepare` prepares simple Bangla, pictogram, audio script, or teach-back checklist drafts.
-- `clinic.sync.preview_queue` validates low-connectivity local drafts before sync.
-- `clinic.approval.request` creates a preview-only human approval request envelope.
-- `clinic.demo.score_scenario` returns a synthetic judge scorecard for workflow completeness and safety.
-
-Available MCP resources:
+MCP resources:
 
 - `clinic://demo/scenarios`
 - `clinic://demo/capabilities`
 - `clinic://agents/tool-registry`
 - `clinic://safety/gates`
 
-Quick test:
+### Fast MCP Demo
+
+```bash
+bun run mcp:smoke
+```
+
+This spawns the stdio MCP server, lists 12 tools, calls
+`clinic.safety.get_blockers`, and lists 4 resources.
+
+### LM Studio MCP
+
+Paste `mcp.json` into LM Studio's MCP config, enable **Allow calling servers from
+mcp.json** in LM Studio Server Settings, then call:
+
+```bash
+curl -s http://127.0.0.1:1234/api/v1/chat \
+  -H 'content-type: application/json' \
+  -d '{
+    "model": "google/gemma-4-12b",
+    "input": "Use the clinic-copilot-bd MCP server to call clinic.tools.list and return the first five tool names.",
+    "integrations": ["mcp/clinic-copilot-bd"],
+    "temperature": 0,
+    "context_length": 8000,
+    "max_output_tokens": 1024
+  }'
+```
+
+If LM Studio returns `Permission denied to use plugin`, the MCP server is not
+allowed in LM Studio Server Settings yet.
+
+### Claude, Codex, Cursor, And Similar Clients
+
+Use the `mcp.json` server entry:
+
+```json
+{
+  "mcpServers": {
+    "clinic-copilot-bd": {
+      "command": "/Users/seyam/.bun/bin/bun",
+      "args": ["/Users/seyam/Work/bracu/scripts/mcp-stdio.ts"],
+      "env": {
+        "AI_PROVIDER": "lmstudio",
+        "LMSTUDIO_MODEL": "google/gemma-4-12b"
+      }
+    }
+  }
+}
+```
+
+### HTTP MCP Demo Endpoint
+
+Start the app:
+
+```bash
+AI_PROVIDER=lmstudio LMSTUDIO_MODEL='google/gemma-4-12b' bun run dev
+```
+
+List tools:
 
 ```bash
 curl -s http://localhost:3000/api/mcp \
   -H 'content-type: application/json' \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+```
 
+Call safety blockers:
+
+```bash
 curl -s http://localhost:3000/api/mcp \
   -H 'content-type: application/json' \
   -d '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"clinic.safety.get_blockers","arguments":{"intake":"Patient has chest tightness and sweating","allergiesKnown":false}}}'
 ```
 
-## Product Screenshots
-
-### Queue workspace
-
-![Clinic Copilot BD queue workspace](public/screenshots/clinic-workspace-overview.png)
-
-### Case workspace
-
-![Clinic Copilot BD patient case workspace](public/screenshots/clinic-workspace-review.png)
-
-### Copilot workspace
-
-![Clinic Copilot BD Copilot workspace](public/screenshots/clinic-workspace-intake.png)
-
-### Operations workspace
-
-![Clinic Copilot BD operations workspace](public/screenshots/clinic-workspace-ops.png)
-
-### Builder/Admin workflow workspace
-
-![Clinic Copilot BD patient communication workspace](public/screenshots/clinic-workspace-patient.png)
-
-### Public pitch page
-
-![Clinic Copilot BD public pitch page](public/screenshots/public-pitch-page.png)
+On this machine, use `localhost` for the app endpoint. Another listener can
+intercept `127.0.0.1:3000`.
 
 ## Stack
 
@@ -142,27 +231,12 @@ curl -s http://localhost:3000/api/mcp \
 - Tailwind CSS 4
 - Convex backend
 - Vercel AI SDK 6
-- Google Gemini provider through `@ai-sdk/google`
-- JSON-RPC MCP route for agent-readable clinic context
-- Biome for linting and formatting
-
-## Environment
-
-Convex is already configured in `.env.local`.
-
-Add a Gemini key for live AI generation:
-
-```bash
-GOOGLE_GENERATIVE_AI_API_KEY=your_key_here
-```
-
-Optional model override:
-
-```bash
-GOOGLE_GENERATIVE_AI_MODEL=gemini-2.5-flash
-```
-
-Without an API key, the app uses a polished demo response so the UI remains fully presentable.
+- `@ai-sdk/google`
+- `@ai-sdk/openai-compatible`
+- `@modelcontextprotocol/sdk`
+- Zod schemas
+- Biome
+- Bun
 
 ## Development
 
@@ -171,13 +245,13 @@ bun install
 bun run dev
 ```
 
-In a second terminal, run Convex when changing backend functions:
+Run Convex when changing backend functions:
 
 ```bash
 npx convex dev
 ```
 
-Seed a product demo account:
+Seed demo data:
 
 ```bash
 bunx convex run seed:demo
@@ -189,86 +263,56 @@ Default seeded login:
 doctor@demo.clinic / demo1234
 ```
 
-The seed command creates six fake Bangladesh-native cases for fever, cardiac
-risk, child dehydration, dengue watch, pregnancy fever, and diabetic wound
-follow-up.
+The seed flow creates fake Bangladesh-native cases for fever, cardiac risk,
+child dehydration, dengue watch, pregnancy fever, and diabetic wound follow-up.
 
-Public product pages:
-
-```txt
-/          Landing page and demo entry
-/docs      AI, MCP, prompt, and deployment documentation
-/features  Complete workflow overview
-/judge     Three-minute judge walkthrough
-/mission   Mission, vision, and care principles
-/pitch     Product pitch
-/login     Demo authentication
-/clinic    Redirects to the default clinic queue
-/clinic/queue
-/clinic/case
-/clinic/copilot
-/clinic/operations
-/clinic/builder
-/clinic/admin
-```
-
-Quality checks:
+## Quality Checks
 
 ```bash
 bun run lint
+bun run test
 bun run build
 bun run validate
 bun run qa:browser
+bun run mcp:smoke
 ```
 
-`bun run qa:browser` builds the app, starts `next start`, drives the public
-site and every authenticated workspace through `agent-browser`, verifies key
-text and layout overflow, checks the MCP Explorer response, and keeps
-screenshots opt-in. Run `QA_SCREENSHOTS=1 bun run qa:browser` to save browser
-screenshots in `artifacts/agent-browser-qa/`.
+Run the gated LM Studio integration suite when LM Studio is running:
 
-## Safety Principles
+```bash
+RUN_LMSTUDIO_TESTS=1 \
+AI_PROVIDER=lmstudio \
+LMSTUDIO_MODEL='google/gemma-4-12b' \
+GOOGLE_GENERATIVE_AI_API_KEY='' \
+bun test tests/api-ai-lmstudio.test.ts
+```
 
-- AI output is marked as draft clinical documentation.
-- The product avoids diagnosis claims.
-- Clinicians remain responsible for medical decisions.
-- Patient-facing output uses plain language and urgent-return warnings.
-- Demo data should be fake or anonymized.
-
-## Temporary Auth
-
-The current prototype uses a deliberately simple email/password flow stored
-in Convex. This is only for demo gating and per-user workspace separation. Replace
-it with production authentication before handling real users or real patient data.
+`bun run qa:browser` builds the app, starts `next start`, drives the public site
+and authenticated workspaces through `agent-browser`, checks the MCP Explorer,
+and keeps screenshots opt-in with `QA_SCREENSHOTS=1`.
 
 ## Demo Checklist
 
-1. Create a temporary clinic account.
-2. Start in Queue, pick a case, then open the Case workspace.
-3. Generate the clinical draft and review red flags.
-4. Open Copilot for chat, tool runs, AI Run Receipts, Approvals Inbox, memory, and the agent timeline.
-5. Open Builder and show Canvas, Safety Governor, Journey, Protocols, Shift,
-   Simulation, and Marketplace tabs.
-6. Copy or print the patient handout.
-7. Run the medicine safety checker.
-8. Move the case to handout or follow-up from the live queue.
-9. Show MCP Explorer, MCP docs, Readiness card, anonymized trend dashboard, and audit log.
-10. Close on the impact snapshot: minutes saved, questions found, red flags caught.
-
-Command Copilot examples:
-
-```txt
-Load dengue watch and generate a draft
-Switch to Bangla and open presentation mode
-Approve this case and move it to handout
-Check medicine safety for paracetamol 500mg and antibiotic twice daily
-```
+1. Open `/judge` for the three-minute script.
+2. Sign in with `doctor@demo.clinic / demo1234`.
+3. Start in Queue and pick a case.
+4. Generate the clinical draft.
+5. Review red flags, missing questions, medicine safety, and approval readiness.
+6. Open Copilot for tool runs, receipts, approvals, memory, and agent timeline.
+7. Open Builder and show Canvas, Governor, Journey, Protocols, Shift,
+   Simulation, and Marketplace.
+8. Print or inspect handout, referral, medicine slip, doctor summary, and
+   follow-up call sheet outputs.
+9. Open Admin and run MCP Explorer.
+10. Run `bun run mcp:smoke` or connect LM Studio through `mcp.json`.
 
 ## Deployment Checklist
 
-- Set `NEXT_PUBLIC_CONVEX_URL` for the deployed Convex project.
-- Set `GOOGLE_GENERATIVE_AI_API_KEY` in the hosting provider and Convex env.
+- Set `NEXT_PUBLIC_CONVEX_URL`.
+- Set `GOOGLE_GENERATIVE_AI_API_KEY` for cloud AI if desired.
+- Keep LM Studio local settings out of production unless intentionally running a
+  local model gateway.
 - Run `bunx convex deploy` for production Convex functions.
-- Optionally run `bunx convex run seed:demo` before the judging session.
-- Run `bun run validate` before creating the final demo build.
+- Optionally run `bunx convex run seed:demo` before judging.
+- Run `bun run validate` and `bun run mcp:smoke`.
 - Replace temporary password auth before any real-world pilot.

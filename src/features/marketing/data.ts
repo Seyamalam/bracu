@@ -34,7 +34,8 @@ import {
 export const brand = {
   name: "Clinic Copilot BD",
   shortName: "Copilot BD",
-  tagline: "Bangla-first clinic operations, not another generic chatbot.",
+  tagline:
+    "Bangla-first clinic operations with local or cloud AI and MCP-ready tools.",
   logo: "/clinic-copilot-logo.svg",
 } as const;
 
@@ -57,16 +58,16 @@ export const publicNav = [
 ] as const;
 
 export const proofStats = [
-  { label: "Core AI workflows", value: "20+" },
-  { label: "BD demo cases", value: "6" },
-  { label: "MCP endpoint", value: "/api/mcp" },
+  { label: "AI + agent workflows", value: "20+" },
+  { label: "MCP tools", value: "12" },
+  { label: "Model modes", value: "Local + cloud" },
 ] as const;
 
 export const featurePillars = [
   {
     icon: FileText,
     title: "Intake to draft",
-    body: "Turns messy Bangla, English, or mixed intake notes into clinician-reviewable summaries, SOAP support, missing questions, and red flags.",
+    body: "Turns messy Bangla, English, or mixed intake notes into clinician-reviewable summaries, SOAP support, missing questions, and red flags using local or cloud models.",
   },
   {
     icon: ShieldCheck,
@@ -81,7 +82,7 @@ export const featurePillars = [
   {
     icon: Activity,
     title: "Clinic operations",
-    body: "Queue board, Operations Pulse, follow-up panel, trends, visit journey, and staffing focus turn the demo into a clinic cockpit.",
+    body: "Queue board, Operations Pulse, follow-up panel, trends, visit journey, staffing focus, MCP tools, and audit receipts turn the demo into a clinic cockpit.",
   },
   {
     icon: Languages,
@@ -90,8 +91,8 @@ export const featurePillars = [
   },
   {
     icon: Smartphone,
-    title: "Mobile desk ready",
-    body: "Responsive layouts, accessibility display controls, print slips, and touch-friendly workflows for front desks and phones.",
+    title: "Local-first or cloud-ready",
+    body: "Run with LM Studio on localhost, Google Gemini in the cloud, or deterministic fallbacks when no provider is configured.",
   },
 ] as const;
 
@@ -125,9 +126,9 @@ export const pitchScorecards = [
   },
   {
     label: "Technical depth",
-    value: "AI SDK + Convex workflow",
+    value: "AI SDK + Convex + MCP",
     proof:
-      "Live generation, persisted cases, audit trail, and realtime boards.",
+      "Local/cloud model switching, persisted cases, audit trail, MCP tools, and realtime boards.",
   },
   {
     label: "Demo confidence",
@@ -161,7 +162,7 @@ export const audienceCards = [
   {
     icon: ClipboardCheck,
     title: "For product review",
-    body: "A complete product story: public site, auth, live AI, Convex persistence, operational dashboard, and safety framing.",
+    body: "A complete product story: public site, auth, live AI, local-model support, Convex persistence, MCP server, operational dashboard, and safety framing.",
   },
 ] as const;
 
@@ -201,6 +202,8 @@ export const featureCatalog = [
     group: "AI workflow",
     icon: Sparkles,
     items: [
+      "Local LM Studio provider through AI SDK OpenAI-compatible adapter",
+      "Cloud Google Gemini provider through AI SDK",
       "Mixed Bangla/English intake cleanup",
       "SOAP-style clinical draft",
       "Current-case AI Q&A",
@@ -261,6 +264,8 @@ export const featureCatalog = [
     icon: Server,
     items: [
       "JSON-RPC MCP endpoint at /api/mcp",
+      "Stdio MCP server for LM Studio, Claude, Codex, Cursor, and desktop clients",
+      "mcp.json config for local MCP hosts",
       "Demo scenario resource",
       "Workflow capability resource",
       "AI workflow brief tool",
@@ -298,28 +303,28 @@ export const featureCatalog = [
 
 export const mcpPublicCards = [
   {
-    body: "External agents can discover the product's tools, resources, server instructions, and demo-safe workflow boundaries.",
+    body: "External agents can discover the product's tools, resources, server instructions, and demo-safe workflow boundaries through HTTP or stdio.",
     icon: Server,
-    label: "Endpoint",
-    title: "/api/mcp",
+    label: "Transports",
+    title: "HTTP demo + stdio MCP",
   },
   {
-    body: "The server exposes synthetic clinic scenarios and the workflow capability map as readable MCP resources.",
+    body: "The MCP server exposes synthetic clinic scenarios, safety gates, the tool registry, and workflow capabilities as readable resources.",
     icon: Database,
     label: "Resources",
     title: "Clinic context, safely scoped",
   },
   {
-    body: "MCP clients can request an intake workflow brief powered by Gemini when a key is present, with demo fallback always available.",
+    body: "LM Studio, Claude, Codex, Cursor, and similar clients can spawn the stdio server from mcp.json and call clinic tools.",
     icon: Command,
-    label: "Tool call",
-    title: "clinic.workflow_brief",
+    label: "Client setup",
+    title: "mcp.json ready",
   },
   {
-    body: "The MCP instructions explicitly frame AI output as draft operational support, keeping clinicians in charge.",
+    body: "The AI layer supports LM Studio locally, Gemini in the cloud, and deterministic fallback output when a model is unavailable.",
     icon: ShieldCheck,
-    label: "Governance",
-    title: "Safety travels with the API",
+    label: "Model policy",
+    title: "Local or cloud AI",
   },
 ] as const;
 
@@ -474,12 +479,12 @@ export const docsQuickLinks = [
   {
     body: "JSON-RPC endpoint, tools, resources, permissions, and test payloads for external agent clients.",
     label: "Protocol",
-    title: "MCP server",
+    title: "MCP server and clients",
   },
   {
-    body: "Data sources, Gemini usage, prompt patterns, safety rules, and synthetic-data boundaries.",
+    body: "Local LM Studio, cloud Gemini, prompt patterns, safety rules, fallbacks, and synthetic-data boundaries.",
     label: "AI depth",
-    title: "Provenance",
+    title: "Model providers",
   },
   {
     body: "Frameworks, deployment, environment variables, and quality checks for reviewers and teammates.",
@@ -493,7 +498,9 @@ export const docsTesterWalkthrough = [
     steps: [
       "Install packages with bun install, then run bun run dev and open http://localhost:3000.",
       "For the live backend path, run npx convex dev in a second terminal and confirm the app loads demo clinic data.",
-      "Set GOOGLE_GENERATIVE_AI_API_KEY before testing live AI; without it, verify the demo fallback still returns safe draft output.",
+      "For local AI, start LM Studio on http://127.0.0.1:1234 and run AI_PROVIDER=lmstudio LMSTUDIO_MODEL='google/gemma-4-12b' bun run dev.",
+      "For cloud AI, set GOOGLE_GENERATIVE_AI_API_KEY. With neither provider, verify the demo fallback still returns safe draft output.",
+      "Run bun run mcp:smoke to prove the stdio MCP server lists tools and calls safety blockers.",
     ],
     title: "1. Local setup",
   },
@@ -540,6 +547,7 @@ export const docsTesterWalkthrough = [
       "Turn on low-connectivity mode, create local drafts, and confirm queued sync status is visible.",
       "Return online and verify sync status updates without losing draft content.",
       "Open Admin and run MCP Explorer for tools/list or safety blocker calls.",
+      "Paste mcp.json into LM Studio or another MCP host and enable the host's permission to call configured MCP servers.",
       "Capture screenshots of the queue, AI progress, safety gate, print preview, and low-connectivity states for the judging report.",
     ],
     title: "6. Offline and evidence pass",
@@ -555,6 +563,8 @@ export const docsTesterChecklist = [
 ] as const;
 
 export const docsMcpMethods = [
+  "stdio MCP server: scripts/mcp-stdio.ts",
+  "mcp.json: clinic-copilot-bd",
   "initialize",
   "tools/list",
   "tools/call",
@@ -563,6 +573,8 @@ export const docsMcpMethods = [
 ] as const;
 
 export const docsMcpToolGroups = [
+  "clinic.demo_manifest / clinic.list_demo_scenarios",
+  "clinic.workflow_brief",
   "clinic.tools.list / clinic.tools.describe",
   "clinic.queue.snapshot",
   "clinic.safety.get_blockers",
@@ -571,6 +583,26 @@ export const docsMcpToolGroups = [
   "clinic.sync.preview_queue",
   "clinic.approval.request",
   "clinic.demo.score_scenario",
+] as const;
+
+export const docsMcpClientSetup = [
+  {
+    body: 'Paste mcp.json into LM Studio, enable Allow calling servers from mcp.json in Server Settings, then call /api/v1/chat with integrations: ["mcp/clinic-copilot-bd"].',
+    command:
+      'curl -s http://127.0.0.1:1234/api/v1/chat -H \'content-type: application/json\' -d \'{"model":"google/gemma-4-12b","input":"Use clinic-copilot-bd to list tools","integrations":["mcp/clinic-copilot-bd"]}\'',
+    title: "LM Studio",
+  },
+  {
+    body: "Use the mcpServers entry from mcp.json. The client spawns bun and talks to scripts/mcp-stdio.ts over stdio.",
+    command: "bun run mcp:smoke",
+    title: "Claude, Codex, Cursor",
+  },
+  {
+    body: "For quick browser or curl demos, keep using /api/mcp. It speaks JSON-RPC over POST and mirrors the tool/resource catalog for reviewers.",
+    command:
+      'curl -s http://localhost:3000/api/mcp -H \'content-type: application/json\' -d \'{"jsonrpc":"2.0","id":1,"method":"tools/list"}\'',
+    title: "HTTP demo endpoint",
+  },
 ] as const;
 
 export const docsPromptLibrary = [
@@ -589,16 +621,35 @@ export const docsPromptLibrary = [
   {
     category: "System Prompt",
     output:
-      "MCP-callable workflow briefs with summary, missing questions, red flags, and follow-up ownership.",
+      "MCP-callable workflow briefs with summary, missing questions, red flags, and follow-up ownership over stdio or HTTP demo calls.",
     title: "MCP Workflow Brief",
   },
 ] as const;
 
 export const docsAiPractices = [
   "Synthetic demo cases only; no real patient data in the submitted demo.",
-  "Gemini 2.5 Flash through Vercel AI SDK for structured workflow generation.",
+  "Local LM Studio models run through the AI SDK OpenAI-compatible provider.",
+  "Cloud Gemini models run through @ai-sdk/google for structured workflow generation.",
   "Zod schemas validate AI outputs, MCP JSON-RPC payloads, and tool arguments.",
   "Prompts explicitly block diagnosis, prescription, and autonomous clinical decisions.",
   "Every patient-facing and clinical output is framed as draft support for clinician review.",
-  "Demo fallback responses keep the product testable when an AI key is unavailable.",
+  "Provider failure and no-key fallback responses keep the product testable when models are unavailable.",
+] as const;
+
+export const docsModelProviderNotes = [
+  {
+    label: "Local",
+    title: "LM Studio",
+    body: "Set AI_PROVIDER=lmstudio and LMSTUDIO_MODEL=google/gemma-4-12b. System instructions are folded into the user prompt for local models that do not support system messages.",
+  },
+  {
+    label: "Cloud",
+    title: "Google Gemini",
+    body: "Set GOOGLE_GENERATIVE_AI_API_KEY and optionally GOOGLE_GENERATIVE_AI_MODEL. The same routes use structured AI SDK outputs with provider-failure fallback.",
+  },
+  {
+    label: "No key",
+    title: "Deterministic fallback",
+    body: "When no provider is configured, every AI route still returns safe demo output so the public demo, browser QA, and MCP smoke path remain usable.",
+  },
 ] as const;

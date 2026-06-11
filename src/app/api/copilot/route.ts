@@ -1,7 +1,12 @@
-import { google } from "@ai-sdk/google";
 import { generateText, Output } from "ai";
 import { z } from "zod";
 import { demoCopilotOutput, modelOptions } from "@/features/clinic/data";
+import {
+  buildPromptForProvider,
+  hasAiProvider,
+  logAiProviderError,
+  resolveAiModel,
+} from "@/lib/ai-provider";
 
 export const runtime = "nodejs";
 
@@ -47,30 +52,33 @@ export async function POST(request: Request) {
     );
   }
 
-  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+  if (!hasAiProvider()) {
     return Response.json({ output: demoCopilotOutput, mode: "demo" });
   }
 
   const allowedModels = modelOptions.map((option) => option.value);
-  const model =
-    requestedModel !== "env" &&
-    (allowedModels as readonly string[]).includes(requestedModel)
-      ? requestedModel
-      : (process.env.GOOGLE_GENERATIVE_AI_MODEL ?? "gemini-2.5-flash");
-  const result = await generateText({
-    model: google(model),
-    output: Output.object({ schema: copilotSchema }),
-    temperature: 0.2,
-    system:
-      "You are Clinic Copilot BD, a bilingual Bangla-English clinical documentation assistant. You never diagnose, prescribe, or replace clinicians. You create draft notes, missing questions, patient-friendly instructions, and red-flag safety guidance for a licensed clinician to review. Keep outputs concise, practical, and locally appropriate for Bangladesh.",
-    prompt: `Patient name: ${patientName}
+  const resolvedModel = resolveAiModel(requestedModel, allowedModels);
+  try {
+    const result = await generateText({
+      model: resolvedModel.model,
+      output: Output.object({ schema: copilotSchema }),
+      temperature: 0.2,
+      ...buildPromptForProvider(resolvedModel.provider, {
+        system:
+          "You are Clinic Copilot BD, a bilingual Bangla-English clinical documentation assistant. You never diagnose, prescribe, or replace clinicians. You create draft notes, missing questions, patient-friendly instructions, and red-flag safety guidance for a licensed clinician to review. Keep outputs concise, practical, and locally appropriate for Bangladesh.",
+        prompt: `Patient name: ${patientName}
 Age: ${age || "unknown"}
 Sex: ${sex}
 Raw intake:
 ${intake}
 
 Return safe clinical documentation support. Use Bangla for patient-facing handout when the intake contains Bangla, otherwise English. Mark uncertainty clearly.`,
-  });
+      }),
+    });
 
-  return Response.json({ output: result.output, mode: "live" });
+    return Response.json({ output: result.output, mode: "live" });
+  } catch (error) {
+    logAiProviderError("api/copilot", error);
+    return Response.json({ output: demoCopilotOutput, mode: "fallback" });
+  }
 }

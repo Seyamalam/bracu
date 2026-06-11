@@ -30,7 +30,7 @@ const explorerTools = [
         },
       },
     },
-    description: "Run the safety blocker preview.",
+    description: "Run the safety blocker check.",
     name: "clinic.safety.get_blockers",
   },
   {
@@ -51,7 +51,7 @@ export function McpExplorer() {
   const [selectedName, setSelectedName] = useState<ExplorerToolName>(
     explorerTools[0].name,
   );
-  const [response, setResponse] = useState("Run a demo-safe MCP call.");
+  const [response, setResponse] = useState("Run an MCP call.");
   const [isRunning, setIsRunning] = useState(false);
   const selectedTool = useMemo(
     () =>

@@ -6,6 +6,12 @@ import { api } from "../../../convex/_generated/api";
 import type { DemoUser } from "./types";
 
 const storageKey = "clinic-copilot-demo-user";
+const seededDemoLogin = {
+  clinicName: "Dhanmondi Care Desk",
+  email: "doctor@demo.clinic",
+  password: "demo1234",
+  role: "clinician" as const,
+};
 
 export function useDemoAuth() {
   const [user, setUser] = useState<DemoUser | null>(null);
@@ -39,8 +45,21 @@ export function useDemoAuth() {
       persistUser(nextUser as DemoUser);
     },
     async login(input: { email: string; password: string }) {
-      const nextUser = await loginMutation(input);
-      persistUser(nextUser as DemoUser);
+      const email = input.email.trim().toLowerCase();
+      try {
+        const nextUser = await loginMutation({ ...input, email });
+        persistUser(nextUser as DemoUser);
+      } catch (caught) {
+        const isSeededLogin =
+          email === seededDemoLogin.email &&
+          input.password === seededDemoLogin.password;
+        if (!isSeededLogin) {
+          throw caught;
+        }
+
+        const nextUser = await registerMutation(seededDemoLogin);
+        persistUser(nextUser as DemoUser);
+      }
     },
     logout() {
       window.localStorage.removeItem(storageKey);

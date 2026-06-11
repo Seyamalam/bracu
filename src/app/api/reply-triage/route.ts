@@ -1,10 +1,15 @@
-import { google } from "@ai-sdk/google";
 import { generateText, Output } from "ai";
 import { z } from "zod";
 import {
   demoPatientReplyTriageOutput,
   modelOptions,
 } from "@/features/clinic/data";
+import {
+  buildPromptForProvider,
+  hasAiProvider,
+  logAiProviderError,
+  resolveAiModel,
+} from "@/lib/ai-provider";
 
 export const runtime = "nodejs";
 
@@ -36,7 +41,7 @@ export async function POST(request: Request) {
     );
   }
 
-  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+  if (!hasAiProvider()) {
     return Response.json({
       output: demoPatientReplyTriageOutput,
       mode: "demo",
@@ -44,20 +49,17 @@ export async function POST(request: Request) {
   }
 
   const allowedModels = modelOptions.map((option) => option.value);
-  const model =
-    requestedModel !== "env" &&
-    (allowedModels as readonly string[]).includes(requestedModel)
-      ? requestedModel
-      : (process.env.GOOGLE_GENERATIVE_AI_MODEL ?? "gemini-2.5-flash");
+  const resolvedModel = resolveAiModel(requestedModel, allowedModels);
 
   try {
     const result = await generateText({
-      model: google(model),
+      model: resolvedModel.model,
       output: Output.object({ schema: replyTriageSchema }),
       temperature: 0.1,
-      system:
-        "You triage incoming patient follow-up replies for a Bangladesh primary-care clinic. Do not diagnose, prescribe, or make treatment decisions. Identify urgency, concerning and reassuring signals, staff actions, clinician escalation wording, bilingual response drafts, and short suggested Clinic Copilot commands. Escalate for danger signs such as breathing difficulty, chest pain, fainting, bleeding, dehydration, very low urine, severe weakness, pregnancy concern, or worsening symptoms.",
-      prompt: `Patient: ${patientName}
+      ...buildPromptForProvider(resolvedModel.provider, {
+        system:
+          "You triage incoming patient follow-up replies for a Bangladesh primary-care clinic. Do not diagnose, prescribe, or make treatment decisions. Identify urgency, concerning and reassuring signals, staff actions, clinician escalation wording, bilingual response drafts, and short suggested Clinic Copilot commands. Escalate for danger signs such as breathing difficulty, chest pain, fainting, bleeding, dehydration, very low urine, severe weakness, pregnancy concern, or worsening symptoms.",
+        prompt: `Patient: ${patientName}
 Case summary:
 ${caseSummary || "No case summary provided"}
 
@@ -66,10 +68,12 @@ ${followUpMessage || "No follow-up message provided"}
 
 Patient reply:
 ${replyText}`,
+      }),
     });
 
     return Response.json({ output: result.output, mode: "live" });
-  } catch {
+  } catch (error) {
+    logAiProviderError("api/reply-triage", error);
     return Response.json({
       output: demoPatientReplyTriageOutput,
       mode: "fallback",

@@ -1,10 +1,15 @@
-import { google } from "@ai-sdk/google";
 import { generateText, Output } from "ai";
 import { z } from "zod";
 import {
   demoPatientQuestionAnswer,
   modelOptions,
 } from "@/features/clinic/data";
+import {
+  buildPromptForProvider,
+  hasAiProvider,
+  logAiProviderError,
+  resolveAiModel,
+} from "@/lib/ai-provider";
 
 export const runtime = "nodejs";
 
@@ -35,25 +40,22 @@ export async function POST(request: Request) {
     );
   }
 
-  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+  if (!hasAiProvider()) {
     return Response.json({ output: demoPatientQuestionAnswer, mode: "demo" });
   }
 
   const allowedModels = modelOptions.map((option) => option.value);
-  const model =
-    requestedModel !== "env" &&
-    (allowedModels as readonly string[]).includes(requestedModel)
-      ? requestedModel
-      : (process.env.GOOGLE_GENERATIVE_AI_MODEL ?? "gemini-2.5-flash");
+  const resolvedModel = resolveAiModel(requestedModel, allowedModels);
 
   try {
     const result = await generateText({
-      model: google(model),
+      model: resolvedModel.model,
       output: Output.object({ schema: patientQuestionSchema }),
       temperature: 0.1,
-      system:
-        "You answer patient or family questions for a Bangladesh primary-care clinic using safe, plain Bangla and English. Do not diagnose, prescribe, promise outcomes, or approve medicine changes. Explain what the patient can safely understand, state when clinician review is needed, include urgent return warnings, and add a teach-back question.",
-      prompt: `Patient: ${patientName}
+      ...buildPromptForProvider(resolvedModel.provider, {
+        system:
+          "You answer patient or family questions for a Bangladesh primary-care clinic using safe, plain Bangla and English. Do not diagnose, prescribe, promise outcomes, or approve medicine changes. Explain what the patient can safely understand, state when clinician review is needed, include urgent return warnings, and add a teach-back question.",
+        prompt: `Patient: ${patientName}
 Case summary:
 ${caseSummary || "No case summary provided"}
 
@@ -65,10 +67,12 @@ ${redFlags.join("\n") || "None provided"}
 
 Patient or family question:
 ${question}`,
+      }),
     });
 
     return Response.json({ output: result.output, mode: "live" });
-  } catch {
+  } catch (error) {
+    logAiProviderError("api/patient-question", error);
     return Response.json({
       output: demoPatientQuestionAnswer,
       mode: "fallback",

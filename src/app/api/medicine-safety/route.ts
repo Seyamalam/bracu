@@ -1,7 +1,12 @@
-import { google } from "@ai-sdk/google";
 import { generateText, Output } from "ai";
 import { z } from "zod";
 import { demoMedicineSafetyOutput, modelOptions } from "@/features/clinic/data";
+import {
+  buildPromptForProvider,
+  hasAiProvider,
+  logAiProviderError,
+  resolveAiModel,
+} from "@/lib/ai-provider";
 
 export const runtime = "nodejs";
 
@@ -25,28 +30,34 @@ export async function POST(request: Request) {
     );
   }
 
-  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+  if (!hasAiProvider()) {
     return Response.json({ output: demoMedicineSafetyOutput, mode: "demo" });
   }
 
   const allowedModels = modelOptions.map((option) => option.value);
-  const model =
-    requestedModel !== "env" &&
-    (allowedModels as readonly string[]).includes(requestedModel)
-      ? requestedModel
-      : (process.env.GOOGLE_GENERATIVE_AI_MODEL ?? "gemini-2.5-flash");
-  const result = await generateText({
-    model: google(model),
-    output: Output.object({ schema: medicineSafetySchema }),
-    temperature: 0.1,
-    system:
-      "You are a medication safety documentation assistant. You never prescribe or approve medication. Identify unclear dose/frequency, allergy questions, duplicate categories, and patient-friendly safety instructions. Be concise and always tell clinicians to verify.",
-    prompt: `Case summary:
+  const resolvedModel = resolveAiModel(requestedModel, allowedModels);
+  try {
+    const result = await generateText({
+      model: resolvedModel.model,
+      output: Output.object({ schema: medicineSafetySchema }),
+      temperature: 0.1,
+      ...buildPromptForProvider(resolvedModel.provider, {
+        system:
+          "You are a medication safety documentation assistant. You never prescribe or approve medication. Identify unclear dose/frequency, allergy questions, duplicate categories, and patient-friendly safety instructions. Be concise and always tell clinicians to verify.",
+        prompt: `Case summary:
 ${caseSummary || "No case summary provided."}
 
 Medicine text to check:
 ${medicines}`,
-  });
+      }),
+    });
 
-  return Response.json({ output: result.output, mode: "live" });
+    return Response.json({ output: result.output, mode: "live" });
+  } catch (error) {
+    logAiProviderError("api/medicine-safety", error);
+    return Response.json({
+      output: demoMedicineSafetyOutput,
+      mode: "fallback",
+    });
+  }
 }

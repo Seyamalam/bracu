@@ -1,4 +1,3 @@
-import { google } from "@ai-sdk/google";
 import { generateText, Output } from "ai";
 import { z } from "zod";
 import {
@@ -13,6 +12,12 @@ import {
   mcpServerInfo,
   mcpTools,
 } from "@/features/mcp/data";
+import {
+  buildPromptForProvider,
+  hasAiProvider,
+  logAiProviderError,
+  resolveAiModel,
+} from "@/lib/ai-provider";
 
 export const runtime = "nodejs";
 
@@ -152,24 +157,33 @@ async function callWorkflowBrief(args: unknown) {
 
   const patientName = parsed.data.patientName?.trim() || "Patient";
 
-  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+  if (!hasAiProvider()) {
     return textContent(fallbackWorkflowBrief(parsed.data.intake, patientName));
   }
 
-  const result = await generateText({
-    model: google(process.env.GOOGLE_GENERATIVE_AI_MODEL ?? "gemini-2.5-flash"),
-    output: Output.object({ schema: workflowBriefSchema }),
-    temperature: 0.2,
-    system:
-      "You are Clinic Copilot BD MCP, a safe Bangla-English clinic workflow assistant. Never diagnose, prescribe, or replace clinicians. Return operational draft support only.",
-    prompt: `Patient name: ${patientName}
+  const resolvedModel = resolveAiModel("env", []);
+
+  try {
+    const result = await generateText({
+      model: resolvedModel.model,
+      output: Output.object({ schema: workflowBriefSchema }),
+      temperature: 0.2,
+      ...buildPromptForProvider(resolvedModel.provider, {
+        system:
+          "You are Clinic Copilot BD MCP, a safe Bangla-English clinic workflow assistant. Never diagnose, prescribe, or replace clinicians. Return operational draft support only.",
+        prompt: `Patient name: ${patientName}
 Raw intake:
 ${parsed.data.intake}
 
 Create a short workflow brief for a Bangladesh clinic team. Include summary, missing questions, red flags, and follow-up ownership.`,
-  });
+      }),
+    });
 
-  return textContent({ mode: "live", output: result.output });
+    return textContent({ mode: "live", output: result.output });
+  } catch (error) {
+    logAiProviderError("api/mcp", error);
+    return textContent(fallbackWorkflowBrief(parsed.data.intake, patientName));
+  }
 }
 
 function callToolsList(args: unknown) {
@@ -440,7 +454,9 @@ function callSyncPreview(args: unknown) {
       conflicts: draft.content.length < 20 ? ["Draft is very short."] : [],
       owner: draft.owner ?? "unassigned",
       readyForReview: draft.content.length >= 20,
-      syncAction: "preview_only",
+      requiresHumanReview: true,
+      syncAction:
+        draft.content.length >= 20 ? "queued_for_review" : "needs_more_detail",
       updatedAt: draft.updatedAt ?? null,
     })),
     safety: safetyEnvelope("clinic.sync.preview_queue", "medium", "admin"),

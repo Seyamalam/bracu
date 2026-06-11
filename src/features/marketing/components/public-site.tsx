@@ -12,8 +12,10 @@ import {
   brand,
   demoRunbook,
   docsAiPractices,
+  docsMcpClientSetup,
   docsMcpMethods,
   docsMcpToolGroups,
+  docsModelProviderNotes,
   docsPromptLibrary,
   docsQuickLinks,
   docsTesterChecklist,
@@ -116,19 +118,20 @@ function HomePage({ authSlot }: { authSlot?: React.ReactNode }) {
               Built for Bangla-first clinic teams
             </p>
             <h1 className="mt-4 max-w-4xl font-black text-4xl leading-[1.02] tracking-normal sm:text-6xl lg:text-7xl">
-              The AI clinic cockpit for Bangla-first care.
+              The AI clinic cockpit for Bangla-first care, local or cloud.
             </h1>
             <p className="mt-5 max-w-2xl text-lg text-white/86 leading-8">
               {brand.name} turns messy reception notes into safer clinic
               workflow: structured drafts, red-flag review, handouts,
-              teach-back, follow-up, and operations visibility.
+              teach-back, follow-up, operations visibility, and MCP tools that
+              work with local or cloud AI.
             </p>
             <div className="mt-5 inline-flex max-w-full flex-wrap items-center gap-2 border border-[#f2c14e]/45 bg-slate-950/35 px-3 py-2 text-sm">
               <span className="font-semibold text-[#f2c14e]">
-                MCP endpoint live
+                MCP + model choice
               </span>
-              <span className="font-mono text-white/88">/api/mcp</span>
-              <span className="text-white/62">tools/list + resources/read</span>
+              <span className="font-mono text-white/88">stdio + /api/mcp</span>
+              <span className="text-white/62">LM Studio or Gemini</span>
             </div>
             <div className="mt-7 flex flex-wrap gap-3">
               <Button asChild size="lg" variant="secondary">
@@ -184,8 +187,8 @@ function FeaturesPage() {
     <>
       <PageHero
         eyebrow="Complete workflow"
-        title="From waiting room notes to follow-up ownership."
-        body="A clinic does not need one more isolated AI textbox. It needs a connected workflow across reception, clinician review, patient education, and operations."
+        title="From waiting room notes to follow-up ownership, with any model path."
+        body="A clinic does not need one more isolated AI textbox. It needs a connected workflow across reception, clinician review, patient education, operations, MCP clients, and local or cloud AI providers."
       />
       <FeatureGrid />
       <FullFeatureCatalog />
@@ -201,8 +204,8 @@ function DocsPage() {
     <>
       <PageHero
         eyebrow="Product docs"
-        title="AI, MCP, and clinic workflow details reviewers can verify."
-        body="A compact documentation hub for the submitted demo: how the data flows, which AI surfaces exist, what MCP exposes, and how the build is deployed."
+        title="AI providers, MCP setup, and clinic workflow details reviewers can verify."
+        body="A compact documentation hub for the submitted demo: how local and cloud models are selected, which AI surfaces exist, how MCP clients connect, what MCP exposes, and how the build is deployed."
       />
       <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid gap-3 md:grid-cols-3">
@@ -400,14 +403,18 @@ function DocsMcpSection() {
             MCP usage
           </p>
           <h2 className="mt-3 font-black text-3xl tracking-normal sm:text-5xl">
-            Agent-readable clinic context.
+            Agent-readable clinic context for HTTP demos and real MCP clients.
           </h2>
           <p className="mt-4 text-white/76 text-lg leading-8">
-            The app exposes a custom MCP-compatible endpoint at{" "}
-            <span className="font-mono text-[#f2c14e]">/api/mcp</span>. It is
-            intentionally demo-safe: external clients can inspect synthetic
-            scenarios, capability metadata, and workflow tools without touching
-            real patient records.
+            The app exposes a curl-friendly JSON-RPC demo endpoint at{" "}
+            <span className="font-mono text-[#f2c14e]">/api/mcp</span> and a
+            real stdio MCP server at{" "}
+            <span className="font-mono text-[#f2c14e]">
+              scripts/mcp-stdio.ts
+            </span>
+            . External clients can inspect synthetic scenarios, capability
+            metadata, safety gates, and workflow tools without touching real
+            patient records.
           </p>
         </div>
         <div className="grid gap-3 md:grid-cols-2">
@@ -430,16 +437,23 @@ function DocsMcpSection() {
             </ul>
           </article>
           <article className="border border-white/16 bg-white/10 p-5 md:col-span-2">
-            <h3 className="font-bold text-xl">Quick test</h3>
-            <pre className="mt-4 max-w-full overflow-x-auto whitespace-pre-wrap break-words bg-slate-950 p-4 text-white/82 text-xs leading-6">
-              <code className="break-words">{`curl -s https://bracu-steel.vercel.app/api/mcp \\
-  -H 'content-type: application/json' \\
-  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
-
-curl -s https://bracu-steel.vercel.app/api/mcp \\
-  -H 'content-type: application/json' \\
-  -d '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"clinic.safety.get_blockers","arguments":{"intake":"Patient has chest tightness and sweating","allergiesKnown":false}}}'`}</code>
-            </pre>
+            <h3 className="font-bold text-xl">Client setup</h3>
+            <div className="mt-4 grid gap-3">
+              {docsMcpClientSetup.map((setup) => (
+                <div
+                  className="border border-white/12 bg-slate-950/40 p-4"
+                  key={setup.title}
+                >
+                  <p className="font-bold text-[#f2c14e]">{setup.title}</p>
+                  <p className="mt-2 text-sm text-white/72 leading-6">
+                    {setup.body}
+                  </p>
+                  <pre className="mt-3 max-w-full overflow-x-auto whitespace-pre-wrap break-words bg-slate-950 p-3 text-white/82 text-xs leading-6">
+                    <code className="break-words">{setup.command}</code>
+                  </pre>
+                </div>
+              ))}
+            </div>
           </article>
         </div>
       </div>
@@ -456,12 +470,13 @@ function DocsAiSection() {
             Data and AI provenance
           </p>
           <h2 className="mt-3 font-black text-3xl tracking-normal sm:text-5xl">
-            Synthetic data, structured AI, human review.
+            Synthetic data, local or cloud AI, human review.
           </h2>
           <p className="mt-4 text-muted-foreground text-lg leading-8">
-            Clinic Copilot BD uses Gemini through the Vercel AI SDK for live
-            workflow generation. The product constrains outputs with schemas,
-            safety prompts, and review boundaries.
+            Clinic Copilot BD uses the AI SDK as a provider layer: LM Studio for
+            local models, Gemini for cloud generation, and deterministic
+            fallback output for demos without a model. The product constrains
+            outputs with schemas, safety prompts, and review boundaries.
           </p>
         </div>
         <div className="grid gap-3 md:grid-cols-2">
@@ -483,6 +498,22 @@ function DocsAiSection() {
         </div>
       </div>
       <div className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
+        <div className="grid gap-3 pb-8 md:grid-cols-3">
+          {docsModelProviderNotes.map((provider) => (
+            <article
+              className="border border-border bg-[#fbfaf6] p-5"
+              key={provider.title}
+            >
+              <p className="font-semibold text-primary text-xs uppercase tracking-[0.14em]">
+                {provider.label}
+              </p>
+              <h3 className="mt-3 font-bold text-xl">{provider.title}</h3>
+              <p className="mt-2 text-muted-foreground text-sm leading-6">
+                {provider.body}
+              </p>
+            </article>
+          ))}
+        </div>
         <div className="grid gap-3 md:grid-cols-3">
           {docsPromptLibrary.map((prompt) => (
             <article
@@ -518,8 +549,18 @@ function DocsBuildSection() {
           {[
             ["Frontend", "Next.js 16, React 19, TypeScript, Tailwind CSS 4"],
             ["Backend", "Convex realtime data, Next.js API routes"],
-            ["AI", "Vercel AI SDK, Google Gemini, structured outputs"],
-            ["Quality", "Biome, production build checks, demo fallbacks"],
+            [
+              "AI",
+              "Vercel AI SDK, LM Studio local models, Google Gemini, structured outputs",
+            ],
+            [
+              "MCP",
+              "Stdio MCP server, mcp.json, HTTP JSON-RPC demo endpoint, 12 tools",
+            ],
+            [
+              "Quality",
+              "Biome, production build checks, local/cloud/fallback tests",
+            ],
           ].map(([label, body]) => (
             <article className="border border-border bg-white p-5" key={label}>
               <h3 className="font-bold text-xl">{label}</h3>
@@ -618,16 +659,17 @@ function McpFrontDoor() {
             Clinic context is agent-readable from day one.
           </h2>
           <p className="mt-4 text-lg text-white/78 leading-8">
-            The demo now exposes a Model Context Protocol endpoint for safe
-            clinic workflow context: tools, resources, scenario data, and an
-            AI-powered intake brief that external agents can call.
+            The demo exposes a stdio MCP server for LM Studio, Claude, Codex,
+            Cursor, and similar clients, plus an HTTP JSON-RPC endpoint for fast
+            browser and curl demos. Both expose safe clinic workflow context:
+            tools, resources, scenario data, and draft-support boundaries.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Button asChild size="lg" variant="secondary">
-              <a href="/api/mcp">
-                Inspect /api/mcp
+              <Link href="/docs">
+                Read MCP setup
                 <ArrowRight size={18} aria-hidden="true" />
-              </a>
+              </Link>
             </Button>
             <Button
               asChild
@@ -670,12 +712,10 @@ function McpFrontDoor() {
             MCP quick test
           </div>
           <pre className="overflow-x-auto p-4 text-white/82 text-xs leading-6">
-            <code>{`POST /api/mcp
-{
-  "jsonrpc": "2.0",
-  "id": 1,
-  "method": "tools/list"
-}`}</code>
+            <code>{`bun run mcp:smoke
+
+POST /api/mcp
+{ "jsonrpc": "2.0", "id": 1, "method": "tools/list" }`}</code>
           </pre>
         </div>
       </div>

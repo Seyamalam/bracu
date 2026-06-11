@@ -1,7 +1,12 @@
-import { google } from "@ai-sdk/google";
 import { generateText, Output } from "ai";
 import { z } from "zod";
 import { demoScenarios, modelOptions } from "@/features/clinic/data";
+import {
+  buildPromptForProvider,
+  hasAiProvider,
+  logAiProviderError,
+  resolveAiModel,
+} from "@/lib/ai-provider";
 
 export const runtime = "nodejs";
 
@@ -143,32 +148,31 @@ export async function POST(request: Request) {
     );
   }
 
-  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+  if (!hasAiProvider()) {
     return Response.json({ output: fallbackPlan(command), mode: "demo" });
   }
 
   const allowedModels = modelOptions.map((option) => option.value);
-  const model =
-    requestedModel !== "env" &&
-    (allowedModels as readonly string[]).includes(requestedModel)
-      ? requestedModel
-      : (process.env.GOOGLE_GENERATIVE_AI_MODEL ?? "gemini-2.5-flash");
+  const resolvedModel = resolveAiModel(requestedModel, allowedModels);
 
   try {
     const result = await generateText({
-      model: google(model),
+      model: resolvedModel.model,
       output: Output.object({ schema: commandPlanSchema }),
       temperature: 0,
-      system:
-        "You translate natural-language clinic operator commands into safe UI actions for Clinic Copilot BD. Only use these exact action type strings: fill_intake, load_scenario, generate_draft, check_medicine, set_status, approve_case, switch_language, print_handout, presentation_mode, search_cases, filter_cases, select_case, set_model, reset_workspace, run_guided_demo, run_full_workflow, ask_case_assistant, compose_followup, edit_draft, compose_referral, compose_briefing, cleanup_intake, explain_risk, compose_handoff, plan_next_steps, extract_document, triage_reply, schedule_followup, answer_patient_question, check_approval_readiness, close_visit, undo_last_command. For undo, revert, go back, restore previous state, cancel last command, or undo last command requests use only undo_last_command. For Bangla use switch_language with language bn. For scenarios use load_scenario with scenarioLabel. For a request to run everything, full workflow, full clinic workflow, complete workflow, guided clinic workflow, or end-to-end demo, use run_full_workflow. For a request to run only a guided demo, presentation flow, or pitch flow, use run_guided_demo. For ask this case, ask about this case, case assistant, clinical question, what should I tell/ask/do for this case, or selected case question requests use ask_case_assistant and put the exact question in question. For close visit, finish visit, discharge packet, final packet, wrap up case, checkout, ready to leave, or visit closeout requests use close_visit and put discharge, print packet, audit, teach-back, accessibility, or follow-up ownership constraints in instruction. For approval readiness, ready to approve, safe to approve, signoff check, approval check, ready to print, or before approve requests use check_approval_readiness and put approval, safety, signoff, print, red-flag, pregnancy, medicine, or missing-check focus in instruction. For medicine safety, check medicines, medication review, dose safety, or prescription safety requests use check_medicine and put the exact medicine list in medicines when present. For SMS, WhatsApp, callback, or patient follow-up message requests use compose_followup; include any requested wording, tone, language, channel, or content constraint in instruction. For schedule follow-up, plan callback, callback schedule, reminder plan, close the loop, follow-up plan, or due follow-up workflow requests use schedule_followup and put timing, owner, channel, escalation, accessibility, or closure constraints in instruction. For patient question, family question, answer patient, explain to patient, can I take, can patient take, or medicine question requests use answer_patient_question and put the exact patient/family question text in question when present. For patient reply, incoming WhatsApp reply, response from patient, triage reply, callback reply, or follow-up response requests use triage_reply and put the exact reply text in replyText when present. For lab report, prescription, attached document, OCR, photo text, extract report, extract prescription, medicine list from document, or parse document requests use extract_document and put the exact document/OCR/report text in documentText when present. For referral letter, referral note, paperwork, family visit summary, or visit summary requests use compose_referral; include any requested recipient, wording, reason, detail, or tone constraint in instruction. For staff handoff, nurse handoff, doctor handoff, receptionist tasks, team task list, handover tasks, shift handoff, or workflow assignment requests use compose_handoff and put any shift, role, family, language, accessibility, or urgency focus in instruction. For next steps for the selected case, what should I do next for this patient, recommended commands, command suggestions, action plan for this case, or guide me through this case use plan_next_steps and put any role, context, or constraint in instruction. For clinic briefing, queue briefing, daily summary, today's clinic, priorities, or operational summary requests use compose_briefing. For messy notes, clean intake, extract vitals, normalize intake, or receptionist cleanup requests use cleanup_intake. For explain risk, why high/medium/low priority, safety rationale, evidence, uncertainty, or why this is risky requests use explain_risk and put any audience, language, or detail focus in instruction. For commands that ask to change, rewrite, simplify, add, remove, improve, or edit the selected generated clinical note or handout, use edit_draft with the original command as instruction. Never use language_switch, scenario_name, set_ui_mode, diagnosis, or prescribe actions. Keep the summary short.",
-      prompt: `Available scenarios: ${demoScenarios.map((scenario) => scenario.label).join(", ")}
+      ...buildPromptForProvider(resolvedModel.provider, {
+        system:
+          "You translate natural-language clinic operator commands into safe UI actions for Clinic Copilot BD. Only use these exact action type strings: fill_intake, load_scenario, generate_draft, check_medicine, set_status, approve_case, switch_language, print_handout, presentation_mode, search_cases, filter_cases, select_case, set_model, reset_workspace, run_guided_demo, run_full_workflow, ask_case_assistant, compose_followup, edit_draft, compose_referral, compose_briefing, cleanup_intake, explain_risk, compose_handoff, plan_next_steps, extract_document, triage_reply, schedule_followup, answer_patient_question, check_approval_readiness, close_visit, undo_last_command. For undo, revert, go back, restore previous state, cancel last command, or undo last command requests use only undo_last_command. For Bangla use switch_language with language bn. For scenarios use load_scenario with scenarioLabel. For a request to run everything, full workflow, full clinic workflow, complete workflow, guided clinic workflow, or end-to-end demo, use run_full_workflow. For a request to run only a guided demo, presentation flow, or pitch flow, use run_guided_demo. For ask this case, ask about this case, case assistant, clinical question, what should I tell/ask/do for this case, or selected case question requests use ask_case_assistant and put the exact question in question. For close visit, finish visit, discharge packet, final packet, wrap up case, checkout, ready to leave, or visit closeout requests use close_visit and put discharge, print packet, audit, teach-back, accessibility, or follow-up ownership constraints in instruction. For approval readiness, ready to approve, safe to approve, signoff check, approval check, ready to print, or before approve requests use check_approval_readiness and put approval, safety, signoff, print, red-flag, pregnancy, medicine, or missing-check focus in instruction. For medicine safety, check medicines, medication review, dose safety, or prescription safety requests use check_medicine and put the exact medicine list in medicines when present. For SMS, WhatsApp, callback, or patient follow-up message requests use compose_followup; include any requested wording, tone, language, channel, or content constraint in instruction. For schedule follow-up, plan callback, callback schedule, reminder plan, close the loop, follow-up plan, or due follow-up workflow requests use schedule_followup and put timing, owner, channel, escalation, accessibility, or closure constraints in instruction. For patient question, family question, answer patient, explain to patient, can I take, can patient take, or medicine question requests use answer_patient_question and put the exact patient/family question text in question when present. For patient reply, incoming WhatsApp reply, response from patient, triage reply, callback reply, or follow-up response requests use triage_reply and put the exact reply text in replyText when present. For lab report, prescription, attached document, OCR, photo text, extract report, extract prescription, medicine list from document, or parse document requests use extract_document and put the exact document/OCR/report text in documentText when present. For referral letter, referral note, paperwork, family visit summary, or visit summary requests use compose_referral; include any requested recipient, wording, reason, detail, or tone constraint in instruction. For staff handoff, nurse handoff, doctor handoff, receptionist tasks, team task list, handover tasks, shift handoff, or workflow assignment requests use compose_handoff and put any shift, role, family, language, accessibility, or urgency focus in instruction. For next steps for the selected case, what should I do next for this patient, recommended commands, command suggestions, action plan for this case, or guide me through this case use plan_next_steps and put any role, context, or constraint in instruction. For clinic briefing, queue briefing, daily summary, today's clinic, priorities, or operational summary requests use compose_briefing. For messy notes, clean intake, extract vitals, normalize intake, or receptionist cleanup requests use cleanup_intake. For explain risk, why high/medium/low priority, safety rationale, evidence, uncertainty, or why this is risky requests use explain_risk and put any audience, language, or detail focus in instruction. For commands that ask to change, rewrite, simplify, add, remove, improve, or edit the selected generated clinical note or handout, use edit_draft with the original command as instruction. Never use language_switch, scenario_name, set_ui_mode, diagnosis, or prescribe actions. Keep the summary short.",
+        prompt: `Available scenarios: ${demoScenarios.map((scenario) => scenario.label).join(", ")}
 
 Command:
 ${command}`,
+      }),
     });
 
     return Response.json({ output: sanitizePlan(result.output), mode: "live" });
-  } catch {
+  } catch (error) {
+    logAiProviderError("api/command", error);
     return Response.json({ output: fallbackPlan(command), mode: "fallback" });
   }
 }
@@ -309,7 +313,14 @@ function fallbackPlan(command: string) {
     normalized.includes("approval check") ||
     normalized.includes("signoff check") ||
     normalized.includes("ready to print") ||
-    normalized.includes("before approve");
+    normalized.includes("before print") ||
+    normalized.includes("before approve") ||
+    normalized.includes("gate audit") ||
+    normalized.includes("safety audit") ||
+    normalized.includes("return warnings are complete") ||
+    (normalized.includes("vitals") &&
+      normalized.includes("allergy") &&
+      normalized.includes("red flag"));
 
   if (normalized.includes("approve") && !asksForApprovalReadiness) {
     actions.push({ type: "approve_case" });
@@ -340,6 +351,8 @@ function fallbackPlan(command: string) {
     normalized.includes("finish visit") ||
     normalized.includes("discharge packet") ||
     normalized.includes("final packet") ||
+    normalized.includes("print packet") ||
+    normalized.includes("prepare the print") ||
     normalized.includes("wrap up") ||
     normalized.includes("checkout") ||
     normalized.includes("ready to leave") ||
@@ -352,6 +365,9 @@ function fallbackPlan(command: string) {
   }
   if (normalized.includes("follow")) {
     actions.push({ type: "set_status", status: "followup" });
+  }
+  if (normalized.includes("handout")) {
+    actions.push({ type: "set_status", status: "handout" });
   }
   if (
     normalized.includes("schedule follow") ||
@@ -413,12 +429,16 @@ function fallbackPlan(command: string) {
     normalized.includes("referral") ||
     normalized.includes("paperwork") ||
     normalized.includes("visit summary") ||
-    normalized.includes("family summary")
+    normalized.includes("family summary") ||
+    normalized.includes("doctor summary") ||
+    normalized.includes("chart summary")
   ) {
     actions.push({
       type: "compose_referral",
       documentType:
-        normalized.includes("summary") || normalized.includes("family")
+        normalized.includes("summary") ||
+        normalized.includes("family") ||
+        normalized.includes("chart")
           ? "visit_summary"
           : "referral",
       instruction: extractPayload(command) ?? command,
@@ -430,6 +450,8 @@ function fallbackPlan(command: string) {
     normalized.includes("nurse task") ||
     normalized.includes("doctor task") ||
     normalized.includes("receptionist task") ||
+    normalized.includes("nurse, doctor") ||
+    normalized.includes("follow-up desk tasks") ||
     normalized.includes("team task") ||
     normalized.includes("shift handoff")
   ) {
@@ -444,13 +466,13 @@ function fallbackPlan(command: string) {
     normalized.includes("today's clinic") ||
     normalized.includes("todays clinic") ||
     normalized.includes("daily summary") ||
-    normalized.includes("operational summary") ||
-    normalized.includes("what to do next")
+    normalized.includes("operational summary")
   ) {
     actions.push({ type: "compose_briefing" });
   }
   if (
     normalized.includes("next step") ||
+    normalized.includes("what to do next") ||
     normalized.includes("what should i do next") ||
     normalized.includes("what to do next for this") ||
     normalized.includes("guide me through") ||
@@ -490,6 +512,7 @@ function fallbackPlan(command: string) {
   }
   if (
     normalized.includes("explain risk") ||
+    normalized.includes("risky") ||
     normalized.includes("why risky") ||
     normalized.includes("why this is risky") ||
     normalized.includes("why high") ||
@@ -505,14 +528,24 @@ function fallbackPlan(command: string) {
     });
   }
   if (
-    normalized.includes("edit") ||
-    normalized.includes("rewrite") ||
-    normalized.includes("simplify") ||
-    normalized.includes("red flag") ||
-    normalized.includes("add a red flag") ||
-    normalized.includes("add red flag") ||
-    normalized.includes("add a question") ||
-    normalized.includes("improve handout")
+    asksForApprovalReadiness &&
+    (normalized.includes("red flag") || normalized.includes("safety audit"))
+  ) {
+    actions.push({
+      type: "explain_risk",
+      instruction: extractPayload(command) ?? command,
+    });
+  }
+  if (
+    !asksForApprovalReadiness &&
+    (normalized.includes("edit") ||
+      normalized.includes("rewrite") ||
+      normalized.includes("simplify") ||
+      normalized.includes("red flag") ||
+      normalized.includes("add a red flag") ||
+      normalized.includes("add red flag") ||
+      normalized.includes("add a question") ||
+      normalized.includes("improve handout"))
   ) {
     actions.push({ type: "edit_draft", instruction: command });
   }

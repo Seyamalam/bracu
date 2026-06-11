@@ -148,7 +148,7 @@ echo "Building app..."
 (cd "$ROOT_DIR" && bun run build)
 
 echo "Starting app on ${BASE_URL}..."
-(cd "$ROOT_DIR" && bunx next start --hostname 127.0.0.1 --port "$PORT" >"${OUT_DIR}/next-start.log" 2>&1) &
+(cd "$ROOT_DIR" && GOOGLE_GENERATIVE_AI_API_KEY="" bunx next start --hostname 127.0.0.1 --port "$PORT" >"${OUT_DIR}/next-start.log" 2>&1) &
 SERVER_PID="$!"
 sleep 2
 
@@ -167,6 +167,27 @@ open_and_capture "/clinic" "clinic-redirect-auth" "Create clinic session"
 echo "Running authenticated workspace QA..."
 login_seeded_user
 open_and_capture "/clinic/case" "direct-workspace-case" "Reception Intake" "Clinical Safety Gates"
+
+echo "Checking interactive AI workflow actions..."
+agent-browser --session "$SESSION" eval --stdin >/dev/null <<'EOF'
+var __qaGenerateButton = [...document.querySelectorAll("button")].find((item) =>
+  item.textContent?.includes("Generate Clinical Draft")
+);
+if (!__qaGenerateButton) throw new Error("Generate Clinical Draft button missing");
+__qaGenerateButton.click();
+EOF
+agent-browser --session "$SESSION" wait --text "Draft generated" >/dev/null
+require_text "generated-draft" "Patient Handout" "Medicine Safety" "Approval Guard"
+agent-browser --session "$SESSION" eval --stdin >/dev/null <<'EOF'
+var __qaMedicineButton = [...document.querySelectorAll("button")].find((item) =>
+  item.textContent?.includes("Check medicine safety")
+);
+if (!__qaMedicineButton) throw new Error("Check medicine safety button missing");
+__qaMedicineButton.click();
+EOF
+agent-browser --session "$SESSION" wait --text "Clarifying questions" >/dev/null
+require_text "medicine-safety-action" "Issues" "Clarifying questions" "Patient instructions"
+
 open_and_capture "/clinic/copilot" "direct-workspace-copilot" "Patient thread" "Clinical review stays required"
 agent-browser --session "$SESSION" open "${BASE_URL}/clinic/queue" >/dev/null
 agent-browser --session "$SESSION" wait --load networkidle >/dev/null

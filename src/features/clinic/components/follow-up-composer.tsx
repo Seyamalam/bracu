@@ -160,7 +160,7 @@ export function FollowUpComposer({
               </Button>
               <Button type="button" onClick={() => setSent(true)}>
                 <Send size={16} aria-hidden="true" />
-                Queue demo
+                Queue for review
               </Button>
             </div>
             <div className="rounded-md border border-border bg-background p-3">
@@ -175,7 +175,7 @@ export function FollowUpComposer({
             </div>
             {sent ? (
               <p className="rounded-md bg-emerald-50 p-2 text-emerald-900 text-sm">
-                Demo queued for {patientName} via {channel}.
+                Follow-up queued for staff review: {patientName} via {channel}.
               </p>
             ) : null}
           </div>

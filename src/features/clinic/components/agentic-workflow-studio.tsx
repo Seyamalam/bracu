@@ -250,11 +250,15 @@ function WorkflowCanvas({
           label="Blocked gates"
           value={`${signals.blockers.length}`}
         />
-        <StudioMetric label="Automation status" value="Preview-only" />
+        <StudioMetric label="Automation status" value="Ready to run" />
       </div>
       <Button
         type="button"
-        onClick={() => onCommand("Run workflow canvas safety preview")}
+        onClick={() =>
+          onCommand(
+            "Plan next steps for this case and check approval readiness before print",
+          )
+        }
       >
         <GitBranch size={16} aria-hidden="true" />
         Run canvas preview
@@ -282,7 +286,11 @@ function SafetyGovernor({
         <Button
           className="mt-4"
           type="button"
-          onClick={() => onCommand("audit_case_safety")}
+          onClick={() =>
+            onCommand(
+              "Check if vitals, allergy, return warnings, and red flags are complete",
+            )
+          }
         >
           Run safety audit
         </Button>
@@ -380,9 +388,9 @@ function ProtocolLibrary({
             size="sm"
             type="button"
             variant="outline"
-            onClick={() => onCommand(`Apply protocol: ${protocol.name}`)}
+            onClick={() => onCommand(commandForProtocol(protocol.name))}
           >
-            Apply preview
+            Apply protocol
           </Button>
         </div>
       ))}
@@ -441,7 +449,7 @@ function SimulationLab({
       <Button
         className="md:col-span-4"
         type="button"
-        onClick={() => onCommand("Run synthetic clinic day simulation")}
+        onClick={() => onCommand("Run the full clinic workflow")}
       >
         <Activity size={16} aria-hidden="true" />
         Run synthetic clinic day
@@ -482,15 +490,47 @@ function WorkflowMarketplace({
       <Button
         className="md:col-span-3"
         type="button"
-        onClick={() =>
-          onCommand(`Install workflow template: ${selectedTemplate}`)
-        }
+        onClick={() => onCommand(commandForTemplate(selectedTemplate))}
       >
         <Users size={16} aria-hidden="true" />
-        Install selected template preview
+        Install selected template
       </Button>
     </div>
   );
+}
+
+function commandForProtocol(protocolName: string) {
+  const normalized = protocolName.toLowerCase();
+  if (normalized.includes("chest")) {
+    return "Load cardiac risk and generate a draft";
+  }
+  if (normalized.includes("pregnancy")) {
+    return "Load pregnancy fever and generate a draft";
+  }
+  if (normalized.includes("child")) {
+    return "Load child hydration and generate a draft";
+  }
+  return "Clean this intake and extract vitals";
+}
+
+function commandForTemplate(template: MarketplaceTemplate) {
+  const normalized = template.toLowerCase();
+  if (normalized.includes("maternal")) {
+    return "Run the full clinic workflow for pregnancy fever";
+  }
+  if (normalized.includes("diabetes")) {
+    return "Load diabetes wound and generate a draft";
+  }
+  if (normalized.includes("dengue")) {
+    return "Load dengue watch and generate a draft";
+  }
+  if (normalized.includes("medicine")) {
+    return "Check medicine safety for paracetamol 500mg and antibiotic twice daily";
+  }
+  if (normalized.includes("school")) {
+    return "Load child hydration and generate a draft";
+  }
+  return "Run the full clinic workflow";
 }
 
 function StudioMetric({ label, value }: { label: string; value: string }) {

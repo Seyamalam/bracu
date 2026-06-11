@@ -333,7 +333,7 @@ export const mcpCapabilityMap = {
     "Patient handout",
     "Teach-back",
     "Follow-up planning",
-    "Low-connectivity sync preview",
+    "Low-connectivity review queue",
     "Approval request envelopes",
     "Simulation judge scoring",
     "Clinic briefing",

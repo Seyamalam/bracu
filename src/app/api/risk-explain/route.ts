@@ -1,7 +1,12 @@
-import { google } from "@ai-sdk/google";
 import { generateText, Output } from "ai";
 import { z } from "zod";
 import { demoRiskExplanation, modelOptions } from "@/features/clinic/data";
+import {
+  buildPromptForProvider,
+  hasAiProvider,
+  logAiProviderError,
+  resolveAiModel,
+} from "@/lib/ai-provider";
 
 export const runtime = "nodejs";
 
@@ -33,25 +38,22 @@ export async function POST(request: Request) {
     );
   }
 
-  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+  if (!hasAiProvider()) {
     return Response.json({ output: demoRiskExplanation, mode: "demo" });
   }
 
   const allowedModels = modelOptions.map((option) => option.value);
-  const model =
-    requestedModel !== "env" &&
-    (allowedModels as readonly string[]).includes(requestedModel)
-      ? requestedModel
-      : (process.env.GOOGLE_GENERATIVE_AI_MODEL ?? "gemini-2.5-flash");
+  const resolvedModel = resolveAiModel(requestedModel, allowedModels);
 
   try {
     const result = await generateText({
-      model: google(model),
+      model: resolvedModel.model,
       output: Output.object({ schema: riskExplanationSchema }),
       temperature: 0.1,
-      system:
-        "You explain the safety rationale behind an AI-generated clinic documentation draft. Do not diagnose, prescribe, or claim certainty. Separate evidence for risk, evidence against risk, uncertainty, clinician actions, and patient safety-net advice. Keep it concise and clinician-reviewable.",
-      prompt: `Current severity: ${severity}
+      ...buildPromptForProvider(resolvedModel.provider, {
+        system:
+          "You explain the safety rationale behind an AI-generated clinic documentation draft. Do not diagnose, prescribe, or claim certainty. Separate evidence for risk, evidence against risk, uncertainty, clinician actions, and patient safety-net advice. Keep it concise and clinician-reviewable.",
+        prompt: `Current severity: ${severity}
 Case summary:
 ${caseSummary}
 
@@ -63,10 +65,12 @@ ${missingQuestions.join("\n") || "None provided"}
 
 Operator instruction:
 ${instruction || "No extra instruction"}`,
+      }),
     });
 
     return Response.json({ output: result.output, mode: "live" });
-  } catch {
+  } catch (error) {
+    logAiProviderError("api/risk-explain", error);
     return Response.json({ output: demoRiskExplanation, mode: "fallback" });
   }
 }

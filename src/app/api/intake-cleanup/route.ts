@@ -1,7 +1,12 @@
-import { google } from "@ai-sdk/google";
 import { generateText, Output } from "ai";
 import { z } from "zod";
 import { demoIntakeCleanupOutput, modelOptions } from "@/features/clinic/data";
+import {
+  buildPromptForProvider,
+  hasAiProvider,
+  logAiProviderError,
+  resolveAiModel,
+} from "@/lib/ai-provider";
 
 export const runtime = "nodejs";
 
@@ -29,30 +34,29 @@ export async function POST(request: Request) {
     );
   }
 
-  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+  if (!hasAiProvider()) {
     return Response.json({ output: demoIntakeCleanupOutput, mode: "demo" });
   }
 
   const allowedModels = modelOptions.map((option) => option.value);
-  const model =
-    requestedModel !== "env" &&
-    (allowedModels as readonly string[]).includes(requestedModel)
-      ? requestedModel
-      : (process.env.GOOGLE_GENERATIVE_AI_MODEL ?? "gemini-2.5-flash");
+  const resolvedModel = resolveAiModel(requestedModel, allowedModels);
 
   try {
     const result = await generateText({
-      model: google(model),
+      model: resolvedModel.model,
       output: Output.object({ schema: intakeCleanupSchema }),
       temperature: 0.1,
-      system:
-        "You clean messy primary-care intake notes for Clinic Copilot BD. Extract patient name, age, sex, vitals, medicines, red-flag possibilities, and missing information when present. Do not diagnose or prescribe. Preserve uncertainty and make the cleaned intake concise for a clinician to review.",
-      prompt: `Messy intake, lab text, prescription text, or reception note:
+      ...buildPromptForProvider(resolvedModel.provider, {
+        system:
+          "You clean messy primary-care intake notes for Clinic Copilot BD. Extract patient name, age, sex, vitals, medicines, red-flag possibilities, and missing information when present. Do not diagnose or prescribe. Preserve uncertainty and make the cleaned intake concise for a clinician to review.",
+        prompt: `Messy intake, lab text, prescription text, or reception note:
 ${intake}`,
+      }),
     });
 
     return Response.json({ output: result.output, mode: "live" });
-  } catch {
+  } catch (error) {
+    logAiProviderError("api/intake-cleanup", error);
     return Response.json({ output: fallbackCleanup(intake), mode: "fallback" });
   }
 }

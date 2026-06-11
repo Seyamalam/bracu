@@ -1,7 +1,12 @@
-import { google } from "@ai-sdk/google";
 import { generateText, Output } from "ai";
 import { z } from "zod";
 import { demoCopilotOutput, modelOptions } from "@/features/clinic/data";
+import {
+  buildPromptForProvider,
+  hasAiProvider,
+  logAiProviderError,
+  resolveAiModel,
+} from "@/lib/ai-provider";
 
 export const runtime = "nodejs";
 
@@ -54,7 +59,7 @@ export async function POST(request: Request) {
 
   const draft = draftResult.data;
 
-  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+  if (!hasAiProvider()) {
     return Response.json({
       output: fallbackDraftEdit(draft, instruction),
       mode: "demo",
@@ -62,28 +67,27 @@ export async function POST(request: Request) {
   }
 
   const allowedModels = modelOptions.map((option) => option.value);
-  const model =
-    requestedModel !== "env" &&
-    (allowedModels as readonly string[]).includes(requestedModel)
-      ? requestedModel
-      : (process.env.GOOGLE_GENERATIVE_AI_MODEL ?? "gemini-2.5-flash");
+  const resolvedModel = resolveAiModel(requestedModel, allowedModels);
 
   try {
     const result = await generateText({
-      model: google(model),
+      model: resolvedModel.model,
       output: Output.object({ schema: copilotSchema }),
       temperature: 0.1,
-      system:
-        "You safely edit an existing Clinic Copilot BD clinical documentation draft. Preserve the exact schema. Follow the user's edit instruction only when it improves documentation, missing questions, patient explanation, follow-up wording, or safety-net language. Do not diagnose, prescribe, remove clinician-review language, or invent certainty. If asked to simplify, make patient-facing wording clearer in Bangla and English as appropriate.",
-      prompt: `Edit instruction:
+      ...buildPromptForProvider(resolvedModel.provider, {
+        system:
+          "You safely edit an existing Clinic Copilot BD clinical documentation draft. Preserve the exact schema. Follow the user's edit instruction only when it improves documentation, missing questions, patient explanation, follow-up wording, or safety-net language. Do not diagnose, prescribe, remove clinician-review language, or invent certainty. If asked to simplify, make patient-facing wording clearer in Bangla and English as appropriate.",
+        prompt: `Edit instruction:
 ${instruction}
 
 Current draft JSON:
 ${JSON.stringify(draft)}`,
+      }),
     });
 
     return Response.json({ output: result.output, mode: "live" });
-  } catch {
+  } catch (error) {
+    logAiProviderError("api/draft-edit", error);
     return Response.json({
       output: fallbackDraftEdit(draft, instruction),
       mode: "fallback",
