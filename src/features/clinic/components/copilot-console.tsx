@@ -1,5 +1,4 @@
 import {
-  Bot,
   Clock3,
   FileText,
   MessageSquareText,
@@ -284,246 +283,212 @@ export function CopilotConsole({
 
   return (
     <section
-      className="grid min-h-[calc(100svh-220px)] overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm xl:grid-cols-[300px_minmax(0,1fr)]"
+      className="flex min-h-[calc(100svh-220px)] flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm"
       aria-label={t("Copilot command room")}
     >
-      <aside className="border-slate-200 border-b bg-[#fbfaf6] p-3 xl:border-r xl:border-b-0">
-        <div className="flex items-center justify-between gap-2 px-2 py-1">
-          <div className="flex items-center gap-2">
-            <Bot className="text-primary" size={18} aria-hidden="true" />
-            <div>
-              <p className="font-black text-sm">{t("Copilot")}</p>
-              <p className="text-muted-foreground text-xs">{model}</p>
+      <div className="space-y-3 border-slate-200 border-b bg-white p-4">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <Sparkles className="text-primary" size={20} aria-hidden="true" />
+              <h2 className="font-black text-2xl tracking-normal">
+                {t(currentThread?.label ?? "Patient thread")}
+              </h2>
             </div>
+            <p className="mt-1 text-muted-foreground text-sm">
+              {t(
+                "Ask for the next action, a draft, a safety check, or a patient explanation. Tools run inline and remain draft-only.",
+              )}
+            </p>
           </div>
-          <Badge
-            variant={runningAction || isSubmitting ? "default" : "secondary"}
-          >
-            {runningAction || isSubmitting ? t("run") : t("idle")}
-          </Badge>
-        </div>
-        <div className="mt-3 grid gap-1">
-          {threadTemplates.map((thread) => (
-            <button
-              aria-current={activeThread === thread.id ? "page" : undefined}
-              className={`rounded-md px-3 py-3 text-left text-sm transition ${
-                activeThread === thread.id
-                  ? "bg-primary text-primary-foreground"
-                  : "hover:bg-[#eaf6f1]"
-              }`}
-              key={thread.id}
-              type="button"
-              onClick={() => setActiveThread(thread.id)}
-            >
-              <span className="block font-bold">{t(thread.label)}</span>
-              <span
-                className={`mt-1 block text-xs leading-4 ${
-                  activeThread === thread.id
-                    ? "text-primary-foreground/78"
-                    : "text-muted-foreground"
-                }`}
-              >
-                {t(thread.prompt)}
-              </span>
-            </button>
-          ))}
-        </div>
-        <div className="mt-4 rounded-md border border-border bg-white p-3">
-          <div className="flex items-center gap-2 font-bold text-sm">
-            <Clock3 size={15} aria-hidden="true" />
-            {t("Recent runs")}
-          </div>
-          <div className="mt-2 space-y-2">
-            {commandHistory.slice(0, 3).map((entry) => (
-              <button
-                className="block w-full rounded-md border border-transparent px-2 py-2 text-left text-xs leading-5 hover:border-primary/20 hover:bg-[#eaf6f1]"
-                key={entry.id}
-                type="button"
-                onClick={() => void submitPrompt(entry.command)}
-              >
-                <span className="block font-semibold">{entry.summary}</span>
-                <span className="text-muted-foreground">{entry.command}</span>
-              </button>
-            ))}
-            {!commandHistory.length ? (
-              <p className="text-muted-foreground text-xs leading-5">
-                {t("Agent actions will appear here after you run a command.")}
-              </p>
-            ) : null}
-          </div>
-        </div>
-      </aside>
-
-      <div className="flex min-h-[560px] flex-col">
-        <div className="space-y-3 border-slate-200 border-b bg-white p-4">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <div className="flex items-center gap-2">
-                <Sparkles
-                  className="text-primary"
-                  size={20}
-                  aria-hidden="true"
-                />
-                <h2 className="font-black text-2xl tracking-normal">
-                  {t(currentThread?.label ?? "Patient thread")}
-                </h2>
-              </div>
-              <p className="mt-1 text-muted-foreground text-sm">
-                {t(
-                  "Ask for the next action, a draft, a safety check, or a patient explanation. Tools run inline and remain draft-only.",
-                )}
-              </p>
-            </div>
+          <div className="flex flex-wrap gap-2">
+            <Badge variant="outline">{model}</Badge>
             <Badge
               variant={runningAction || isSubmitting ? "default" : "secondary"}
             >
               {runningAction || isSubmitting ? t("running") : t("ready")}
             </Badge>
           </div>
-          <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-            {primaryActions.map((action) => {
-              const Icon = action.icon;
-              return (
-                <Button
-                  className="min-h-12 justify-start whitespace-normal text-left"
-                  disabled={isSubmitting}
-                  key={action.label}
-                  type="button"
-                  variant="outline"
-                  onClick={() => submitPrompt(action.command)}
-                >
-                  <Icon size={16} aria-hidden="true" />
-                  {t(action.label)}
-                </Button>
-              );
-            })}
-          </div>
         </div>
 
-        <div className="flex-1 space-y-3 overflow-y-auto bg-[#fbfaf6] p-4">
-          <Message from="clinic" meta="context">
-            <p>
-              {form.patientName
-                ? `${form.patientName}, ${t("age")} ${form.age || t("unknown")}. ${t("Role")}: ${t(activeRole)}.`
-                : `${t("No active patient selected.")} ${t("Role")}: ${t(activeRole)}.`}
-            </p>
-          </Message>
-          <Message from="agent" meta={output ? "case-aware" : "ready"}>
-            <p>
-              {output
-                ? `${output.chiefComplaint}. ${t("I found")} ${output.redFlags.length} ${t("red flags")}, ${output.missingQuestions.length} ${t("missing questions")}, ${t("and")} ${openSafetyGates.length} ${t("open safety gates")}.`
-                : t(
-                    "I can help with queue triage, missing clinical details, patient-friendly Bangla, follow-up ownership, and print-ready drafts.",
-                  )}
-            </p>
-          </Message>
-          {threadMessages.map((message) => (
-            <Message from={message.from} key={message.id} meta={message.meta}>
-              <p>{message.body}</p>
-            </Message>
+        <div className="flex flex-wrap gap-2">
+          {threadTemplates.map((thread) => (
+            <Button
+              aria-pressed={activeThread === thread.id}
+              disabled={isSubmitting}
+              key={thread.id}
+              size="sm"
+              type="button"
+              variant={activeThread === thread.id ? "default" : "outline"}
+              onClick={() => setActiveThread(thread.id)}
+            >
+              {t(thread.label)}
+            </Button>
           ))}
+        </div>
 
-          <Card className="border-amber-200 bg-amber-50">
-            <CardContent className="p-3">
-              <div className="flex items-start gap-2">
-                <ShieldCheck
-                  className="mt-0.5 text-amber-700"
-                  size={17}
-                  aria-hidden="true"
-                />
-                <div>
-                  <p className="font-bold text-sm">
-                    {t("Clinical review stays required")}
-                  </p>
-                  <p className="mt-1 text-muted-foreground text-xs leading-5">
-                    {t(
-                      "Copilot can draft, summarize, and route work. It should not diagnose, prescribe, or bypass clinician approval.",
-                    )}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <div className="grid gap-2">
-            {quickPrompts.map((item) => (
+        <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+          {primaryActions.map((action) => {
+            const Icon = action.icon;
+            return (
               <Button
-                className="min-h-11 justify-start whitespace-normal text-left text-sm leading-5"
+                className="min-h-12 justify-start whitespace-normal text-left"
                 disabled={isSubmitting}
-                key={item}
+                key={action.label}
                 type="button"
                 variant="outline"
-                onClick={() => submitPrompt(item)}
+                onClick={() => submitPrompt(action.command)}
               >
-                <MessageSquareText size={16} aria-hidden="true" />
-                {t(item)}
+                <Icon size={16} aria-hidden="true" />
+                {t(action.label)}
               </Button>
-            ))}
-          </div>
+            );
+          })}
         </div>
 
-        <div className="border-slate-200 border-t bg-white p-3">
-          <div className="mb-2 flex flex-wrap gap-2">
-            <Button
-              size="sm"
-              disabled={isSubmitting}
-              type="button"
-              variant="outline"
-              onClick={onOpenCase}
-            >
-              <Stethoscope size={15} aria-hidden="true" />
-              {t("Open case")}
-            </Button>
-            <Button
-              size="sm"
-              disabled={isSubmitting}
-              type="button"
-              variant="outline"
-              onClick={() =>
-                void submitPrompt(t("Extract this prescription and lab report"))
-              }
-            >
-              <Paperclip size={15} aria-hidden="true" />
-              {t("Attach note")}
-            </Button>
-            <Button
-              size="sm"
-              disabled={isSubmitting}
-              type="button"
-              variant="outline"
-              onClick={() =>
-                void submitPrompt(t("Answer this patient question in Bangla"))
-              }
-            >
-              <Volume2 size={15} aria-hidden="true" />
-              {t("Audio/Bangla")}
-            </Button>
-            <Button
-              size="sm"
-              disabled={isSubmitting || !canUseSpeech}
-              type="button"
-              variant={isListening ? "default" : "outline"}
-              onClick={toggleVoiceInput}
-            >
-              {isListening ? (
-                <MicOff size={15} aria-hidden="true" />
-              ) : (
-                <Mic size={15} aria-hidden="true" />
-              )}
-              {isListening ? t("Stop dictation") : t("Dictate")}
-            </Button>
+        {commandHistory.length ? (
+          <div className="flex flex-wrap items-center gap-2 rounded-md border border-slate-200 bg-[#fbfaf6] px-3 py-2 text-xs">
+            <span className="flex items-center gap-1 font-bold">
+              <Clock3 size={14} aria-hidden="true" />
+              {t("Recent runs")}
+            </span>
+            {commandHistory.slice(0, 3).map((entry) => (
+              <button
+                className="rounded-full border border-border bg-white px-2 py-1 text-left font-semibold hover:border-primary hover:bg-[#eaf6f1]"
+                key={entry.id}
+                type="button"
+                onClick={() => void submitPrompt(entry.command)}
+              >
+                {entry.summary}
+              </button>
+            ))}
           </div>
-          {voiceError ? (
-            <p className="mb-2 text-red-700 text-xs">{voiceError}</p>
-          ) : null}
-          <PromptInput
-            disabled={isSubmitting}
-            placeholder={t("Ask Copilot...")}
-            value={prompt}
-            onChange={setPrompt}
-            onSubmit={submitPrompt}
-          />
+        ) : null}
+      </div>
+
+      <div className="flex-1 space-y-3 overflow-y-auto bg-[#fbfaf6] p-4">
+        <Message from="clinic" meta="context">
+          <p>
+            {form.patientName
+              ? `${form.patientName}, ${t("age")} ${form.age || t("unknown")}. ${t("Role")}: ${t(activeRole)}.`
+              : `${t("No active patient selected.")} ${t("Role")}: ${t(activeRole)}.`}
+          </p>
+        </Message>
+        <Message from="agent" meta={output ? "case-aware" : "ready"}>
+          <p>
+            {output
+              ? `${output.chiefComplaint}. ${t("I found")} ${output.redFlags.length} ${t("red flags")}, ${output.missingQuestions.length} ${t("missing questions")}, ${t("and")} ${openSafetyGates.length} ${t("open safety gates")}.`
+              : t(
+                  "I can help with queue triage, missing clinical details, patient-friendly Bangla, follow-up ownership, and print-ready drafts.",
+                )}
+          </p>
+        </Message>
+        {threadMessages.map((message) => (
+          <Message from={message.from} key={message.id} meta={message.meta}>
+            <p>{message.body}</p>
+          </Message>
+        ))}
+
+        <Card className="border-amber-200 bg-amber-50">
+          <CardContent className="p-3">
+            <div className="flex items-start gap-2">
+              <ShieldCheck
+                className="mt-0.5 text-amber-700"
+                size={17}
+                aria-hidden="true"
+              />
+              <div>
+                <p className="font-bold text-sm">
+                  {t("Clinical review stays required")}
+                </p>
+                <p className="mt-1 text-muted-foreground text-xs leading-5">
+                  {t(
+                    "Copilot can draft, summarize, and route work. It should not diagnose, prescribe, or bypass clinician approval.",
+                  )}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="grid gap-2 sm:grid-cols-2">
+          {quickPrompts.map((item) => (
+            <Button
+              className="min-h-11 justify-start whitespace-normal text-left text-sm leading-5"
+              disabled={isSubmitting}
+              key={item}
+              type="button"
+              variant="outline"
+              onClick={() => submitPrompt(item)}
+            >
+              <MessageSquareText size={16} aria-hidden="true" />
+              {t(item)}
+            </Button>
+          ))}
         </div>
+      </div>
+
+      <div className="border-slate-200 border-t bg-white p-3">
+        <div className="mb-2 flex flex-wrap gap-2">
+          <Button
+            size="sm"
+            disabled={isSubmitting}
+            type="button"
+            variant="outline"
+            onClick={onOpenCase}
+          >
+            <Stethoscope size={15} aria-hidden="true" />
+            {t("Open case")}
+          </Button>
+          <Button
+            size="sm"
+            disabled={isSubmitting}
+            type="button"
+            variant="outline"
+            onClick={() =>
+              void submitPrompt(t("Extract this prescription and lab report"))
+            }
+          >
+            <Paperclip size={15} aria-hidden="true" />
+            {t("Attach note")}
+          </Button>
+          <Button
+            size="sm"
+            disabled={isSubmitting}
+            type="button"
+            variant="outline"
+            onClick={() =>
+              void submitPrompt(t("Answer this patient question in Bangla"))
+            }
+          >
+            <Volume2 size={15} aria-hidden="true" />
+            {t("Audio/Bangla")}
+          </Button>
+          <Button
+            size="sm"
+            disabled={isSubmitting || !canUseSpeech}
+            type="button"
+            variant={isListening ? "default" : "outline"}
+            onClick={toggleVoiceInput}
+          >
+            {isListening ? (
+              <MicOff size={15} aria-hidden="true" />
+            ) : (
+              <Mic size={15} aria-hidden="true" />
+            )}
+            {isListening ? t("Stop dictation") : t("Dictate")}
+          </Button>
+        </div>
+        {voiceError ? (
+          <p className="mb-2 text-red-700 text-xs">{voiceError}</p>
+        ) : null}
+        <PromptInput
+          disabled={isSubmitting}
+          placeholder={t("Ask Copilot...")}
+          value={prompt}
+          onChange={setPrompt}
+          onSubmit={submitPrompt}
+        />
       </div>
     </section>
   );
