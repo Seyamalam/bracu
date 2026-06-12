@@ -209,6 +209,25 @@ __qaCloseToggle.click();
 return { ok: true };
 })();
 EOF
+agent-browser --session "$SESSION" eval --stdin >/tmp/bracu-qa-copilot-hi.json <<'EOF'
+(async () => {
+var __qaInput = document.querySelector('textarea[aria-label="Agent command"]');
+if (!__qaInput) throw new Error("Copilot command input missing");
+__qaInput.value = "hi";
+__qaInput.dispatchEvent(new Event("input", { bubbles: true }));
+__qaInput.dispatchEvent(new Event("change", { bubbles: true }));
+var __qaRun = [...document.querySelectorAll("button")].find((item) =>
+  item.textContent?.trim() === "Run agent"
+);
+if (!__qaRun) throw new Error("Run agent button missing");
+__qaRun.click();
+await new Promise((resolve) => setTimeout(resolve, 1200));
+if (!document.body.innerText.includes("Ask me what to do next")) {
+  throw new Error("Copilot greeting response missing after submitting hi");
+}
+return { ok: true };
+})();
+EOF
 open_workspace "Operations" "workspace-operations" "Operations Pulse" "Ask Copilot"
 open_workspace "Builder" "workspace-builder" "Agentic Workflow Studio" "Ask Copilot"
 open_workspace "Admin" "workspace-admin" "MCP Explorer" "Readiness"

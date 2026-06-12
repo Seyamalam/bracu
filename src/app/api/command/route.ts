@@ -141,11 +141,22 @@ export async function POST(request: Request) {
   const command = String(body.command ?? "").trim();
   const requestedModel = String(body.model ?? "env");
 
-  if (command.length < 3) {
+  if (command.length < 2) {
     return Response.json(
       { error: "Type a command for the clinic copilot." },
       { status: 400 },
     );
+  }
+
+  if (/^(hi|hey|hello|salam|assalamu alaikum|হাই|হ্যালো)$/i.test(command)) {
+    return Response.json({
+      output: {
+        summary:
+          "Hi. Ask me what to do next, whether this is safe to print, what is missing, or to explain the case in simple Bangla.",
+        actions: [],
+      },
+      mode: "demo",
+    });
   }
 
   if (!hasAiProvider()) {

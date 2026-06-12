@@ -22,6 +22,12 @@ import type {
 import type { SafetyGate } from "./clinical-safety-gates";
 import type { ClinicRole } from "./role-workspace-panel";
 
+type ThreadMessage = {
+  body: string;
+  from: "agent" | "clinic";
+  id: string;
+};
+
 const threadTemplates = [
   {
     id: "patient",
@@ -67,13 +73,17 @@ export function CopilotConsole({
   commandHistory: CommandHistoryEntry[];
   form: IntakeFormState;
   model: string;
-  onCommand: (command: string) => void;
+  onCommand: (
+    command: string,
+  ) => Promise<CommandHistoryEntry | null> | undefined;
   onOpenCase: () => void;
   output: CopilotOutput | null;
   runningAction: string | null;
   safetyGates: SafetyGate[];
 }) {
   const [prompt, setPrompt] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [threadMessages, setThreadMessages] = useState<ThreadMessage[]>([]);
   const [activeThread, setActiveThread] =
     useState<(typeof threadTemplates)[number]["id"]>("patient");
   const openSafetyGates = safetyGates.filter((gate) => !gate.passed);
@@ -81,13 +91,49 @@ export function CopilotConsole({
     (thread) => thread.id === activeThread,
   );
 
-  function submitPrompt(nextPrompt = prompt) {
+  async function submitPrompt(nextPrompt?: string) {
     const command =
-      nextPrompt.trim() ||
+      (nextPrompt ?? prompt).trim() ||
       currentThread?.prompt ||
       "Review this case and suggest the next safest action";
-    onCommand(command);
+    setThreadMessages((messages) => [
+      ...messages,
+      { id: crypto.randomUUID(), from: "clinic", body: command },
+    ]);
     setPrompt("");
+    setIsSubmitting(true);
+
+    try {
+      const result = await onCommand(command);
+      const summary =
+        result?.summary ??
+        "I received the command, but no visible workflow action was returned.";
+      const actions = result?.actions.length
+        ? ` Actions: ${result.actions.join(", ")}.`
+        : "";
+      setThreadMessages((messages) => [
+        ...messages,
+        {
+          id: crypto.randomUUID(),
+          from: "agent",
+          body: `${summary}${actions}`,
+        },
+      ]);
+    } catch (caught) {
+      setThreadMessages((messages) => [
+        ...messages,
+        {
+          id: crypto.randomUUID(),
+          from: "agent",
+          body:
+            caught instanceof Error
+              ? caught.message
+              : "The command could not be completed.",
+        },
+      ]);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -137,7 +183,7 @@ export function CopilotConsole({
                 className="block w-full rounded-md border border-transparent px-2 py-2 text-left text-xs leading-5 hover:border-primary/20 hover:bg-[#eaf6f1]"
                 key={entry.id}
                 type="button"
-                onClick={() => onCommand(entry.command)}
+                onClick={() => void submitPrompt(entry.command)}
               >
                 <span className="block font-semibold">{entry.summary}</span>
                 <span className="text-muted-foreground">{entry.command}</span>
@@ -163,8 +209,10 @@ export function CopilotConsole({
               explanation. Tools run inline and remain draft-only.
             </p>
           </div>
-          <Badge variant={runningAction ? "default" : "secondary"}>
-            {runningAction ? `running ${runningAction}` : "ready"}
+          <Badge
+            variant={runningAction || isSubmitting ? "default" : "secondary"}
+          >
+            {runningAction || isSubmitting ? "running" : "ready"}
           </Badge>
         </div>
 
@@ -179,6 +227,11 @@ export function CopilotConsole({
               ? `${output.chiefComplaint}. I found ${output.redFlags.length} red flags, ${output.missingQuestions.length} missing questions, and ${openSafetyGates.length} open safety gates.`
               : "I can help with queue triage, missing clinical details, patient-friendly Bangla, follow-up ownership, and print-ready drafts."}
           </Message>
+          {threadMessages.map((message) => (
+            <Message from={message.from} key={message.id}>
+              {message.body}
+            </Message>
+          ))}
 
           <Card className="border-amber-200 bg-amber-50">
             <CardContent className="p-3">
@@ -233,7 +286,7 @@ export function CopilotConsole({
               type="button"
               variant="outline"
               onClick={() =>
-                onCommand("Extract this prescription and lab report")
+                void submitPrompt("Extract this prescription and lab report")
               }
             >
               <Paperclip size={15} aria-hidden="true" />
@@ -244,7 +297,7 @@ export function CopilotConsole({
               type="button"
               variant="outline"
               onClick={() =>
-                onCommand("Answer this patient question in Bangla")
+                void submitPrompt("Answer this patient question in Bangla")
               }
             >
               <Volume2 size={15} aria-hidden="true" />

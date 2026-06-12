@@ -57,7 +57,7 @@ export function PromptInput({
 }: {
   value: string;
   onChange: (value: string) => void;
-  onSubmit: () => void;
+  onSubmit: (value?: string) => void;
   placeholder: string;
 }) {
   return (
@@ -65,11 +65,16 @@ export function PromptInput({
       className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]"
       onSubmit={(event) => {
         event.preventDefault();
-        onSubmit();
+        const form = event.currentTarget;
+        const input = form.elements.namedItem("agent-command");
+        const value =
+          input instanceof HTMLTextAreaElement ? input.value : undefined;
+        onSubmit(value);
       }}
     >
       <textarea
         aria-label="Agent command"
+        name="agent-command"
         className="min-h-20 resize-none rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
         placeholder={placeholder}
         value={value}

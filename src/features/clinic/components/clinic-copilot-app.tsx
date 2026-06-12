@@ -1132,11 +1132,12 @@ export function ClinicCopilotApp({
   async function runSuggestedCommand(command: string) {
     const nextCommand = normalizeAgentCommand(command.trim());
     if (!nextCommand) {
-      return;
+      return null;
     }
 
     setError("");
     setLiveMessage(`Running suggested command: ${nextCommand}`);
+    setRunningAction("command");
     try {
       const response = await fetch("/api/command", {
         method: "POST",
@@ -1149,19 +1150,37 @@ export function ClinicCopilotApp({
       }
       const plan = data.output as CommandPlan;
       await applyCommandPlan(plan);
-      recordCommand({
+      const entry: CommandHistoryEntry = {
         id: crypto.randomUUID(),
         command: nextCommand,
         summary: plan.summary,
         actions: plan.actions.map((action) => action.type),
         mode: data.mode ?? "live",
         createdAt: Date.now(),
-      });
+      };
+      recordCommand(entry);
+      setRunningAction(null);
+      return entry;
     } catch (caught) {
-      setError(
-        caught instanceof Error ? caught.message : "Suggested command failed.",
-      );
+      const message =
+        caught instanceof Error ? caught.message : "Suggested command failed.";
+      setError(message);
+      failAction("Command failed", message);
+      return {
+        id: crypto.randomUUID(),
+        command: nextCommand,
+        summary: message,
+        actions: [],
+        mode: "fallback" as const,
+        createdAt: Date.now(),
+      };
+    } finally {
+      setRunningAction(null);
     }
+  }
+
+  async function runCommandAndForget(command: string) {
+    await runSuggestedCommand(command);
   }
 
   useEffect(() => {
@@ -1305,7 +1324,7 @@ export function ClinicCopilotApp({
                 model={selectedModel}
                 output={displayOutput}
                 selectedPatient={selectedCase?.patientName ?? form.patientName}
-                onRunCommand={runSuggestedCommand}
+                onRunCommand={runCommandAndForget}
               />
               <CommandCopilot
                 ref={commandInputRef}
@@ -1322,7 +1341,7 @@ export function ClinicCopilotApp({
               <ApprovalsInbox
                 form={form}
                 output={displayOutput}
-                onCommand={runSuggestedCommand}
+                onCommand={runCommandAndForget}
                 onPrintPreview={() => setPrintPreviewOpen(true)}
               />
               <ClinicalSafetyGates gates={safetyGates} />
@@ -1330,7 +1349,7 @@ export function ClinicCopilotApp({
                 checkSignal={approvalCheckSignal}
                 commandInstruction={commandApprovalInstruction}
                 model={selectedModel}
-                onRunCommand={runSuggestedCommand}
+                onRunCommand={runCommandAndForget}
                 output={displayOutput}
               />
             </div>
@@ -1432,7 +1451,7 @@ export function ClinicCopilotApp({
                   documentText={form.intake}
                   extractSignal={documentExtractSignal}
                   model={selectedModel}
-                  onRunCommand={runSuggestedCommand}
+                  onRunCommand={runCommandAndForget}
                   onApplyAddendum={(addendum) =>
                     setForm((currentForm) => ({
                       ...currentForm,
@@ -1443,7 +1462,7 @@ export function ClinicCopilotApp({
                 <NextStepNavigator
                   commandInstruction={commandNextStepInstruction}
                   model={selectedModel}
-                  onRunCommand={runSuggestedCommand}
+                  onRunCommand={runCommandAndForget}
                   output={displayOutput}
                   patientName={selectedCase?.patientName ?? form.patientName}
                   planSignal={nextStepSignal}
@@ -1482,14 +1501,14 @@ export function ClinicCopilotApp({
                   checkSignal={approvalCheckSignal}
                   commandInstruction={commandApprovalInstruction}
                   model={selectedModel}
-                  onRunCommand={runSuggestedCommand}
+                  onRunCommand={runCommandAndForget}
                   output={displayOutput}
                 />
                 <VisitCloseout
                   closeoutSignal={visitCloseoutSignal}
                   commandInstruction={commandCloseoutInstruction}
                   model={selectedModel}
-                  onRunCommand={runSuggestedCommand}
+                  onRunCommand={runCommandAndForget}
                   output={displayOutput}
                   patientName={selectedCase?.patientName ?? form.patientName}
                 />
@@ -1515,7 +1534,7 @@ export function ClinicCopilotApp({
                   answerSignal={patientQuestionSignal}
                   commandQuestion={commandPatientQuestion}
                   model={selectedModel}
-                  onRunCommand={runSuggestedCommand}
+                  onRunCommand={runCommandAndForget}
                   output={displayOutput}
                   patientName={selectedCase?.patientName ?? form.patientName}
                 />
@@ -1532,7 +1551,7 @@ export function ClinicCopilotApp({
                 <FollowUpScheduler
                   commandInstruction={commandFollowUpScheduleInstruction}
                   model={selectedModel}
-                  onRunCommand={runSuggestedCommand}
+                  onRunCommand={runCommandAndForget}
                   output={displayOutput}
                   patientName={selectedCase?.patientName ?? form.patientName}
                   scheduleSignal={followUpScheduleSignal}
@@ -1540,7 +1559,7 @@ export function ClinicCopilotApp({
                 <ReplyTriage
                   commandReplyText={commandPatientReply}
                   model={selectedModel}
-                  onRunCommand={runSuggestedCommand}
+                  onRunCommand={runCommandAndForget}
                   output={displayOutput}
                   patientName={selectedCase?.patientName ?? form.patientName}
                   triageSignal={replyTriageSignal}
@@ -1641,7 +1660,7 @@ export function ClinicCopilotApp({
                 cases={cases}
                 form={form}
                 output={displayOutput}
-                onCommand={runSuggestedCommand}
+                onCommand={runCommandAndForget}
               />
             </div>
           ) : null}
