@@ -4,6 +4,7 @@ import { useMutation, useQuery } from "convex/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/features/language/language-context";
 import { cn } from "@/lib/utils";
 import { api } from "../../../../convex/_generated/api";
 import type { Doc, Id } from "../../../../convex/_generated/dataModel";
@@ -129,13 +130,30 @@ type WorkspaceSnapshot = {
   uiLanguage: UiLanguage;
 };
 
+type ApiErrorPayload = {
+  detail?: string;
+  error?: string;
+  provider?: string;
+};
+
+function formatApiError(data: ApiErrorPayload, fallback: string) {
+  const parts = [data.error ?? fallback];
+  if (data.provider) {
+    parts.push(`Provider: ${data.provider}`);
+  }
+  if (data.detail) {
+    parts.push(`Detail: ${data.detail}`);
+  }
+  return parts.join(" ");
+}
+
 export function ClinicCopilotApp({
   initialWorkspace = "queue",
 }: ClinicCopilotAppProps = {}) {
   const router = useRouter();
   const auth = useDemoAuth();
   const commandInputRef = useRef<HTMLInputElement>(null);
-  const [uiLanguage, setUiLanguage] = useState<UiLanguage>("en");
+  const { language: uiLanguage, setLanguage: setUiLanguage } = useLanguage();
   const [form, setForm] = useState<IntakeFormState>(initialIntake);
   const [output, setOutput] = useState<CopilotOutput | null>(null);
   const [selectedCaseId, setSelectedCaseId] = useState<
@@ -247,6 +265,7 @@ export function ClinicCopilotApp({
   const approveCase = useMutation(api.cases.approveCase);
   const updateDraft = useMutation(api.cases.updateDraft);
   const copy = uiCopy[uiLanguage];
+  useClinicDomLocalization(uiLanguage);
 
   useEffect(() => {
     setActiveWorkspacePage(initialWorkspace);
@@ -523,7 +542,7 @@ export function ClinicCopilotApp({
     );
   }
 
-  async function generate(nextForm = form) {
+  async function generate(nextForm = form, language: UiLanguage = uiLanguage) {
     if (!currentUser) {
       return;
     }
@@ -546,12 +565,13 @@ export function ClinicCopilotApp({
           sex: nextForm.sex,
           intake: nextForm.intake,
           model: selectedModel,
+          language,
         }),
       });
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error ?? "AI generation failed.");
+        throw new Error(formatApiError(data, "AI generation failed."));
       }
 
       const generated = data.output as CopilotOutput;
@@ -801,7 +821,7 @@ export function ClinicCopilotApp({
     setForm(nextForm);
     setCommandMedicines(guidedWorkflowScript.medicines);
     setLiveMessage("Running guided workflow: scenario loaded.");
-    await generate(nextForm);
+    await generate(nextForm, "bn");
     setPresentationMode(true);
   }
 
@@ -1237,6 +1257,7 @@ export function ClinicCopilotApp({
         accessibilitySettings.highContrast && "clinic-high-contrast",
         accessibilitySettings.largeText && "clinic-large-text",
       )}
+      data-clinic-language={uiLanguage}
     >
       <div className="sr-only" aria-live="polite">
         {liveMessage}
@@ -1730,6 +1751,476 @@ function caseToOutput(caseItem: Doc<"cases">): CopilotOutput {
       message: "Follow the clinician-approved follow-up plan.",
     },
   };
+}
+
+const bnTextMap = new Map<string, string>(
+  Object.entries({
+    "Skip to clinic workspace": "ক্লিনিক ওয়ার্কস্পেসে যান",
+    "Loading clinic workspace...": "ক্লিনিক ওয়ার্কস্পেস লোড হচ্ছে...",
+    Demo: "ডেমো",
+    live: "লাইভ",
+    fallback: "ফলব্যাক",
+    "Ask Copilot": "কোপাইলটকে জিজ্ঞাসা করুন",
+    "Print Preview": "প্রিন্ট প্রিভিউ",
+    "Review the packet before sending it to the printer.":
+      "প্রিন্টারে পাঠানোর আগে প্যাকেটটি দেখুন।",
+    Close: "বন্ধ করুন",
+    "Keep editing": "এডিট চালিয়ে যান",
+    "Print packet": "প্যাকেট প্রিন্ট করুন",
+    "Page-aware help with chat, tools, approvals, and safety context.":
+      "চ্যাট, টুল, অনুমোদন ও সেফটি প্রসঙ্গসহ পেজভিত্তিক সহায়তা।",
+    Overview: "ওভারভিউ",
+    Queue: "কিউ",
+    Case: "কেস",
+    Copilot: "কোপাইলট",
+    Builder: "বিল্ডার",
+    "Live queue": "লাইভ কিউ",
+    "Case workspace": "কেস ওয়ার্কস্পেস",
+    "AI command": "AI কমান্ড",
+    Operations: "অপারেশনস",
+    "Workflow builder": "ওয়ার্কফ্লো বিল্ডার",
+    Admin: "অ্যাডমিন",
+    "Waiting room, red flags, owners, and follow-ups":
+      "ওয়েটিং রুম, রেড ফ্ল্যাগ, দায়িত্বপ্রাপ্ত ও ফলো-আপ",
+    "One patient, intake, safety, draft, packet":
+      "এক রোগী, ইনটেক, সেফটি, ড্রাফট, প্যাকেট",
+    "Chat, tools, runs, approvals, memory, MCP":
+      "চ্যাট, টুল, রান, অনুমোদন, মেমরি, MCP",
+    "Shift brief, analytics, follow-up, offline sync":
+      "শিফট ব্রিফ, অ্যানালিটিক্স, ফলো-আপ, অফলাইন সিঙ্ক",
+    "Workflow canvas, protocols, simulation, templates":
+      "ওয়ার্কফ্লো ক্যানভাস, প্রোটোকল, সিমুলেশন, টেমপ্লেট",
+    "Settings, roles, MCP, audit, readiness": "সেটিংস, রোল, MCP, অডিট, রেডিনেস",
+    "clinician workspace": "ক্লিনিশিয়ান ওয়ার্কস্পেস",
+    "reception workspace": "রিসেপশন ওয়ার্কস্পেস",
+    "Help and tools": "সহায়তা ও টুল",
+    Help: "সহায়তা",
+    "Open workspace navigation": "ওয়ার্কস্পেস ন্যাভিগেশন খুলুন",
+    "Close workspace navigation": "ওয়ার্কস্পেস ন্যাভিগেশন বন্ধ করুন",
+    Workspace: "ওয়ার্কস্পেস",
+    "Primary mobile workspace": "প্রাথমিক মোবাইল ওয়ার্কস্পেস",
+    "Shortcuts, safety rules, and tool reference live here so the workspace can stay calm.":
+      "শর্টকাট, সেফটি নিয়ম ও টুল রেফারেন্স এখানে থাকে, যাতে ওয়ার্কস্পেস শান্ত থাকে।",
+    Shortcuts: "শর্টকাট",
+    "Safety reminders": "সেফটি রিমাইন্ডার",
+    "Useful Copilot asks": "উপকারী কোপাইলট প্রশ্ন",
+    "Cmd/Ctrl+K opens Copilot": "Cmd/Ctrl+K কোপাইলট খোলে",
+    "Cmd/Ctrl+G generates a draft": "Cmd/Ctrl+G ড্রাফট তৈরি করে",
+    "Cmd/Ctrl+P opens presentation mode": "Cmd/Ctrl+P প্রেজেন্টেশন মোড খোলে",
+    "Esc closes presentation mode": "Esc প্রেজেন্টেশন মোড বন্ধ করে",
+    "Vitals, allergies, escalation, return warnings, and clinician approval stay visible before print.":
+      "প্রিন্টের আগে ভাইটাল, অ্যালার্জি, এসকেলেশন, রিটার্ন ওয়ার্নিং এবং ক্লিনিশিয়ান অনুমোদন দৃশ্যমান থাকে।",
+    "Copilot output is draft support only.": "কোপাইলট আউটপুট শুধু ড্রাফট সহায়তা।",
+    "Use Case for patient work; use Copilot for questions and agent actions.":
+      "রোগীর কাজের জন্য Case ব্যবহার করুন; প্রশ্ন ও এজেন্ট অ্যাকশনের জন্য Copilot ব্যবহার করুন।",
+    "What should I do next?": "এরপর কী করব?",
+    "Is this safe to print?": "এটি কি প্রিন্টের জন্য নিরাপদ?",
+    "Explain this in simple Bangla.": "এটি সহজ বাংলায় ব্যাখ্যা করুন।",
+    "Prepare follow-up ownership.": "ফলো-আপ দায়িত্ব প্রস্তুত করুন।",
+    "Open public docs and tool catalog": "পাবলিক ডকস ও টুল ক্যাটালগ খুলুন",
+    Intake: "ইনটেক",
+    "AI draft": "AI ড্রাফট",
+    "Safety gates": "সেফটি গেট",
+    "Patient packet": "রোগীর প্যাকেট",
+    "Follow-up": "ফলো-আপ",
+    "Patient basics needed": "রোগীর মৌলিক তথ্য প্রয়োজন",
+    "Generating clinical draft": "ক্লিনিক্যাল ড্রাফট তৈরি হচ্ছে",
+    "Structured draft": "স্ট্রাকচার্ড ড্রাফট",
+    "Required checks clear": "প্রয়োজনীয় চেক সম্পন্ন",
+    "Handout ready": "হ্যান্ডআউট প্রস্তুত",
+    "Handout and teach-back": "হ্যান্ডআউট ও টিচ-ব্যাক",
+    "Callback owner assigned": "কলব্যাক দায়িত্বপ্রাপ্ত নির্ধারিত",
+    "Close the loop": "ফলো-আপ সম্পন্ন করুন",
+    "Role View": "রোল ভিউ",
+    "Focused workflows for each clinic worker":
+      "প্রতিটি ক্লিনিক কর্মীর জন্য নির্দিষ্ট ওয়ার্কফ্লো",
+    Reception: "রিসেপশন",
+    Nurse: "নার্স",
+    Doctor: "ডাক্তার",
+    "Follow-up desk": "ফলো-আপ ডেস্ক",
+    "Register patient": "রোগী রেজিস্টার করুন",
+    "Record vitals": "ভাইটাল লিখুন",
+    "Attach prescription or lab text": "প্রেসক্রিপশন বা ল্যাব টেক্সট যোগ করুন",
+    "Check vitals": "ভাইটাল চেক করুন",
+    "Confirm allergies": "অ্যালার্জি নিশ্চিত করুন",
+    "Escalate red flags": "রেড ফ্ল্যাগ এসকেলেট করুন",
+    "Review draft": "ড্রাফট রিভিউ করুন",
+    "Check safety gates": "সেফটি গেট চেক করুন",
+    "Approve handout": "হ্যান্ডআউট অনুমোদন করুন",
+    "Schedule callback": "কলব্যাক সময় দিন",
+    "Triage replies": "উত্তর ট্রায়াজ করুন",
+    "Confirm teach-back": "টিচ-ব্যাক নিশ্চিত করুন",
+    "Watch queue pressure": "কিউ চাপ দেখুন",
+    "Review audit trail": "অডিট ট্রেইল দেখুন",
+    "Assign owners": "দায়িত্বপ্রাপ্ত নির্ধারণ করুন",
+    "Operations Pulse": "অপারেশনস পালস",
+    "Queue pressure and staffing focus": "কিউ চাপ ও স্টাফিং ফোকাস",
+    "Needs review": "রিভিউ প্রয়োজন",
+    "Red flags": "রেড ফ্ল্যাগ",
+    "Bangla/mixed": "বাংলা/মিশ্র",
+    "Staffing focus": "স্টাফিং ফোকাস",
+    "Clinic Display": "ক্লিনিক ডিসপ্লে",
+    "Low-vision and busy-desk readability controls":
+      "কম দৃষ্টি ও ব্যস্ত ডেস্কে পড়ার সুবিধা",
+    "Large text": "বড় লেখা",
+    "High contrast": "হাই কনট্রাস্ট",
+    "Calm motion": "কম মুভমেন্ট",
+    "Teach-Back Check": "টিচ-ব্যাক চেক",
+    "Verify family understanding before discharge":
+      "ছাড়ার আগে পরিবার বুঝেছে কিনা যাচাই",
+    "Staff script": "স্টাফ স্ক্রিপ্ট",
+    "Family should repeat": "পরিবার যা পুনরাবৃত্তি করবে",
+    "Staff confirmation": "স্টাফ কনফার্মেশন",
+    "Visit Journey": "ভিজিট জার্নি",
+    "One glance from intake to closeout": "ইনটেক থেকে ক্লোজআউট এক নজরে",
+    "Next move": "পরবর্তী পদক্ষেপ",
+    Handout: "হ্যান্ডআউট",
+    "Teach-back": "টিচ-ব্যাক",
+    "AI clinical documentation, built for Bangla-first care.":
+      "বাংলা-প্রথম সেবার জন্য AI ক্লিনিক ডকুমেন্টেশন।",
+    "Clinician review required": "ক্লিনিশিয়ান রিভিউ প্রয়োজন",
+    "This is draft documentation support only. It does not diagnose, prescribe, or replace clinical judgment.":
+      "এটি শুধু ড্রাফট ডকুমেন্টেশন সহায়তা। এটি রোগ নির্ণয়, প্রেসক্রিপশন বা ক্লিনিক্যাল সিদ্ধান্তের বিকল্প নয়।",
+    "Patient Handout": "রোগীর হ্যান্ডআউট",
+    "Printable clinic slip with safety-net language":
+      "সেফটি নির্দেশনাসহ প্রিন্টযোগ্য ক্লিনিক স্লিপ",
+    "Agent Capacity": "এজেন্ট সক্ষমতা",
+    "Safety Agent": "সেফটি এজেন্ট",
+    "Documentation Agent": "ডকুমেন্টেশন এজেন্ট",
+    "Operations Agent": "অপারেশনস এজেন্ট",
+    Tools: "টুল",
+    Critical: "গুরুত্বপূর্ণ",
+    "Waiting for a draft.": "ড্রাফটের অপেক্ষায়।",
+    "No agent command has run yet.": "এখনও কোনো এজেন্ট কমান্ড চালানো হয়নি।",
+    "Model Selector": "মডেল সিলেক্টর",
+    "Audit Log": "অডিট লগ",
+    "Readiness Scorecard": "রেডিনেস স্কোরকার্ড",
+    "Safety Frame": "সেফটি ফ্রেম",
+    "Shortcut Help": "শর্টকাট সহায়তা",
+    "Agent routing logic": "এজেন্ট রাউটিং লজিক",
+    "Ridiculous tool coverage, one click away": "বিস্তৃত টুল কাভারেজ, এক ক্লিক দূরে",
+    "Follow-up Scheduler": "ফলো-আপ শিডিউলার",
+    "AI callback timing, reminders, and closure rules":
+      "AI কলব্যাক সময়, রিমাইন্ডার ও ক্লোজার নিয়ম",
+    Reminders: "রিমাইন্ডার",
+    "Escalate if": "যদি হয় এসকেলেট করুন",
+    "Close when": "যখন হবে বন্ধ করুন",
+    "Suggested commands": "সাজেস্টেড কমান্ড",
+    "AI Model": "AI মডেল",
+    "Switch provider model for demos": "ডেমোর জন্য প্রোভাইডার মডেল বদলান",
+    "Generation model": "জেনারেশন মডেল",
+    "Ask This Case": "এই কেস জিজ্ঞাসা করুন",
+    "Free-text AI help for the selected patient":
+      "নির্বাচিত রোগীর জন্য ফ্রি-টেক্সট AI সহায়তা",
+    "Ask about selected case": "নির্বাচিত কেস সম্পর্কে জিজ্ঞাসা করুন",
+    "Agentic Workflow Studio": "এজেন্টিক ওয়ার্কফ্লো স্টুডিও",
+    "Canvas builder, protocols, simulation lab, journey map, safety governor, and workflow marketplace":
+      "ক্যানভাস বিল্ডার, প্রোটোকল, সিমুলেশন ল্যাব, জার্নি ম্যাপ, সেফটি গভর্নর ও ওয়ার্কফ্লো মার্কেটপ্লেস",
+    "Current role": "বর্তমান রোল",
+    "Blocked gates": "ব্লকড গেট",
+    "Automation status": "অটোমেশন স্ট্যাটাস",
+    "Ready to run": "চালানোর জন্য প্রস্তুত",
+    "Safety Governor": "সেফটি গভর্নর",
+    blocked: "ব্লকড",
+    "ready for review": "রিভিউয়ের জন্য প্রস্তুত",
+    "Follow-up due": "ফলো-আপ বাকি",
+    "Safety blockers": "সেফটি ব্লকার",
+    "Shift brief": "শিফট ব্রিফ",
+    "Due Follow-ups": "ডিউ ফলো-আপ",
+    "Close the loop after discharge": "ডিসচার্জের পর ফলো-আপ শেষ করুন",
+    "Patient Literacy Modes": "রোগীর লিটারেসি মোড",
+    "Simple Bangla, pictograms, audio, and teach-back confirmation":
+      "সহজ বাংলা, পিক্টোগ্রাম, অডিও ও টিচ-ব্যাক কনফার্মেশন",
+    "Next-Step Navigator": "নেক্সট-স্টেপ ন্যাভিগেটর",
+    "AI turns the selected case into actions and commands":
+      "AI নির্বাচিত কেসকে অ্যাকশন ও কমান্ডে বদলায়",
+    "Do next": "এরপর করুন",
+    "Accessibility notes": "অ্যাক্সেসিবিলিটি নোট",
+    "Patient communication": "রোগী যোগাযোগ",
+    "Follow-up Messenger": "ফলো-আপ মেসেঞ্জার",
+    "AI-drafted SMS or WhatsApp callback": "AI ড্রাফট করা SMS বা WhatsApp কলব্যাক",
+    "Follow-up message": "ফলো-আপ মেসেজ",
+    "Print Packet": "প্রিন্ট প্যাকেট",
+    "Handout, referral, medicine slip, call sheet, doctor summary":
+      "হ্যান্ডআউট, রেফারাল, মেডিসিন স্লিপ, কল শিট, ডাক্তার সারাংশ",
+    "Clinic flow": "ক্লিনিক ফ্লো",
+    "1. Capture Bangla-English intake at reception.":
+      "১. রিসেপশনে বাংলা-ইংরেজি ইনটেক নিন।",
+    "2. AI finds missing questions and urgent red flags.":
+      "২. AI মিসিং প্রশ্ন ও জরুরি রেড ফ্ল্যাগ খুঁজে।",
+    "3. Clinician reviews and approves the note.":
+      "৩. ক্লিনিশিয়ান নোট রিভিউ ও অনুমোদন করেন।",
+    "4. Patient leaves with a plain Bangla handout.":
+      "৪. রোগী সহজ বাংলা হ্যান্ডআউট নিয়ে যায়।",
+    "5. Clinic tracks follow-up and anonymized trends.":
+      "৫. ক্লিনিক ফলো-আপ ও অ্যানোনিমাইজড ট্রেন্ড ট্র্যাক করে।",
+    "Seeded demo cases": "সিডেড ডেমো কেস",
+    "Missing questions found": "মিসিং প্রশ্ন পাওয়া",
+    "Red flags caught": "রেড ফ্ল্যাগ ধরা",
+    "Current case": "বর্তমান কেস",
+    "Staff Handoff": "স্টাফ হ্যান্ডঅফ",
+    "AI task split for receptionist, nurse, doctor, and follow-up desk":
+      "রিসেপশনিস্ট, নার্স, ডাক্তার ও ফলো-আপ ডেস্কের জন্য AI টাস্ক ভাগ",
+    Receptionist: "রিসেপশনিস্ট",
+    "Safety notes": "সেফটি নোট",
+    "AI Run Receipts": "AI রান রিসিট",
+    "Every AI action shows inputs, safety checks, review state, and audit context":
+      "প্রতিটি AI অ্যাকশনে ইনপুট, সেফটি চেক, রিভিউ স্টেট ও অডিট প্রসঙ্গ দেখায়",
+    Input: "ইনপুট",
+    Output: "আউটপুট",
+    Safety: "সেফটি",
+    "MCP Explorer": "MCP এক্সপ্লোরার",
+    "Inspect tools, copy payloads, and run demo-safe external-agent calls":
+      "টুল দেখুন, পেলোড কপি করুন এবং ডেমো-সেফ external-agent call চালান",
+    "MCP explorer response": "MCP এক্সপ্লোরার রেসপন্স",
+    "Command Copilot": "কমান্ড কোপাইলট",
+    "Type your way through the clinic workflow": "টাইপ করে ক্লিনিক ওয়ার্কফ্লো চালান",
+    "Command Copilot input": "কমান্ড কোপাইলট ইনপুট",
+    "Start here": "এখান থেকে শুরু করুন",
+    "Run the guided workflow or jump straight into the work area you need.":
+      "গাইডেড ওয়ার্কফ্লো চালান বা দরকারি কাজের জায়গায় সরাসরি যান।",
+    "Start guided workflow": "গাইডেড ওয়ার্কফ্লো শুরু করুন",
+    "Medicine Safety": "মেডিসিন সেফটি",
+    "Checks clarity, allergies, and warning language":
+      "ক্ল্যারিটি, অ্যালার্জি ও সতর্কতা ভাষা চেক করে",
+    "Draft medicine instructions": "ড্রাফট ওষুধ নির্দেশনা",
+    Issues: "ইস্যু",
+    "Clarifying questions": "ক্ল্যারিফাইং প্রশ্ন",
+    "Patient instructions": "রোগীর নির্দেশনা",
+    "Clinic Trends": "ক্লিনিক ট্রেন্ড",
+    "Anonymized demo signals": "অ্যানোনিমাইজড ডেমো সিগন্যাল",
+    Readiness: "রেডিনেস",
+    "Safety, access, workflow, and operating proof":
+      "সেফটি, অ্যাক্সেস, ওয়ার্কফ্লো ও অপারেটিং প্রমাণ",
+    "Proof points": "প্রমাণ পয়েন্ট",
+    "Clinical Safety Gates": "ক্লিনিক্যাল সেফটি গেট",
+    "Required checks before print, approval, and closeout":
+      "প্রিন্ট, অনুমোদন ও ক্লোজআউটের আগে প্রয়োজনীয় চেক",
+    "Approvals Inbox": "অ্যাপ্রুভাল ইনবক্স",
+    "One place for signoff, escalation acknowledgment, return warnings, and print approval":
+      "সাইনঅফ, এসকেলেশন স্বীকৃতি, রিটার্ন ওয়ার্নিং ও প্রিন্ট অনুমোদনের এক জায়গা",
+    "Low-Connectivity Mode": "লো-কানেক্টিভিটি মোড",
+    "Offline intake note": "অফলাইন ইনটেক নোট",
+    "Queue a quick note when the clinic internet is weak...":
+      "ক্লিনিকের ইন্টারনেট দুর্বল হলে দ্রুত নোট কিউ করুন...",
+    "Reply Triage": "রিপ্লাই ট্রায়াজ",
+    "AI reviews incoming patient replies after follow-up":
+      "ফলো-আপের পর রোগীর আসা উত্তর AI রিভিউ করে",
+    "Patient follow-up reply": "রোগীর ফলো-আপ উত্তর",
+    Concerning: "উদ্বেগজনক",
+    Reassuring: "আশ্বস্তকর",
+    "Staff actions": "স্টাফ অ্যাকশন",
+    "Bangla response": "বাংলা উত্তর",
+    "English response": "ইংরেজি উত্তর",
+    "Document Extractor": "ডকুমেন্ট এক্সট্র্যাক্টর",
+    "AI parses lab, prescription, and OCR text into case facts":
+      "AI ল্যাব, প্রেসক্রিপশন ও OCR টেক্সটকে কেস ফ্যাক্টে পার্স করে",
+    Vitals: "ভাইটাল",
+    Labs: "ল্যাব",
+    Medicines: "ওষুধ",
+    "Safety issues": "সেফটি ইস্যু",
+    Clarify: "ক্ল্যারিফাই",
+    "steps completed": "ধাপ সম্পন্ন",
+    "Copilot command room": "কোপাইলট কমান্ড রুম",
+    "Recent runs": "সাম্প্রতিক রান",
+    "Ask Copilot...": "কোপাইলটকে জিজ্ঞাসা করুন...",
+    "Clean intake note with AI": "AI দিয়ে ইনটেক নোট পরিষ্কার করুন",
+    "Approval Guard": "অ্যাপ্রুভাল গার্ড",
+    "AI checks blockers before clinician signoff":
+      "ক্লিনিশিয়ান সাইনঅফের আগে AI ব্লকার চেক করে",
+    Blockers: "ব্লকার",
+    "Missing checks": "মিসিং চেক",
+    "Ready signals": "রেডি সিগন্যাল",
+    "Signoff checklist": "সাইনঅফ চেকলিস্ট",
+    "Visit Closeout": "ভিজিট ক্লোজআউট",
+    "AI final packet, follow-up closure, and audit notes":
+      "AI ফাইনাল প্যাকেট, ফলো-আপ ক্লোজার ও অডিট নোট",
+    "Staff closeout": "স্টাফ ক্লোজআউট",
+    "Before patient leaves": "রোগী যাওয়ার আগে",
+    "Follow-up closure": "ফলো-আপ ক্লোজার",
+    "Audit notes": "অডিট নোট",
+    "Referral Writer": "রেফারাল রাইটার",
+    "Clinician-reviewable referral or visit summary":
+      "ক্লিনিশিয়ান-রিভিউযোগ্য রেফারাল বা ভিজিট সারাংশ",
+    "Referral or visit summary": "রেফারাল বা ভিজিট সারাংশ",
+    "Patient Question": "রোগীর প্রশ্ন",
+    "AI drafts safe Bangla-English answers for clinician review":
+      "ক্লিনিশিয়ান রিভিউয়ের জন্য AI নিরাপদ বাংলা-ইংরেজি উত্তর ড্রাফট করে",
+    "Patient or family question": "রোগী বা পরিবারের প্রশ্ন",
+    "Bangla answer": "বাংলা উত্তর",
+    "English answer": "ইংরেজি উত্তর",
+    "Clinician review": "ক্লিনিশিয়ান রিভিউ",
+    "Clinic Briefing": "ক্লিনিক ব্রিফিং",
+    "AI queue summary for the next safe move":
+      "পরবর্তী নিরাপদ পদক্ষেপের জন্য AI কিউ সারাংশ",
+    "Priority patients": "অগ্রাধিকার রোগী",
+    "Follow-up actions": "ফলো-আপ অ্যাকশন",
+    Paperwork: "পেপারওয়ার্ক",
+    "Next best actions": "নেক্সট বেস্ট অ্যাকশন",
+    "Operational proof points the clinic can act on":
+      "ক্লিনিক যেগুলোতে কাজ করতে পারে এমন অপারেশনাল প্রমাণ পয়েন্ট",
+    "min saved": "মিনিট সাশ্রয়",
+    "questions found": "প্রশ্ন পাওয়া",
+    "Risk Rationale": "রিস্ক র‍্যাশনাল",
+    "Explainable safety reasoning for review":
+      "রিভিউয়ের জন্য ব্যাখ্যাযোগ্য সেফটি যুক্তি",
+    "Evidence for risk": "রিস্কের পক্ষে প্রমাণ",
+    "Evidence against risk": "রিস্কের বিপক্ষে প্রমাণ",
+    Uncertainty: "অনিশ্চয়তা",
+    "Clinician actions": "ক্লিনিশিয়ান অ্যাকশন",
+    "Patient safety net": "রোগীর সেফটি নেট",
+    "Live Case Board": "লাইভ কেস বোর্ড",
+    "Convex realtime queue": "Convex রিয়েলটাইম কিউ",
+    "Search cases": "কেস সার্চ করুন",
+    "Patient, complaint, language...": "রোগী, অভিযোগ, ভাষা...",
+    "Filter by status": "স্ট্যাটাস দিয়ে ফিল্টার",
+    "Filter by severity": "সিভিয়ারিটি দিয়ে ফিল্টার",
+    "Red Flag Lane": "রেড ফ্ল্যাগ লেন",
+    "Doctor Console": "ডাক্তার কনসোল",
+    "Draft support only, clinician reviewed": "শুধু ড্রাফট সহায়তা, ক্লিনিশিয়ান রিভিউড",
+    "Chief complaint": "প্রধান অভিযোগ",
+    "Case summary": "কেস সারাংশ",
+    "Missing Questions": "মিসিং প্রশ্ন",
+    "Safety Red Flags": "সেফটি রেড ফ্ল্যাগ",
+    "Audit Trail": "অডিট ট্রেইল",
+    "Every important AI and workflow action":
+      "প্রতিটি গুরুত্বপূর্ণ AI ও ওয়ার্কফ্লো অ্যাকশন",
+    "Fast Demo Keys": "ফাস্ট ডেমো কী",
+    "Keyboard-first clinic operation": "কিবোর্ড-ফার্স্ট ক্লিনিক অপারেশন",
+    "Copy handout": "হ্যান্ডআউট কপি",
+    "Print handout": "হ্যান্ডআউট প্রিন্ট",
+    Care: "যত্ন",
+    Medicine: "ওষুধ",
+    "Urgent return": "জরুরি ফিরে আসা",
+    "Clinic workflow progress": "ক্লিনিক ওয়ার্কফ্লো প্রগ্রেস",
+    "Agent Command Bar": "এজেন্ট কমান্ড বার",
+    "Agent Timeline": "এজেন্ট টাইমলাইন",
+    "Every AI action stays accountable": "প্রতিটি AI অ্যাকশন জবাবদিহির মধ্যে থাকে",
+    "Live Tool Streaming": "লাইভ টুল স্ট্রিমিং",
+    "Reading intake -> checking gates -> drafting outputs":
+      "ইনটেক পড়া -> গেট চেক -> আউটপুট ড্রাফট",
+    "Agent Permissions": "এজেন্ট পারমিশন",
+    "Agent Inbox": "এজেন্ট ইনবক্স",
+    "Human-resolution tasks": "মানুষের সমাধানযোগ্য টাস্ক",
+    "Case Intelligence Graph": "কেস ইন্টেলিজেন্স গ্রাফ",
+    "Intake -> safety -> tasks -> print -> follow-up":
+      "ইনটেক -> সেফটি -> টাস্ক -> প্রিন্ট -> ফলো-আপ",
+    "Cmd+K Command Palette": "Cmd+K কমান্ড প্যালেট",
+    "Search agent tools, recent commands, role and patient actions":
+      "এজেন্ট টুল, সাম্প্রতিক কমান্ড, রোল ও রোগী অ্যাকশন সার্চ করুন",
+    "Search agent command palette": "এজেন্ট কমান্ড প্যালেট সার্চ করুন",
+    "Search tools like allergy, triage, RAG, print...":
+      "allergy, triage, RAG, print-এর মতো টুল সার্চ করুন...",
+    "Named Agent Tools": "নেমড এজেন্ট টুল",
+    "Explicit tool surface requested for the agent layer":
+      "এজেন্ট লেয়ারের জন্য চাওয়া স্পষ্ট টুল সারফেস",
+    "Simulation Mode": "সিমুলেশন মোড",
+    "3-minute judging autopilot": "৩ মিনিটের জাজিং অটোপাইলট",
+    "Voice Agent": "ভয়েস এজেন্ট",
+    "Push-to-talk clinic commands": "পুশ-টু-টক ক্লিনিক কমান্ড",
+    "Voice agent command": "ভয়েস এজেন্ট কমান্ড",
+    "Load dengue case and generate draft...":
+      "ডেঙ্গু কেস লোড করে ড্রাফট তৈরি করুন...",
+    "Agent Memory": "এজেন্ট মেমরি",
+    "Clinic preferences stored locally": "ক্লিনিক পছন্দ লোকালি সংরক্ষিত",
+    "Common medicines": "সাধারণ ওষুধ",
+    "Doctor style": "ডাক্তারের স্টাইল",
+    "Opening hours": "খোলার সময়",
+    "Follow-up templates": "ফলো-আপ টেমপ্লেট",
+    "Referral hospitals": "রেফারাল হাসপাতাল",
+    "Command History": "কমান্ড হিস্ট্রি",
+    "Undo and replay agent actions": "এজেন্ট অ্যাকশন আনডু ও রিপ্লে করুন",
+    "AI Draft vs Clinician Edits": "AI ড্রাফট বনাম ক্লিনিশিয়ান এডিট",
+    "Side-by-side review surface": "পাশাপাশি রিভিউ সারফেস",
+    "Review before window.print": "window.print-এর আগে রিভিউ করুন",
+    "Ask the agent to run any clinic workflow...":
+      "যেকোনো ক্লিনিক ওয়ার্কফ্লো চালাতে এজেন্টকে বলুন...",
+  }),
+);
+
+const originalTextNodes = new WeakMap<Text, string>();
+
+function useClinicDomLocalization(language: UiLanguage) {
+  useEffect(() => {
+    const root = document.querySelector("[data-clinic-language]");
+    if (!root) {
+      return;
+    }
+    const rootElement = root;
+
+    function translateTextNode(node: Text) {
+      const parent = node.parentElement;
+      if (!parent) {
+        return;
+      }
+      if (
+        ["SCRIPT", "STYLE", "TEXTAREA", "INPUT", "OPTION"].includes(
+          parent.tagName,
+        ) ||
+        parent.isContentEditable
+      ) {
+        return;
+      }
+
+      const original = originalTextNodes.get(node) ?? node.nodeValue ?? "";
+      if (!originalTextNodes.has(node)) {
+        originalTextNodes.set(node, original);
+      }
+      const trimmed = original.trim();
+      const translated = bnTextMap.get(trimmed);
+      const nextValue =
+        language === "bn" && translated
+          ? original.replace(trimmed, translated)
+          : original;
+      if (node.nodeValue !== nextValue) {
+        node.nodeValue = nextValue;
+      }
+    }
+
+    function translateAttributes(element: Element) {
+      for (const attribute of ["placeholder", "aria-label", "title"]) {
+        const value = element.getAttribute(attribute);
+        if (!value) {
+          continue;
+        }
+        const originalAttribute = `data-original-${attribute}`;
+        const original = element.getAttribute(originalAttribute) ?? value;
+        if (!element.hasAttribute(originalAttribute)) {
+          element.setAttribute(originalAttribute, original);
+        }
+        const nextValue =
+          language === "bn" ? (bnTextMap.get(original) ?? original) : original;
+        if (element.getAttribute(attribute) !== nextValue) {
+          element.setAttribute(attribute, nextValue);
+        }
+      }
+    }
+
+    function translateTree() {
+      const walker = document.createTreeWalker(
+        rootElement,
+        NodeFilter.SHOW_TEXT,
+      );
+      let node = walker.nextNode();
+      while (node) {
+        translateTextNode(node as Text);
+        node = walker.nextNode();
+      }
+      for (const element of rootElement.querySelectorAll("*")) {
+        translateAttributes(element);
+      }
+    }
+
+    translateTree();
+    const observer = new MutationObserver(() => translateTree());
+    observer.observe(rootElement, {
+      attributes: true,
+      childList: true,
+      characterData: true,
+      subtree: true,
+    });
+    return () => observer.disconnect();
+  }, [language]);
 }
 
 function inferAgentForCommand(command: string): AgentTimelineEvent["agent"] {

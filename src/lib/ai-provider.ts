@@ -42,6 +42,14 @@ export function resolveAiModel(
   return { model: google(model), provider: "google" } as const;
 }
 
+export function getAiProviderLabel(provider: "google" | "lmstudio") {
+  if (provider === "lmstudio") {
+    return `LM Studio (${process.env.LMSTUDIO_MODEL ?? "google/gemma-4-12b"})`;
+  }
+
+  return `Google Gemini (${process.env.GOOGLE_GENERATIVE_AI_MODEL ?? "gemini-2.5-flash"})`;
+}
+
 export function buildPromptForProvider(
   provider: "google" | "lmstudio",
   { system, prompt }: PromptParts,
@@ -68,4 +76,34 @@ export function logAiProviderError(scope: string, error: unknown) {
   }
 
   console.error(`[${scope}] AI provider error`, error);
+}
+
+export function describeAiProviderError(error: unknown) {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  if (typeof error === "string") {
+    return error;
+  }
+
+  return "The AI provider request failed before a response could be generated.";
+}
+
+export function aiProviderErrorResponse(
+  scope: string,
+  provider: "google" | "lmstudio",
+  error: unknown,
+) {
+  const detail = describeAiProviderError(error);
+  logAiProviderError(scope, error);
+
+  return Response.json(
+    {
+      detail,
+      error: "AI provider request failed.",
+      provider: getAiProviderLabel(provider),
+    },
+    { status: 502 },
+  );
 }

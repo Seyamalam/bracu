@@ -24,6 +24,23 @@ type CommandCopilotProps = {
   onApplyPlan: (plan: CommandPlan) => void | Promise<void>;
 };
 
+type ApiErrorPayload = {
+  detail?: string;
+  error?: string;
+  provider?: string;
+};
+
+function formatApiError(data: ApiErrorPayload, fallback: string) {
+  const parts = [data.error ?? fallback];
+  if (data.provider) {
+    parts.push(`Provider: ${data.provider}`);
+  }
+  if (data.detail) {
+    parts.push(`Detail: ${data.detail}`);
+  }
+  return parts.join(" ");
+}
+
 export const CommandCopilot = forwardRef<HTMLInputElement, CommandCopilotProps>(
   function CommandCopilot(
     { history, model, onApplyPlan, onCommandComplete },
@@ -59,7 +76,7 @@ export const CommandCopilot = forwardRef<HTMLInputElement, CommandCopilotProps>(
       });
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error ?? "Command failed.");
+        throw new Error(formatApiError(data, "Command failed."));
       }
       return {
         command: nextCommand,

@@ -1,6 +1,6 @@
 import { Bot, Brain, Stethoscope, Zap } from "lucide-react";
 import type { ReactNode } from "react";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   Agent,
   AgentContent,
@@ -15,6 +15,7 @@ import {
 } from "@/components/ai-elements/agentic-primitives";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { useLanguage } from "@/features/language/language-context";
 import { cn } from "@/lib/utils";
 import type { Doc } from "../../../../convex/_generated/dataModel";
 import type { CopilotOutput } from "../types";
@@ -415,6 +416,12 @@ export function AgentCommandCenter({
   output: CopilotOutput | null;
   selectedPatient: string;
 }) {
+  const { language } = useLanguage();
+  const t = useCallback(
+    (text: string) =>
+      language === "bn" ? (agentCommandBn[text] ?? text) : text,
+    [language],
+  );
   const [activeCategory, setActiveCategory] =
     useState<(typeof categories)[number]>("automation");
   const [agentPrompt, setAgentPrompt] = useState("");
@@ -433,30 +440,30 @@ export function AgentCommandCenter({
     () => [
       {
         command: "Clean this intake and extract vitals",
-        label: "Normalize intake",
-        owner: "Reception agent",
+        label: t("Normalize intake"),
+        owner: t("Reception agent"),
         priority: "speed",
       },
       {
         command: "Explain why this case is risky",
-        label: "Explain risk",
-        owner: "Safety agent",
+        label: t("Explain risk"),
+        owner: t("Safety agent"),
         priority: "critical",
       },
       {
         command: "Create a nurse handoff and receptionist task list",
-        label: "Split staff tasks",
-        owner: "Ops agent",
+        label: t("Split staff tasks"),
+        owner: t("Ops agent"),
         priority: "speed",
       },
       {
         command: "Compose a WhatsApp follow-up for this patient",
-        label: "Prepare callback",
-        owner: "Follow-up agent",
+        label: t("Prepare callback"),
+        owner: t("Follow-up agent"),
         priority: "normal",
       },
     ],
-    [],
+    [t],
   );
 
   async function run(command: string) {
@@ -487,22 +494,23 @@ export function AgentCommandCenter({
   return (
     <Agent className="overflow-hidden">
       <AgentHeader
-        name="Clinic Agent Swarm"
+        name={t("Clinic Agent Swarm")}
         model={model}
-        status={isRunning ? "running tools" : "ready"}
+        status={isRunning ? t("running tools") : t("ready")}
       />
       <AgentContent>
         <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_380px]">
           <div className="space-y-3">
             <Message from="agent">
               <p>
-                I can operate intake, safety, patient communication, documents,
-                queue ops, and demo automation for{" "}
-                <strong>{selectedPatient || "the selected patient"}</strong>.
+                {t(
+                  "I can operate intake, safety, patient communication, documents, queue ops, and demo automation for",
+                )}{" "}
+                <strong>{selectedPatient || t("the selected patient")}</strong>.
               </p>
             </Message>
             <PromptInput
-              placeholder="Ask the agent to run any clinic workflow..."
+              placeholder={t("Ask the agent to run any clinic workflow...")}
               value={agentPrompt}
               onChange={setAgentPrompt}
               onSubmit={() => void runPrompt()}
@@ -512,36 +520,35 @@ export function AgentCommandCenter({
                 command="Run the full clinic workflow"
                 onRun={(command) => void run(command)}
               >
-                Full workflow
+                {t("Full workflow")}
               </Suggestion>
               <Suggestion
                 command="Check if this case is ready to approve"
                 onRun={(command) => void run(command)}
               >
-                Safety signoff
+                {t("Safety signoff")}
               </Suggestion>
               <Suggestion
                 command="Brief me on today's clinic queue"
                 onRun={(command) => void run(command)}
               >
-                Queue brief
+                {t("Queue brief")}
               </Suggestion>
               <Button type="button" onClick={() => void runBurst()}>
                 <Zap size={16} aria-hidden="true" />
-                Run tool burst
+                {t("Run tool burst")}
               </Button>
             </div>
-            <Reasoning title="Agent routing logic">
-              The swarm chooses the fastest existing clinic command, opens the
-              right workspace when needed, and keeps outputs draft-only.
-              Critical tools emphasize vitals, allergy, red flags, escalation,
-              and clinician approval.
+            <Reasoning title={t("Agent routing logic")}>
+              {t(
+                "The swarm chooses the fastest existing clinic command, opens the right workspace when needed, and keeps outputs draft-only. Critical tools emphasize vitals, allergy, red flags, escalation, and clinician approval.",
+              )}
             </Reasoning>
             <Plan
               steps={[
-                "Sense active case and queue pressure",
-                "Run smallest safe tool chain",
-                "Surface print, follow-up, and audit-ready outputs",
+                t("Sense active case and queue pressure"),
+                t("Run smallest safe tool chain"),
+                t("Surface print, follow-up, and audit-ready outputs"),
               ]}
             />
           </div>
@@ -551,18 +558,18 @@ export function AgentCommandCenter({
               <CardHeader>
                 <SectionHeading
                   icon={<Bot size={18} aria-hidden="true" />}
-                  title="Agent Capacity"
-                  subtitle="Ridiculous tool coverage, one click away"
+                  title={t("Agent Capacity")}
+                  subtitle={t("Ridiculous tool coverage, one click away")}
                 />
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-3 gap-2">
-                  <Metric label="Tools" value={agentTools.length} />
-                  <Metric label="Critical" value={criticalCount} />
-                  <Metric label="Cases" value={cases?.length ?? 0} />
+                  <Metric label={t("Tools")} value={agentTools.length} />
+                  <Metric label={t("Critical")} value={criticalCount} />
+                  <Metric label={t("Cases")} value={cases?.length ?? 0} />
                 </div>
                 <p className="mt-3 text-muted-foreground text-xs leading-5">
-                  Last command: {lastCommand}
+                  {t("Last command")}: {t(lastCommand)}
                 </p>
               </CardContent>
             </Card>
@@ -577,7 +584,7 @@ export function AgentCommandCenter({
           <div className="flex flex-wrap gap-2">
             {categories.map((category) => (
               <Button
-                aria-label={`Show ${category} agent tools`}
+                aria-label={`${t("Show agent tools")}: ${t(category)}`}
                 className="capitalize"
                 key={category}
                 size="sm"
@@ -585,7 +592,7 @@ export function AgentCommandCenter({
                 variant={activeCategory === category ? "default" : "outline"}
                 onClick={() => setActiveCategory(category)}
               >
-                {category}
+                {t(category)}
               </Button>
             ))}
           </div>
@@ -593,9 +600,10 @@ export function AgentCommandCenter({
             {visibleTools.map((tool) => (
               <ToolCard
                 command={tool.command}
-                description={tool.description}
+                description={t(tool.description)}
+                displayCommand={t(tool.command)}
                 key={tool.command}
-                label={tool.label}
+                label={t(tool.label)}
                 tone={
                   tool.priority === "critical"
                     ? "danger"
@@ -612,28 +620,146 @@ export function AgentCommandCenter({
         <div className="grid gap-3 md:grid-cols-3">
           <MiniAgent
             icon={<Stethoscope size={17} aria-hidden="true" />}
-            title="Safety Agent"
+            title={t("Safety Agent")}
             body={
               output
-                ? `${output.redFlags.length} red flags, ${output.missingQuestions.length} missing questions.`
-                : "Waiting for a draft."
+                ? `${output.redFlags.length} ${t("red flags")}, ${output.missingQuestions.length} ${t("missing questions")}.`
+                : t("Waiting for a draft.")
             }
           />
           <MiniAgent
             icon={<Brain size={17} aria-hidden="true" />}
-            title="Documentation Agent"
-            body="Maintains SOAP, referral, handout, medicine slip, and family summary."
+            title={t("Documentation Agent")}
+            body={t(
+              "Maintains SOAP, referral, handout, medicine slip, and family summary.",
+            )}
           />
           <MiniAgent
             icon={<Zap size={17} aria-hidden="true" />}
-            title="Operations Agent"
-            body="Routes queue pressure, follow-up ownership, and staff handoffs."
+            title={t("Operations Agent")}
+            body={t(
+              "Routes queue pressure, follow-up ownership, and staff handoffs.",
+            )}
           />
         </div>
       </AgentContent>
     </Agent>
   );
 }
+
+const agentCommandBn: Record<string, string> = {
+  automation: "অটোমেশন",
+  communication: "যোগাযোগ",
+  documents: "ডকুমেন্ট",
+  intake: "ইনটেক",
+  operations: "অপারেশনস",
+  safety: "সেফটি",
+  ready: "প্রস্তুত",
+  "running tools": "টুল চলছে",
+  "the selected patient": "নির্বাচিত রোগী",
+  "Clinic Agent Swarm": "ক্লিনিক এজেন্ট স্বার্ম",
+  "I can operate intake, safety, patient communication, documents, queue ops, and demo automation for":
+    "আমি ইনটেক, সেফটি, রোগী যোগাযোগ, ডকুমেন্ট, কিউ অপারেশনস এবং ডেমো অটোমেশন চালাতে পারি",
+  "Ask the agent to run any clinic workflow...":
+    "যেকোনো ক্লিনিক ওয়ার্কফ্লো চালাতে এজেন্টকে বলুন...",
+  "Full workflow": "পূর্ণ ওয়ার্কফ্লো",
+  "Safety signoff": "সেফটি সাইনঅফ",
+  "Queue brief": "কিউ ব্রিফ",
+  "Run tool burst": "টুল বার্স্ট চালান",
+  "Agent routing logic": "এজেন্ট রাউটিং লজিক",
+  "The swarm chooses the fastest existing clinic command, opens the right workspace when needed, and keeps outputs draft-only. Critical tools emphasize vitals, allergy, red flags, escalation, and clinician approval.":
+    "স্বার্ম দ্রুততম বিদ্যমান ক্লিনিক কমান্ড বেছে নেয়, দরকার হলে সঠিক ওয়ার্কস্পেস খোলে, এবং আউটপুট ড্রাফট-অনলি রাখে। গুরুত্বপূর্ণ টুল ভাইটাল, অ্যালার্জি, রেড ফ্ল্যাগ, এসকেলেশন ও ক্লিনিশিয়ান অনুমোদনে জোর দেয়।",
+  "Sense active case and queue pressure": "সক্রিয় কেস ও কিউ চাপ বোঝা",
+  "Run smallest safe tool chain": "সবচেয়ে ছোট নিরাপদ টুল চেইন চালানো",
+  "Surface print, follow-up, and audit-ready outputs":
+    "প্রিন্ট, ফলো-আপ ও অডিট-রেডি আউটপুট দেখানো",
+  "Agent Capacity": "এজেন্ট সক্ষমতা",
+  "Ridiculous tool coverage, one click away": "বিস্তৃত টুল কাভারেজ, এক ক্লিক দূরে",
+  Tools: "টুল",
+  Critical: "গুরুত্বপূর্ণ",
+  Cases: "কেস",
+  "Last command": "শেষ কমান্ড",
+  "No agent command has run yet.": "এখনও কোনো এজেন্ট কমান্ড চালানো হয়নি।",
+  "Show agent tools": "এজেন্ট টুল দেখান",
+  "Safety Agent": "সেফটি এজেন্ট",
+  "Documentation Agent": "ডকুমেন্টেশন এজেন্ট",
+  "Operations Agent": "অপারেশনস এজেন্ট",
+  "Waiting for a draft.": "ড্রাফটের অপেক্ষায়।",
+  "red flags": "রেড ফ্ল্যাগ",
+  "missing questions": "মিসিং প্রশ্ন",
+  "Maintains SOAP, referral, handout, medicine slip, and family summary.":
+    "SOAP, রেফারাল, হ্যান্ডআউট, মেডিসিন স্লিপ ও পরিবার সারাংশ ধরে রাখে।",
+  "Routes queue pressure, follow-up ownership, and staff handoffs.":
+    "কিউ চাপ, ফলো-আপ দায়িত্ব ও স্টাফ হ্যান্ডঅফ রাউট করে।",
+  "Run the full clinic workflow": "পূর্ণ ক্লিনিক ওয়ার্কফ্লো চালান",
+  "Draft, risk, handoff, closeout, referral, follow-up, briefing.":
+    "ড্রাফট, রিস্ক, হ্যান্ডঅফ, ক্লোজআউট, রেফারাল, ফলো-আপ, ব্রিফিং।",
+  "Full autopilot": "পূর্ণ অটোপাইলট",
+  "Run the guided clinic workflow": "গাইডেড ক্লিনিক ওয়ার্কফ্লো চালান",
+  "Judge-friendly demo path with scenario, draft, and presentation.":
+    "সিনারিও, ড্রাফট ও প্রেজেন্টেশনসহ জাজ-ফ্রেন্ডলি ডেমো পথ।",
+  "Guided demo": "গাইডেড ডেমো",
+  "Tell me what to do next for this case": "এই কেসে এরপর কী করব বলুন",
+  "Agent chooses the next safest workflow commands.":
+    "এজেন্ট পরবর্তী সবচেয়ে নিরাপদ ওয়ার্কফ্লো কমান্ড বেছে নেয়।",
+  "Next best actions": "নেক্সট বেস্ট অ্যাকশন",
+  "Undo last command": "শেষ কমান্ড আনডু করুন",
+  "Restore the previous workspace snapshot.": "আগের ওয়ার্কস্পেস স্ন্যাপশট ফেরান।",
+  "Undo agent move": "এজেন্ট মুভ আনডু",
+  "Switch to Bangla and open presentation mode":
+    "বাংলায় যান এবং প্রেজেন্টেশন মোড খুলুন",
+  "Make the demo patient-facing and judge-ready immediately.":
+    "ডেমোকে সঙ্গে সঙ্গে রোগীমুখী ও জাজ-রেডি করুন।",
+  "Bangla presentation": "বাংলা প্রেজেন্টেশন",
+  "Use the fastest model and clear filters":
+    "দ্রুততম মডেল ব্যবহার করুন এবং ফিল্টার পরিষ্কার করুন",
+  "Reset the operating board and bias the app toward low latency.":
+    "অপারেটিং বোর্ড রিসেট করে অ্যাপকে কম লেটেন্সির দিকে নিন।",
+  "Speed reset": "স্পিড রিসেট",
+  "Clean this intake and extract vitals": "এই ইনটেক পরিষ্কার করে ভাইটাল বের করুন",
+  "Normalize messy Bangla-English notes into structured intake.":
+    "এলোমেলো বাংলা-ইংরেজি নোটকে স্ট্রাকচার্ড ইনটেকে নিন।",
+  "Clean intake": "ইনটেক পরিষ্কার",
+  "Extract this prescription and lab report":
+    "এই প্রেসক্রিপশন ও ল্যাব রিপোর্ট এক্সট্র্যাক্ট করুন",
+  "Pull labs, medicines, missing clarifications, and addendum.":
+    "ল্যাব, ওষুধ, মিসিং ক্ল্যারিফিকেশন ও অ্যাডেন্ডাম বের করুন।",
+  "Extract document": "ডকুমেন্ট এক্সট্র্যাক্ট",
+  "Explain why this case is risky": "এই কেস কেন ঝুঁকিপূর্ণ ব্যাখ্যা করুন",
+  "Separate risk evidence, uncertainty, and patient safety-net advice.":
+    "রিস্ক প্রমাণ, অনিশ্চয়তা ও রোগীর সেফটি-নেট পরামর্শ আলাদা করুন।",
+  "Risk rationale": "রিস্ক র‍্যাশনাল",
+  "Check if this case is ready to approve":
+    "এই কেস অনুমোদনের জন্য প্রস্তুত কিনা চেক করুন",
+  "Approval guard for blockers, missing checks, and signoff list.":
+    "ব্লকার, মিসিং চেক ও সাইনঅফ লিস্টের অনুমোদন গার্ড।",
+  "Approval guard": "অ্যাপ্রুভাল গার্ড",
+  "Compose a WhatsApp follow-up for this patient":
+    "এই রোগীর জন্য WhatsApp ফলো-আপ লিখুন",
+  "Create bilingual callback wording for staff review.":
+    "স্টাফ রিভিউয়ের জন্য দ্বিভাষিক কলব্যাক ভাষা তৈরি করুন।",
+  "WhatsApp follow-up": "WhatsApp ফলো-আপ",
+  "Schedule follow-up for this patient": "এই রোগীর ফলো-আপ শিডিউল করুন",
+  "Plan timing, owner, reminders, escalation, and closure criteria.":
+    "সময়, দায়িত্বপ্রাপ্ত, রিমাইন্ডার, এসকেলেশন ও ক্লোজার মানদণ্ড পরিকল্পনা করুন।",
+  "Follow-up plan": "ফলো-আপ প্ল্যান",
+  "Write a referral letter for this patient": "এই রোগীর জন্য রেফারাল লেটার লিখুন",
+  "Referral note with reason, summary, red flags, requested action.":
+    "কারণ, সারাংশ, রেড ফ্ল্যাগ ও অনুরোধকৃত অ্যাকশনসহ রেফারাল নোট।",
+  "Referral letter": "রেফারাল লেটার",
+  "Brief me on today's clinic queue": "আজকের ক্লিনিক কিউ ব্রিফ করুন",
+  "Operational summary, queue risks, paperwork gaps, next actions.":
+    "অপারেশনাল সারাংশ, কিউ রিস্ক, পেপারওয়ার্ক গ্যাপ, পরবর্তী অ্যাকশন।",
+  "Queue briefing": "কিউ ব্রিফিং",
+  "Normalize intake": "ইনটেক নরমালাইজ",
+  "Reception agent": "রিসেপশন এজেন্ট",
+  "Explain risk": "রিস্ক ব্যাখ্যা",
+  "Safety agent": "সেফটি এজেন্ট",
+  "Split staff tasks": "স্টাফ টাস্ক ভাগ",
+  "Ops agent": "অপস এজেন্ট",
+  "Prepare callback": "কলব্যাক প্রস্তুত",
+  "Follow-up agent": "ফলো-আপ এজেন্ট",
+};
 
 function Metric({ label, value }: { label: string; value: number }) {
   return (

@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/features/language/language-context";
+import { LanguageToggle } from "@/features/language/language-toggle";
 import { BrandMark } from "@/features/marketing/components/brand-mark";
 import { cn } from "@/lib/utils";
 
@@ -87,6 +89,7 @@ export function AppShellSidebar({
   role: string;
 }) {
   const [helpOpen, setHelpOpen] = useState(false);
+  const { language, setLanguage } = useLanguage();
   const sidebar = (
     <aside
       className={cn(
@@ -115,6 +118,11 @@ export function AppShellSidebar({
             {role} workspace
           </p>
         </div>
+        <LanguageToggle
+          className="mt-3"
+          value={language}
+          onChange={setLanguage}
+        />
       </div>
       <nav className="flex-1 space-y-1 p-3" aria-label="Workspace">
         {workspaceNav.map((item) => {
@@ -223,6 +231,11 @@ export function AppShellSidebar({
             </Button>
           </div>
         </div>
+        <LanguageToggle
+          className="mt-3"
+          value={language}
+          onChange={setLanguage}
+        />
         <nav className="mt-3 grid grid-cols-3 gap-2" aria-label="Workspace">
           {workspaceNav.map((item) => {
             const Icon = item.icon;

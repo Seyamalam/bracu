@@ -125,12 +125,14 @@ export function Plan({ steps }: { steps: string[] }) {
 export function ToolCard({
   command,
   description,
+  displayCommand,
   label,
   onRun,
   tone = "neutral",
 }: {
   command: string;
   description: string;
+  displayCommand?: string;
   label: string;
   onRun: (command: string) => void;
   tone?: "danger" | "neutral" | "success";
@@ -154,7 +156,7 @@ export function ToolCard({
         {description}
       </p>
       <code className="mt-2 block truncate rounded bg-slate-950 px-2 py-1 text-[0.68rem] text-white">
-        {command}
+        {displayCommand ?? command}
       </code>
     </button>
   );

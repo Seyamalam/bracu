@@ -2,9 +2,9 @@ import { generateText, Output } from "ai";
 import { z } from "zod";
 import { demoCopilotOutput, modelOptions } from "@/features/clinic/data";
 import {
+  aiProviderErrorResponse,
   buildPromptForProvider,
   hasAiProvider,
-  logAiProviderError,
   resolveAiModel,
 } from "@/lib/ai-provider";
 
@@ -44,6 +44,7 @@ export async function POST(request: Request) {
   const age = Number(body.age ?? 0);
   const sex = String(body.sex ?? "unknown");
   const requestedModel = String(body.model ?? "env");
+  const preferredLanguage = body.language === "bn" ? "bn" : "en";
 
   if (intake.length < 12) {
     return Response.json(
@@ -72,13 +73,20 @@ Sex: ${sex}
 Raw intake:
 ${intake}
 
-Return safe clinical documentation support. Use Bangla for patient-facing handout when the intake contains Bangla, otherwise English. Mark uncertainty clearly.`,
+Return safe clinical documentation support. ${
+          preferredLanguage === "bn"
+            ? "Write every returned string in Bangla, including clinician-facing fields, SOAP support, checklist items, patient handout, follow-up timing, and safety warnings. Keep common medical abbreviations only when they are standard in Bangladesh."
+            : "Write every returned string in English, except preserve Bangla only when quoting patient words from the intake."
+        } Mark uncertainty clearly.`,
       }),
     });
 
     return Response.json({ output: result.output, mode: "live" });
   } catch (error) {
-    logAiProviderError("api/copilot", error);
-    return Response.json({ output: demoCopilotOutput, mode: "fallback" });
+    return aiProviderErrorResponse(
+      "api/copilot",
+      resolvedModel.provider,
+      error,
+    );
   }
 }

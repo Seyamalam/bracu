@@ -2,9 +2,9 @@ import { generateText, Output } from "ai";
 import { z } from "zod";
 import { demoScenarios, modelOptions } from "@/features/clinic/data";
 import {
+  aiProviderErrorResponse,
   buildPromptForProvider,
   hasAiProvider,
-  logAiProviderError,
   resolveAiModel,
 } from "@/lib/ai-provider";
 
@@ -183,8 +183,11 @@ ${command}`,
 
     return Response.json({ output: sanitizePlan(result.output), mode: "live" });
   } catch (error) {
-    logAiProviderError("api/command", error);
-    return Response.json({ output: fallbackPlan(command), mode: "fallback" });
+    return aiProviderErrorResponse(
+      "api/command",
+      resolvedModel.provider,
+      error,
+    );
   }
 }
 

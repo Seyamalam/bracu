@@ -4,8 +4,10 @@ import { ArrowRight, CheckCircle2, LogIn, PlayCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import type React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/features/language/language-context";
+import { LanguageToggle } from "@/features/language/language-toggle";
 import { cn } from "@/lib/utils";
 import {
   audienceCards,
@@ -48,8 +50,14 @@ export function PublicSite({
   authSlot?: React.ReactNode;
   page?: PublicPage;
 }) {
+  const { language } = useLanguage();
+  usePublicDomLocalization(language);
+
   return (
-    <main className="min-h-screen bg-[#fbfaf6] text-slate-950">
+    <main
+      className="min-h-screen bg-[#fbfaf6] text-slate-950"
+      data-public-language={language}
+    >
       <PublicHeader activePage={page} />
       {page === "docs" ? <DocsPage /> : null}
       {page === "features" ? <FeaturesPage /> : null}
@@ -63,6 +71,8 @@ export function PublicSite({
 }
 
 function PublicHeader({ activePage }: { activePage: PublicPage }) {
+  const { language, setLanguage } = useLanguage();
+
   return (
     <header className="sticky top-0 z-40 border-slate-200 border-b bg-[#fbfaf6]/95 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
@@ -89,12 +99,22 @@ function PublicHeader({ activePage }: { activePage: PublicPage }) {
             );
           })}
         </nav>
-        <Button asChild className="shrink-0">
-          <Link href="/clinic/queue">
-            <LogIn size={17} aria-hidden="true" />
-            Start demo
-          </Link>
-        </Button>
+        <div className="flex shrink-0 items-center gap-2">
+          <LanguageToggle
+            className="hidden min-w-52 sm:grid"
+            value={language}
+            onChange={setLanguage}
+          />
+          <Button asChild>
+            <Link href="/clinic/queue">
+              <LogIn size={17} aria-hidden="true" />
+              Start demo
+            </Link>
+          </Button>
+        </div>
+      </div>
+      <div className="border-slate-200 border-t px-4 py-2 sm:hidden">
+        <LanguageToggle value={language} onChange={setLanguage} />
       </div>
     </header>
   );
@@ -1300,4 +1320,221 @@ function PublicFooter() {
       </div>
     </footer>
   );
+}
+
+const publicBnTextMap = new Map<string, string>(
+  Object.entries({
+    Home: "হোম",
+    Features: "ফিচার",
+    Docs: "ডকস",
+    Judge: "জাজ",
+    Mission: "মিশন",
+    Pitch: "পিচ",
+    Login: "লগইন",
+    "Start demo": "ডেমো শুরু করুন",
+    "Launch clinic demo": "ক্লিনিক ডেমো চালু করুন",
+    "See the pitch": "পিচ দেখুন",
+    "Built for Bangla-first clinic teams": "বাংলা-প্রথম ক্লিনিক টিমের জন্য তৈরি",
+    "The AI clinic cockpit for Bangla-first care, local or cloud.":
+      "বাংলা-প্রথম সেবার জন্য AI ক্লিনিক ককপিট, লোকাল বা ক্লাউড।",
+    "Clinic Copilot BD turns messy reception notes into safer clinic workflow: structured drafts, red-flag review, handouts, teach-back, follow-up, operations visibility, and MCP tools that work with local or cloud AI.":
+      "Clinic Copilot BD এলোমেলো রিসেপশন নোটকে নিরাপদ ক্লিনিক ওয়ার্কফ্লোতে বদলায়: স্ট্রাকচার্ড ড্রাফট, রেড-ফ্ল্যাগ রিভিউ, হ্যান্ডআউট, টিচ-ব্যাক, ফলো-আপ, অপারেশনস দৃশ্যমানতা এবং লোকাল বা ক্লাউড AI-তে চলা MCP টুল।",
+    "MCP + model choice": "MCP + মডেল পছন্দ",
+    "LM Studio or Gemini": "LM Studio বা Gemini",
+    "AI + agent workflows": "AI + এজেন্ট ওয়ার্কফ্লো",
+    "MCP tools": "MCP টুল",
+    "Model modes": "মডেল মোড",
+    "Local + cloud": "লোকাল + ক্লাউড",
+    "Complete workflow": "সম্পূর্ণ ওয়ার্কফ্লো",
+    "From waiting room notes to follow-up ownership, with any model path.":
+      "ওয়েটিং রুম নোট থেকে ফলো-আপ দায়িত্ব পর্যন্ত, যেকোনো মডেল পথে।",
+    "A clinic does not need one more isolated AI textbox. It needs a connected workflow across reception, clinician review, patient education, operations, MCP clients, and local or cloud AI providers.":
+      "একটি ক্লিনিকের আরেকটি আলাদা AI টেক্সটবক্স দরকার নেই। দরকার রিসেপশন, ক্লিনিশিয়ান রিভিউ, রোগী শিক্ষা, অপারেশনস, MCP ক্লায়েন্ট এবং লোকাল বা ক্লাউড AI প্রোভাইডারের মধ্যে সংযুক্ত ওয়ার্কফ্লো।",
+    "Product docs": "প্রোডাক্ট ডকস",
+    "AI providers, MCP setup, and clinic workflow details reviewers can verify.":
+      "AI প্রোভাইডার, MCP সেটআপ এবং ক্লিনিক ওয়ার্কফ্লো ডিটেইলস যা রিভিউয়াররা যাচাই করতে পারেন।",
+    "A compact documentation hub for the submitted demo: how local and cloud models are selected, which AI surfaces exist, how MCP clients connect, what MCP exposes, and how the build is deployed.":
+      "সাবমিট করা ডেমোর জন্য সংক্ষিপ্ত ডকুমেন্টেশন হাব: লোকাল ও ক্লাউড মডেল কীভাবে বাছাই হয়, কোন AI সারফেস আছে, MCP ক্লায়েন্ট কীভাবে যুক্ত হয়, MCP কী দেয় এবং বিল্ড কীভাবে ডিপ্লয় হয়।",
+    Protocol: "প্রোটোকল",
+    "MCP server and clients": "MCP সার্ভার ও ক্লায়েন্ট",
+    "AI depth": "AI গভীরতা",
+    "Model providers": "মডেল প্রোভাইডার",
+    Build: "বিল্ড",
+    "Engineering notes": "ইঞ্জিনিয়ারিং নোট",
+    "Tester walkthrough": "টেস্টার ওয়াকথ্রু",
+    "Step-by-step proof path for the full clinic demo.":
+      "পূর্ণ ক্লিনিক ডেমোর ধাপে ধাপে প্রমাণের পথ।",
+    "Acceptance checklist": "অ্যাকসেপ্টেন্স চেকলিস্ট",
+    "Keyboard shortcuts": "কিবোর্ড শর্টকাট",
+    Methods: "মেথড",
+    Tools: "টুল",
+    Public: "পাবলিক",
+    "Practical AI for the clinics that need time back.":
+      "যেসব ক্লিনিকের সময় ফেরত দরকার, তাদের জন্য বাস্তবসম্মত AI।",
+    "Patient communication ends with teach-back, not a PDF.":
+      "রোগী যোগাযোগ PDF-এ নয়, টিচ-ব্যাকে শেষ হয়।",
+    "Product mission": "প্রোডাক্ট মিশন",
+    "Make safe clinic workflow support accessible to Bangla-first care teams.":
+      "বাংলা-প্রথম কেয়ার টিমের জন্য নিরাপদ ক্লিনিক ওয়ার্কফ্লো সহায়তা সহজলভ্য করা।",
+    "Product pitch": "প্রোডাক্ট পিচ",
+    "A real product story in one clinic workflow.":
+      "একটি ক্লিনিক ওয়ার্কফ্লোতে বাস্তব প্রোডাক্ট গল্প।",
+    "The demo starts with a locally relevant case and ends with a safer handoff, printable instruction, and operational proof.":
+      "ডেমো স্থানীয়ভাবে প্রাসঙ্গিক কেস দিয়ে শুরু হয় এবং নিরাপদ হ্যান্ডঅফ, প্রিন্টযোগ্য নির্দেশনা ও অপারেশনাল প্রমাণ দিয়ে শেষ হয়।",
+    "Demo access": "ডেমো অ্যাক্সেস",
+    "Enter the clinic workspace.": "ক্লিনিক ওয়ার্কস্পেসে প্রবেশ করুন।",
+    "Create a temporary clinic session or sign into the seeded demo account. The live product stays behind authentication while the public site explains the mission and pitch.":
+      "অস্থায়ী ক্লিনিক সেশন তৈরি করুন বা সিডেড ডেমো অ্যাকাউন্টে সাইন ইন করুন। লাইভ প্রোডাক্ট অথেন্টিকেশনের পেছনে থাকে, আর পাবলিক সাইট মিশন ও পিচ ব্যাখ্যা করে।",
+    "MCP-ready data layer": "MCP-প্রস্তুত ডেটা লেয়ার",
+    "Clinic context is agent-readable from day one.":
+      "প্রথম দিন থেকেই ক্লিনিক প্রসঙ্গ এজেন্ট-পড়তে পারে।",
+    "Read MCP setup": "MCP সেটআপ পড়ুন",
+    "See product proof": "প্রোডাক্ট প্রমাণ দেখুন",
+    Transports: "ট্রান্সপোর্ট",
+    Resources: "রিসোর্স",
+    "Client setup": "ক্লায়েন্ট সেটআপ",
+    "Model policy": "মডেল নীতি",
+    "MCP quick test": "MCP দ্রুত টেস্ট",
+    "Interactive demo layer": "ইন্টারঅ্যাকটিভ ডেমো লেয়ার",
+    "The public pitch hints at the product magic.":
+      "পাবলিক পিচ প্রোডাক্টের শক্তির ইঙ্গিত দেয়।",
+    "Reviewers should understand before logging in that this is a commandable workflow. The real app lets staff operate major clinic actions through natural language while keeping review boundaries visible.":
+      "লগইন করার আগেই রিভিউয়ারদের বোঝা উচিত এটি কমান্ডে চালানো যায় এমন ওয়ার্কফ্লো। বাস্তব অ্যাপে স্টাফরা ন্যাচারাল ল্যাঙ্গুয়েজে বড় ক্লিনিক কাজ চালাতে পারে, রিভিউ সীমা দৃশ্যমান রেখেই।",
+    Command: "কমান্ড",
+    "Main pitch": "মূল পিচ",
+    "Not diagnosis. Clinic workflow acceleration.":
+      "রোগ নির্ণয় নয়। ক্লিনিক ওয়ার্কফ্লো দ্রুত করা।",
+    "Everything included": "সবকিছু অন্তর্ভুক্ত",
+    "The demo is loaded because the product story is loaded.":
+      "ডেমো সমৃদ্ধ, কারণ প্রোডাক্ট গল্পটিও সমৃদ্ধ।",
+    "Full feature list": "পূর্ণ ফিচার তালিকা",
+    "Interactions reviewers can feel": "রিভিউয়াররা যে ইন্টারঅ্যাকশন অনুভব করতে পারেন",
+    "Every click moves the clinic forward.": "প্রতিটি ক্লিক ক্লিনিককে এগিয়ে নেয়।",
+    Workflow: "ওয়ার্কফ্লো",
+    "One visit, one visible path.": "একটি ভিজিট, একটি দৃশ্যমান পথ।",
+    "Product score map": "প্রোডাক্ট স্কোর ম্যাপ",
+    "The pitch is built around proof, not vibes.":
+      "পিচটি অনুভূতির উপর নয়, প্রমাণের উপর তৈরি।",
+    "Demo runbook": "ডেমো রানবুক",
+    "A crisp three-minute story the team can follow.":
+      "টিম অনুসরণ করতে পারে এমন পরিষ্কার তিন মিনিটের গল্প।",
+    "Final proof": "চূড়ান্ত প্রমাণ",
+    "Close the demo on operational evidence.":
+      "অপারেশনাল প্রমাণ দিয়ে ডেমো শেষ করুন।",
+    "Responsive clinic OS": "রেসপনসিভ ক্লিনিক OS",
+    "Dense enough for staff. Clear enough for review.":
+      "স্টাফের জন্য যথেষ্ট ঘন। রিভিউয়ের জন্য যথেষ্ট পরিষ্কার।",
+    "Real product screens": "বাস্তব প্রোডাক্ট স্ক্রিন",
+    "Screenshots from the working app, not mockups.":
+      "ওয়ার্কিং অ্যাপের স্ক্রিনশট, মকআপ নয়।",
+    "Open demo": "ডেমো খুলুন",
+    "Open the live Queue workspace and show red-flag lane, wait time, owner badges, and follow-up due state.":
+      "লাইভ কিউ ওয়ার্কস্পেস খুলুন এবং রেড-ফ্ল্যাগ লেন, অপেক্ষার সময়, দায়িত্ব ব্যাজ ও ফলো-আপ ডিউ স্টেট দেখান।",
+    "Open the selected patient Case page and review intake, vitals, safety gates, draft, handout, and follow-up.":
+      "নির্বাচিত রোগীর কেস পেজ খুলে ইনটেক, ভাইটাল, সেফটি গেট, ড্রাফট, হ্যান্ডআউট ও ফলো-আপ রিভিউ করুন।",
+    "Run or show the Copilot Console with chat, command palette, tool stream, run receipts, approvals, memory, and timeline.":
+      "চ্যাট, কমান্ড প্যালেট, টুল স্ট্রিম, রান রিসিট, অনুমোদন, মেমরি ও টাইমলাইনসহ কোপাইলট কনসোল চালান বা দেখান।",
+    "Open Builder and show the Workflow Studio: Canvas, Governor, Journey, Protocols, Shift, Simulation, Marketplace.":
+      "Builder খুলে Workflow Studio দেখান: Canvas, Governor, Journey, Protocols, Shift, Simulation, Marketplace।",
+    "Use Admin MCP Explorer to run tools/list or safety blockers and prove external-agent readiness.":
+      "Admin MCP Explorer দিয়ে tools/list বা safety blockers চালিয়ে external-agent readiness প্রমাণ করুন।",
+    "End with print preview, safety guardrails, impact metrics, and the clinician-review boundary.":
+      "প্রিন্ট প্রিভিউ, সেফটি গার্ডরেইল, ইমপ্যাক্ট মেট্রিক এবং ক্লিনিশিয়ান-রিভিউ সীমা দিয়ে শেষ করুন।",
+    "Launch demo": "ডেমো চালু করুন",
+    workspaces: "ওয়ার্কস্পেস",
+    "autonomous clinical decisions": "স্বয়ংক্রিয় ক্লিনিক্যাল সিদ্ধান্ত",
+  }),
+);
+
+const publicOriginalTextNodes = new WeakMap<Text, string>();
+
+function usePublicDomLocalization(language: "en" | "bn") {
+  useEffect(() => {
+    const root = document.querySelector("[data-public-language]");
+    if (!root) {
+      return;
+    }
+    const rootElement = root;
+
+    function translateTextNode(node: Text) {
+      const parent = node.parentElement;
+      if (!parent) {
+        return;
+      }
+      if (
+        [
+          "SCRIPT",
+          "STYLE",
+          "TEXTAREA",
+          "INPUT",
+          "OPTION",
+          "CODE",
+          "PRE",
+        ].includes(parent.tagName) ||
+        parent.isContentEditable
+      ) {
+        return;
+      }
+      const original =
+        publicOriginalTextNodes.get(node) ?? node.nodeValue ?? "";
+      if (!publicOriginalTextNodes.has(node)) {
+        publicOriginalTextNodes.set(node, original);
+      }
+      const trimmed = original.trim();
+      const translated = publicBnTextMap.get(trimmed);
+      const nextValue =
+        language === "bn" && translated
+          ? original.replace(trimmed, translated)
+          : original;
+      if (node.nodeValue !== nextValue) {
+        node.nodeValue = nextValue;
+      }
+    }
+
+    function translateAttributes(element: Element) {
+      for (const attribute of ["alt", "aria-label", "title"]) {
+        const value = element.getAttribute(attribute);
+        if (!value) {
+          continue;
+        }
+        const originalAttribute = `data-original-${attribute}`;
+        const original = element.getAttribute(originalAttribute) ?? value;
+        if (!element.hasAttribute(originalAttribute)) {
+          element.setAttribute(originalAttribute, original);
+        }
+        const nextValue =
+          language === "bn"
+            ? (publicBnTextMap.get(original) ?? original)
+            : original;
+        if (element.getAttribute(attribute) !== nextValue) {
+          element.setAttribute(attribute, nextValue);
+        }
+      }
+    }
+
+    function translateTree() {
+      const walker = document.createTreeWalker(
+        rootElement,
+        NodeFilter.SHOW_TEXT,
+      );
+      let node = walker.nextNode();
+      while (node) {
+        translateTextNode(node as Text);
+        node = walker.nextNode();
+      }
+      for (const element of rootElement.querySelectorAll("*")) {
+        translateAttributes(element);
+      }
+    }
+
+    translateTree();
+    const observer = new MutationObserver(() => translateTree());
+    observer.observe(rootElement, {
+      attributes: true,
+      childList: true,
+      characterData: true,
+      subtree: true,
+    });
+    return () => observer.disconnect();
+  }, [language]);
 }

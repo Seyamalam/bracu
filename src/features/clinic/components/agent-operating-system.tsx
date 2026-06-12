@@ -14,7 +14,7 @@ import {
   Radio,
   UserCog,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   Message,
   Plan,
@@ -27,6 +27,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useLanguage } from "@/features/language/language-context";
 import { cn } from "@/lib/utils";
 import type { Doc } from "../../../../convex/_generated/dataModel";
 import type { CopilotOutput, IntakeFormState } from "../types";
@@ -167,13 +168,20 @@ export function AgentOperatingSystem({
   streamingSteps: StreamingStep[];
   timeline: AgentTimelineEvent[];
 }) {
+  const t = useAgentOperatingText();
   const [paletteQuery, setPaletteQuery] = useState("");
   const [voiceDraft, setVoiceDraft] = useState("");
   const [memoryOpen, setMemoryOpen] = useState(false);
 
   const inboxItems = useMemo(
-    () => buildInbox({ cases, form, output }),
-    [cases, form, output],
+    () =>
+      buildInbox({ cases, form, output }).map((item) => ({
+        ...item,
+        detail: t(item.detail),
+        label: t(item.label),
+        severity: t(item.severity),
+      })),
+    [cases, form, output, t],
   );
   const healthScore = useMemo(
     () => calculateHealthScore({ form, inboxCount: inboxItems.length, output }),
@@ -263,6 +271,7 @@ function AgentCommandBar({
   onModeChange: (mode: AutopilotMode) => void;
   runningAction: string | null;
 }) {
+  const t = useAgentOperatingText();
   return (
     <section className="sticky top-0 z-20 rounded-lg border border-primary/20 bg-white/95 p-3 shadow-sm backdrop-blur">
       <div className="grid gap-3 lg:grid-cols-[auto_minmax(0,1fr)_auto]">
@@ -271,9 +280,9 @@ function AgentCommandBar({
             <Bot size={22} aria-hidden="true" />
           </div>
           <div>
-            <p className="font-black text-lg">Agent Command Bar</p>
+            <p className="font-black text-lg">{t("Agent Command Bar")}</p>
             <p className="text-muted-foreground text-xs">
-              Cmd+K palette · voice · autopilot · audit trail
+              {t("Cmd+K palette · voice · autopilot · audit trail")}
             </p>
           </div>
         </div>
@@ -287,14 +296,14 @@ function AgentCommandBar({
             ] as const
           ).map(([mode, label]) => (
             <Button
-              aria-label={`Set ${label}`}
+              aria-label={`${t("Set")} ${t(label)}`}
               className="h-auto px-2 py-2 text-xs"
               key={mode}
               type="button"
               variant={autopilotMode === mode ? "default" : "outline"}
               onClick={() => onModeChange(mode)}
             >
-              {label}
+              {t(label)}
             </Button>
           ))}
         </div>
@@ -306,20 +315,20 @@ function AgentCommandBar({
             onClick={() => onJudgeModeChange(!isJudgeMode)}
           >
             <Play size={16} aria-hidden="true" />
-            Judge
+            {t("Judge")}
           </Button>
           <Button
             type="button"
             onClick={() => onCommand("recommend_next_agent_action")}
           >
             <Command size={16} aria-hidden="true" />
-            Cmd+K
+            {t("Cmd+K")}
           </Button>
         </div>
       </div>
       {runningAction ? (
         <p className="mt-2 text-muted-foreground text-xs">
-          Live tool stream: {runningAction}
+          {t("Live tool stream")}: {t(runningAction)}
         </p>
       ) : null}
     </section>
@@ -327,13 +336,14 @@ function AgentCommandBar({
 }
 
 function AgentTimeline({ timeline }: { timeline: AgentTimelineEvent[] }) {
+  const t = useAgentOperatingText();
   return (
     <Card>
       <CardHeader>
         <SectionHeading
           icon={<Clock size={18} aria-hidden="true" />}
-          title="Agent Timeline"
-          subtitle="Every AI action stays accountable"
+          title={t("Agent Timeline")}
+          subtitle={t("Every AI action stays accountable")}
         />
       </CardHeader>
       <CardContent>
@@ -349,13 +359,13 @@ function AgentTimeline({ timeline }: { timeline: AgentTimelineEvent[] }) {
                     event.status === "blocked" ? "destructive" : "outline"
                   }
                 >
-                  {event.agent} Agent
+                  {t(event.agent)} {t("Agent")}
                 </Badge>
                 <span className="text-muted-foreground text-xs">
                   {new Date(event.timestamp).toLocaleTimeString()}
                 </span>
               </div>
-              <p className="mt-2 text-sm leading-5">{event.detail}</p>
+              <p className="mt-2 text-sm leading-5">{t(event.detail)}</p>
             </div>
           ))}
         </div>
@@ -365,13 +375,14 @@ function AgentTimeline({ timeline }: { timeline: AgentTimelineEvent[] }) {
 }
 
 function LiveToolStreaming({ steps }: { steps: StreamingStep[] }) {
+  const t = useAgentOperatingText();
   return (
     <Card>
       <CardHeader>
         <SectionHeading
           icon={<Radio size={18} aria-hidden="true" />}
-          title="Live Tool Streaming"
-          subtitle="Reading intake -> checking gates -> drafting outputs"
+          title={t("Live Tool Streaming")}
+          subtitle={t("Reading intake -> checking gates -> drafting outputs")}
         />
       </CardHeader>
       <CardContent>
@@ -396,7 +407,7 @@ function LiveToolStreaming({ steps }: { steps: StreamingStep[] }) {
                   size={15}
                   aria-hidden="true"
                 />
-                <p className="font-semibold text-xs">{step.label}</p>
+                <p className="font-semibold text-xs">{t(step.label)}</p>
               </div>
             </div>
           ))}
@@ -407,20 +418,21 @@ function LiveToolStreaming({ steps }: { steps: StreamingStep[] }) {
 }
 
 function AgentPermissions({ activeRole }: { activeRole: ClinicRole }) {
+  const t = useAgentOperatingText();
   return (
     <Card>
       <CardHeader>
         <SectionHeading
           icon={<UserCog size={18} aria-hidden="true" />}
-          title="Agent Permissions"
-          subtitle={`${activeRole.replace("_", " ")} allowed tools`}
+          title={t("Agent Permissions")}
+          subtitle={`${t(activeRole.replace("_", " "))} ${t("allowed tools")}`}
         />
       </CardHeader>
       <CardContent>
         <div className="flex flex-wrap gap-2">
           {rolePermissions[activeRole].map((permission) => (
             <Badge key={permission} variant="secondary">
-              {permission}
+              {t(permission)}
             </Badge>
           ))}
         </div>
@@ -436,13 +448,14 @@ function AgentInbox({
   items: { command: string; detail: string; label: string; severity: string }[];
   onCommand: (command: string) => void;
 }) {
+  const t = useAgentOperatingText();
   return (
     <Card>
       <CardHeader>
         <SectionHeading
           icon={<Inbox size={18} aria-hidden="true" />}
-          title="Agent Inbox"
-          subtitle="Human-resolution tasks"
+          title={t("Agent Inbox")}
+          subtitle={t("Human-resolution tasks")}
         />
       </CardHeader>
       <CardContent>
@@ -469,7 +482,7 @@ function AgentInbox({
           ))}
           {items.length === 0 ? (
             <p className="text-muted-foreground text-sm">
-              No unresolved agent inbox items.
+              {t("No unresolved agent inbox items.")}
             </p>
           ) : null}
         </div>
@@ -485,6 +498,7 @@ function CaseIntelligenceGraph({
   form: IntakeFormState;
   output: CopilotOutput | null;
 }) {
+  const t = useAgentOperatingText();
   const nodes = [
     ["Intake", form.intake ? "complete" : "idle"],
     ["Symptoms", output?.chiefComplaint ? "complete" : "idle"],
@@ -515,8 +529,8 @@ function CaseIntelligenceGraph({
       <CardHeader>
         <SectionHeading
           icon={<GitBranch size={18} aria-hidden="true" />}
-          title="Case Intelligence Graph"
-          subtitle="Intake -> safety -> tasks -> print -> follow-up"
+          title={t("Case Intelligence Graph")}
+          subtitle={t("Intake -> safety -> tasks -> print -> follow-up")}
         />
       </CardHeader>
       <CardContent>
@@ -531,7 +545,7 @@ function CaseIntelligenceGraph({
               key={node}
             >
               <Badge variant="outline">{index + 1}</Badge>
-              <p className="mt-2 font-semibold text-xs">{node}</p>
+              <p className="mt-2 font-semibold text-xs">{t(String(node))}</p>
             </div>
           ))}
         </div>
@@ -551,26 +565,29 @@ function CommandPalette({
   onQueryChange: (query: string) => void;
   query: string;
 }) {
+  const t = useAgentOperatingText();
   return (
     <Card>
       <CardHeader>
         <SectionHeading
           icon={<Command size={18} aria-hidden="true" />}
-          title="Cmd+K Command Palette"
-          subtitle="Search agent tools, recent commands, role and patient actions"
+          title={t("Cmd+K Command Palette")}
+          subtitle={t(
+            "Search agent tools, recent commands, role and patient actions",
+          )}
         />
       </CardHeader>
       <CardContent>
         <Input
-          aria-label="Search agent command palette"
-          placeholder="Search tools like allergy, triage, RAG, print..."
+          aria-label={t("Search agent command palette")}
+          placeholder={t("Search tools like allergy, triage, RAG, print...")}
           value={query}
           onChange={(event) => onQueryChange(event.target.value)}
         />
         <div className="mt-3 grid gap-2 md:grid-cols-2">
           {commands.map((command) => (
             <Suggestion command={command} key={command} onRun={onCommand}>
-              {command}
+              {t(command)}
             </Suggestion>
           ))}
         </div>
@@ -584,13 +601,14 @@ function AgentToolManifest({
 }: {
   onCommand: (command: string) => void;
 }) {
+  const t = useAgentOperatingText();
   return (
     <Card>
       <CardHeader>
         <SectionHeading
           icon={<Brain size={18} aria-hidden="true" />}
-          title="Named Agent Tools"
-          subtitle="Explicit tool surface requested for the agent layer"
+          title={t("Named Agent Tools")}
+          subtitle={t("Explicit tool surface requested for the agent layer")}
         />
       </CardHeader>
       <CardContent>
@@ -598,9 +616,9 @@ function AgentToolManifest({
           {namedAgentTools.map((tool) => (
             <ToolCard
               command={tool}
-              description={tool.replaceAll("_", " ")}
+              description={t(tool.replaceAll("_", " "))}
               key={tool}
-              label={tool}
+              label={t(tool)}
               onRun={onCommand}
               tone={
                 tool.includes("risk") || tool.includes("safety")
@@ -624,6 +642,7 @@ function JudgeModePanel({
   onCommand: (command: string) => void;
   onToggle: (enabled: boolean) => void;
 }) {
+  const t = useAgentOperatingText();
   const steps = [
     "0:00 Load Bangladesh-native case",
     "0:30 Generate draft and red flags",
@@ -637,8 +656,8 @@ function JudgeModePanel({
       <CardHeader>
         <SectionHeading
           icon={<Play size={18} aria-hidden="true" />}
-          title="Simulation Mode"
-          subtitle="3-minute judging autopilot"
+          title={t("Simulation Mode")}
+          subtitle={t("3-minute judging autopilot")}
         />
       </CardHeader>
       <CardContent>
@@ -653,11 +672,11 @@ function JudgeModePanel({
             }
           }}
         >
-          {enabled ? "Judge mode running" : "Start judge mode"}
+          {enabled ? t("Judge mode running") : t("Start judge mode")}
         </Button>
-        <Plan steps={steps.slice(0, 3)} />
+        <Plan steps={steps.slice(0, 3).map(t)} />
         <p className="mt-2 text-muted-foreground text-xs">
-          {steps.slice(3).join(" -> ")}
+          {steps.slice(3).map(t).join(" -> ")}
         </p>
       </CardContent>
     </Card>
@@ -673,6 +692,7 @@ function VoiceAgent({
   onCommand: (command: string) => void;
   onDraftChange: (draft: string) => void;
 }) {
+  const t = useAgentOperatingText();
   function startVoice() {
     const speechWindow = window as Window &
       typeof globalThis & {
@@ -682,7 +702,7 @@ function VoiceAgent({
     const SpeechRecognitionConstructor =
       speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition;
     if (!SpeechRecognitionConstructor) {
-      onDraftChange("Load dengue case and generate draft");
+      onDraftChange(t("Load dengue case and generate draft"));
       return;
     }
     const recognition = new SpeechRecognitionConstructor();
@@ -701,25 +721,25 @@ function VoiceAgent({
       <CardHeader>
         <SectionHeading
           icon={<Mic size={18} aria-hidden="true" />}
-          title="Voice Agent"
-          subtitle="Push-to-talk clinic commands"
+          title={t("Voice Agent")}
+          subtitle={t("Push-to-talk clinic commands")}
         />
       </CardHeader>
       <CardContent>
         <Textarea
-          aria-label="Voice agent command"
+          aria-label={t("Voice agent command")}
           className="min-h-20 resize-none"
-          placeholder="Load dengue case and generate draft..."
+          placeholder={t("Load dengue case and generate draft...")}
           value={draft}
           onChange={(event) => onDraftChange(event.target.value)}
         />
         <div className="mt-2 grid grid-cols-2 gap-2">
           <Button type="button" variant="outline" onClick={startVoice}>
             <Mic size={16} aria-hidden="true" />
-            Listen
+            {t("Listen")}
           </Button>
           <Button type="button" onClick={() => onCommand(draft)}>
-            Run voice
+            {t("Run voice")}
           </Button>
         </div>
       </CardContent>
@@ -738,13 +758,14 @@ function AgentMemoryPanel({
   onToggle: () => void;
   open: boolean;
 }) {
+  const t = useAgentOperatingText();
   return (
     <Card>
       <CardHeader>
         <SectionHeading
           icon={<Brain size={18} aria-hidden="true" />}
-          title="Agent Memory"
-          subtitle="Clinic preferences stored locally"
+          title={t("Agent Memory")}
+          subtitle={t("Clinic preferences stored locally")}
         />
       </CardHeader>
       <CardContent>
@@ -754,36 +775,36 @@ function AgentMemoryPanel({
           variant="outline"
           onClick={onToggle}
         >
-          {open ? "Hide memory" : "Edit memory"}
+          {open ? t("Hide memory") : t("Edit memory")}
         </Button>
         {open ? (
           <div className="mt-3 space-y-2">
             <MemoryField
-              label="Common medicines"
+              label={t("Common medicines")}
               value={memory.commonMedicines}
               onChange={(value) =>
                 onChange({ ...memory, commonMedicines: value })
               }
             />
             <MemoryField
-              label="Doctor style"
+              label={t("Doctor style")}
               value={memory.doctorStyle}
               onChange={(value) => onChange({ ...memory, doctorStyle: value })}
             />
             <MemoryField
-              label="Opening hours"
+              label={t("Opening hours")}
               value={memory.openingHours}
               onChange={(value) => onChange({ ...memory, openingHours: value })}
             />
             <MemoryField
-              label="Follow-up templates"
+              label={t("Follow-up templates")}
               value={memory.followUpTemplates}
               onChange={(value) =>
                 onChange({ ...memory, followUpTemplates: value })
               }
             />
             <MemoryField
-              label="Referral hospitals"
+              label={t("Referral hospitals")}
               value={memory.referralHospitals}
               onChange={(value) =>
                 onChange({ ...memory, referralHospitals: value })
@@ -792,8 +813,8 @@ function AgentMemoryPanel({
           </div>
         ) : (
           <p className="mt-3 text-muted-foreground text-xs leading-5">
-            {memory.preferredLanguage} · {memory.openingHours} ·{" "}
-            {memory.doctorStyle}
+            {t(memory.preferredLanguage)} · {memory.openingHours} ·{" "}
+            {t(memory.doctorStyle)}
           </p>
         )}
       </CardContent>
@@ -831,13 +852,14 @@ function CommandReplay({
   history: { command: string; summary: string }[];
   onCommand: (command: string) => void;
 }) {
+  const t = useAgentOperatingText();
   return (
     <Card>
       <CardHeader>
         <SectionHeading
           icon={<History size={18} aria-hidden="true" />}
-          title="Command History"
-          subtitle="Undo and replay agent actions"
+          title={t("Command History")}
+          subtitle={t("Undo and replay agent actions")}
         />
       </CardHeader>
       <CardContent>
@@ -847,7 +869,7 @@ function CommandReplay({
               className="rounded-md border border-border p-3"
               key={entry.command}
             >
-              <p className="font-semibold text-xs">{entry.summary}</p>
+              <p className="font-semibold text-xs">{t(entry.summary)}</p>
               <div className="mt-2 grid grid-cols-2 gap-2">
                 <Button
                   size="sm"
@@ -855,21 +877,21 @@ function CommandReplay({
                   variant="outline"
                   onClick={() => onCommand("Undo last command")}
                 >
-                  Undo
+                  {t("Undo")}
                 </Button>
                 <Button
                   size="sm"
                   type="button"
                   onClick={() => onCommand(entry.command)}
                 >
-                  Replay
+                  {t("Replay")}
                 </Button>
               </div>
             </div>
           ))}
           {history.length === 0 ? (
             <p className="text-muted-foreground text-sm">
-              Agent commands will appear here.
+              {t("Agent commands will appear here.")}
             </p>
           ) : null}
         </div>
@@ -879,23 +901,25 @@ function CommandReplay({
 }
 
 function DraftComparison({ output }: { output: CopilotOutput | null }) {
+  const t = useAgentOperatingText();
   return (
     <Card>
       <CardHeader>
         <SectionHeading
           icon={<Activity size={18} aria-hidden="true" />}
-          title="AI Draft vs Clinician Edits"
-          subtitle="Side-by-side review surface"
+          title={t("AI Draft vs Clinician Edits")}
+          subtitle={t("Side-by-side review surface")}
         />
       </CardHeader>
       <CardContent>
         <div className="grid gap-2 md:grid-cols-2">
           <Message from="agent">
-            {output?.summary ?? "AI draft will appear after generation."}
+            {output?.summary ?? t("AI draft will appear after generation.")}
           </Message>
           <Message from="clinic">
-            Clinician edits remain the source of truth before print, referral,
-            or closeout.
+            {t(
+              "Clinician edits remain the source of truth before print, referral, or closeout.",
+            )}
           </Message>
         </div>
       </CardContent>
@@ -904,18 +928,19 @@ function DraftComparison({ output }: { output: CopilotOutput | null }) {
 }
 
 function PrintPreviewLauncher({ onOpen }: { onOpen: () => void }) {
+  const t = useAgentOperatingText();
   return (
     <Card>
       <CardHeader>
         <SectionHeading
           icon={<Printer size={18} aria-hidden="true" />}
-          title="Print Preview"
-          subtitle="Review before window.print"
+          title={t("Print Preview")}
+          subtitle={t("Review before window.print")}
         />
       </CardHeader>
       <CardContent>
         <Button className="w-full" type="button" onClick={onOpen}>
-          Open print preview
+          {t("Open print preview")}
         </Button>
       </CardContent>
     </Card>
@@ -923,11 +948,12 @@ function PrintPreviewLauncher({ onOpen }: { onOpen: () => void }) {
 }
 
 function CaseHealthScore({ value }: { value: number }) {
+  const t = useAgentOperatingText();
   return (
     <div
       role="img"
       className="grid size-14 place-items-center rounded-full border-4 border-primary bg-[#eaf6f1]"
-      aria-label={`Case health score ${value} percent`}
+      aria-label={`${t("Case health score")} ${value} ${t("percent")}`}
     >
       <span className="font-black text-sm">{value}%</span>
     </div>
@@ -1009,3 +1035,172 @@ function calculateHealthScore({
   if (output) score += 15;
   return Math.max(0, Math.min(100, score - inboxCount * 8));
 }
+
+function useAgentOperatingText() {
+  const { language } = useLanguage();
+  return useCallback(
+    (text: string) =>
+      language === "bn" ? (agentOperatingBn[text] ?? text) : text,
+    [language],
+  );
+}
+
+const agentOperatingBn: Record<string, string> = {
+  admin: "অ্যাডমিন",
+  assisted: "সহায়ক",
+  audit: "অডিট",
+  blocked: "ব্লকড",
+  complete: "সম্পন্ন",
+  doctor: "ডাক্তার",
+  emergency: "জরুরি",
+  follow_up: "ফলো-আপ",
+  high: "উচ্চ",
+  idle: "অপেক্ষমাণ",
+  medium: "মাঝারি",
+  model: "মডেল",
+  nurse: "নার্স",
+  reception: "রিসেপশন",
+  running: "চলছে",
+  safe: "নিরাপদ",
+  "3-minute judging autopilot": "৩ মিনিটের জাজিং অটোপাইলট",
+  "0:00 Load Bangladesh-native case": "০:০০ বাংলাদেশ-প্রাসঙ্গিক কেস লোড",
+  "0:30 Generate draft and red flags": "০:৩০ ড্রাফট ও রেড ফ্ল্যাগ তৈরি",
+  "1:15 Show safety gates and handout": "১:১৫ সেফটি গেট ও হ্যান্ডআউট দেখান",
+  "2:00 Queue, audit, follow-up proof": "২:০০ কিউ, অডিট, ফলো-আপ প্রমাণ",
+  "2:45 Impact snapshot and close": "২:৪৫ ইমপ্যাক্ট স্ন্যাপশট ও ক্লোজ",
+  "9:00 AM - 8:00 PM": "সকাল ৯টা - রাত ৮টা",
+  "AI Draft vs Clinician Edits": "AI ড্রাফট বনাম ক্লিনিশিয়ান এডিট",
+  "AI draft will appear after generation.": "জেনারেশনের পর AI ড্রাফট দেখা যাবে।",
+  Agent: "এজেন্ট",
+  "Agent Command Bar": "এজেন্ট কমান্ড বার",
+  "Agent Inbox": "এজেন্ট ইনবক্স",
+  "Agent Memory": "এজেন্ট মেমরি",
+  "Agent Permissions": "এজেন্ট পারমিশন",
+  "Agent Timeline": "এজেন্ট টাইমলাইন",
+  "Agent commands will appear here.": "এজেন্ট কমান্ড এখানে দেখা যাবে।",
+  "Allergy status is unknown.": "অ্যালার্জি স্ট্যাটাস অজানা।",
+  "Allergy unknown": "অ্যালার্জি অজানা",
+  "Approval blocked": "অনুমোদন ব্লকড",
+  "Bangla-first": "বাংলা-প্রথম",
+  Bilingual: "দ্বিভাষিক",
+  "Case Health Score": "কেস হেলথ স্কোর",
+  "Case Intelligence Graph": "কেস ইন্টেলিজেন্স গ্রাফ",
+  "Case health score": "কেস হেলথ স্কোর",
+  "Check if this case is ready to approve":
+    "এই কেস অনুমোদনের জন্য প্রস্তুত কিনা চেক করুন",
+  "Clinic preferences stored locally": "ক্লিনিক পছন্দ লোকালি সংরক্ষিত",
+  "Clinician edits remain the source of truth before print, referral, or closeout.":
+    "প্রিন্ট, রেফারাল বা ক্লোজআউটের আগে ক্লিনিশিয়ান এডিটই সত্যের উৎস।",
+  "Cmd+K": "Cmd+K",
+  "Cmd+K Command Palette": "Cmd+K কমান্ড প্যালেট",
+  "Cmd+K palette · voice · autopilot · audit trail":
+    "Cmd+K প্যালেট · ভয়েস · অটোপাইলট · অডিট ট্রেইল",
+  "Command History": "কমান্ড হিস্ট্রি",
+  "Common medicines": "সাধারণ ওষুধ",
+  "Concise SOAP, conservative safety wording": "সংক্ষিপ্ত SOAP, সতর্ক সেফটি ভাষা",
+  "DMCH, BSMMU, nearest emergency department": "DMCH, BSMMU, নিকটতম জরুরি বিভাগ",
+  Doctor: "ডাক্তার",
+  "Doctor style": "ডাক্তারের স্টাইল",
+  "Edit memory": "মেমরি এডিট করুন",
+  "Emergency Assist": "জরুরি সহায়তা",
+  "English-first": "ইংরেজি-প্রথম",
+  "Every AI action stays accountable": "প্রতিটি AI অ্যাকশন জবাবদিহির মধ্যে থাকে",
+  "Explicit tool surface requested for the agent layer":
+    "এজেন্ট লেয়ারের জন্য চাওয়া স্পষ্ট টুল সারফেস",
+  "Follow-up": "ফলো-আপ",
+  "Follow-up due": "ফলো-আপ বাকি",
+  "Follow-up templates": "ফলো-আপ টেমপ্লেট",
+  "Hide memory": "মেমরি লুকান",
+  "High-priority cases require approval guard review.":
+    "উচ্চ অগ্রাধিকার কেসে অ্যাপ্রুভাল গার্ড রিভিউ প্রয়োজন।",
+  "Human-resolution tasks": "মানুষের সমাধানযোগ্য টাস্ক",
+  Intake: "ইনটেক",
+  "Intake -> safety -> tasks -> print -> follow-up":
+    "ইনটেক -> সেফটি -> টাস্ক -> প্রিন্ট -> ফলো-আপ",
+  Judge: "জাজ",
+  "Judge mode running": "জাজ মোড চলছে",
+  "Live Tool Streaming": "লাইভ টুল স্ট্রিমিং",
+  "Live tool stream": "লাইভ টুল স্ট্রিম",
+  "Load dengue case and generate draft": "ডেঙ্গু কেস লোড করে ড্রাফট তৈরি করুন",
+  "Load dengue case and generate draft...": "ডেঙ্গু কেস লোড করে ড্রাফট তৈরি করুন...",
+  "Missing Qs": "মিসিং প্রশ্ন",
+  "Missing vitals": "ভাইটাল মিসিং",
+  "Named Agent Tools": "নেমড এজেন্ট টুল",
+  "No unresolved agent inbox items.": "অসমাধিত এজেন্ট ইনবক্স আইটেম নেই।",
+  "One or more follow-up cases need closure.":
+    "এক বা একাধিক ফলো-আপ কেস ক্লোজার প্রয়োজন।",
+  "Open print preview": "প্রিন্ট প্রিভিউ খুলুন",
+  "Opening hours": "খোলার সময়",
+  Ops: "অপস",
+  "Paracetamol, ORS, salbutamol, antihistamine":
+    "প্যারাসিটামল, ORS, সালবিউটামল, অ্যান্টিহিস্টামিন",
+  "Print Preview": "প্রিন্ট প্রিভিউ",
+  "Print packet": "প্রিন্ট প্যাকেট",
+  "Push-to-talk clinic commands": "পুশ-টু-টক ক্লিনিক কমান্ড",
+  "Reading intake -> checking gates -> drafting outputs":
+    "ইনটেক পড়া -> গেট চেক -> আউটপুট ড্রাফট",
+  Reception: "রিসেপশন",
+  "Reception Agent is ready to extract vitals and documents.":
+    "রিসেপশন এজেন্ট ভাইটাল ও ডকুমেন্ট এক্সট্র্যাক্ট করতে প্রস্তুত।",
+  "Red flag unresolved": "রেড ফ্ল্যাগ অসমাধিত",
+  "Red flags": "রেড ফ্ল্যাগ",
+  "Referral hospitals": "রেফারাল হাসপাতাল",
+  Replay: "রিপ্লে",
+  "Review before window.print": "window.print-এর আগে রিভিউ করুন",
+  "Run voice": "ভয়েস চালান",
+  "Safe Autopilot": "নিরাপদ অটোপাইলট",
+  Safety: "সেফটি",
+  "Safety Agent is watching vitals, allergy, and escalation gates.":
+    "সেফটি এজেন্ট ভাইটাল, অ্যালার্জি ও এসকেলেশন গেট দেখছে।",
+  "Safety gates": "সেফটি গেট",
+  "Search agent command palette": "এজেন্ট কমান্ড প্যালেট সার্চ করুন",
+  "Search agent tools, recent commands, role and patient actions":
+    "এজেন্ট টুল, সাম্প্রতিক কমান্ড, রোল ও রোগী অ্যাকশন সার্চ করুন",
+  "Search tools like allergy, triage, RAG, print...":
+    "allergy, triage, RAG, print-এর মতো টুল সার্চ করুন...",
+  Set: "সেট করুন",
+  "Side-by-side review surface": "পাশাপাশি রিভিউ সারফেস",
+  "Simulation Mode": "সিমুলেশন মোড",
+  "Staff tasks": "স্টাফ টাস্ক",
+  "Start judge mode": "জাজ মোড শুরু করুন",
+  Symptoms: "লক্ষণ",
+  Undo: "আনডু",
+  "Undo last command": "শেষ কমান্ড আনডু করুন",
+  "Undo and replay agent actions": "এজেন্ট অ্যাকশন আনডু ও রিপ্লে করুন",
+  "Vitals are not clearly documented.": "ভাইটাল পরিষ্কারভাবে ডকুমেন্টেড নয়।",
+  "Voice Agent": "ভয়েস এজেন্ট",
+  "Voice agent command": "ভয়েস এজেন্ট কমান্ড",
+  "allowed tools": "অনুমোদিত টুল",
+  "assign owners": "দায়িত্বপ্রাপ্ত নির্ধারণ",
+  audit_case_safety: "কেস সেফটি অডিট",
+  auto_triage_case: "অটো ট্রায়াজ কেস",
+  "clean intake": "ইনটেক পরিষ্কার",
+  "close visit": "ভিজিট ক্লোজ",
+  compare_before_after_draft: "ড্রাফটের আগে-পরে তুলনা",
+  detect_allergy_gap: "অ্যালার্জি গ্যাপ শনাক্ত",
+  detect_missing_vitals: "মিসিং ভাইটাল শনাক্ত",
+  detect_pregnancy_child_chest_pain: "গর্ভাবস্থা/শিশু/বুকব্যথা শনাক্ত",
+  "edit draft": "ড্রাফট এডিট",
+  "extract docs": "ডকুমেন্ট এক্সট্র্যাক্ট",
+  generate_patient_audio_script: "রোগীর অডিও স্ক্রিপ্ট তৈরি",
+  generate_pictogram_plan: "পিক্টোগ্রাম প্ল্যান তৈরি",
+  generate_staff_tasks: "স্টাফ টাস্ক তৈরি",
+  "medicine clarity": "ওষুধ ক্ল্যারিটি",
+  message: "মেসেজ",
+  percent: "শতাংশ",
+  predict_followup_risk: "ফলো-আপ রিস্ক অনুমান",
+  prepare_referral_packet: "রেফারাল প্যাকেট প্রস্তুত",
+  "queue brief": "কিউ ব্রিফ",
+  "queue local draft": "লোকাল ড্রাফট কিউ",
+  recommend_next_agent_action: "পরবর্তী এজেন্ট অ্যাকশন সাজেস্ট",
+  referral: "রেফারাল",
+  "referral hospitals": "রেফারাল হাসপাতাল",
+  "reply triage": "রিপ্লাই ট্রায়াজ",
+  rewrite_for_low_literacy: "কম লিটারেসির জন্য রিরাইট",
+  risk: "রিস্ক",
+  schedule: "শিডিউল",
+  summarize_queue_pressure: "কিউ চাপ সারাংশ",
+  triage: "ট্রায়াজ",
+  translate_bn_en: "বাংলা-ইংরেজি অনুবাদ",
+  vitals: "ভাইটাল",
+};
