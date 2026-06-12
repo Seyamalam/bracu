@@ -1424,159 +1424,156 @@ export function ClinicCopilotApp({
           ) : null}
 
           {activeWorkspacePage === "case" ? (
-            <div className="mt-4 grid gap-4 xl:grid-cols-[420px_minmax(0,1fr)]">
-              <div className="space-y-4">
-                <IntakePanel
-                  copy={copy}
-                  form={form}
-                  error={error}
-                  isGenerating={isGenerating}
-                  isCleaningIntake={isCleaningIntake}
-                  onChange={setForm}
-                  onCleanIntake={() => void cleanIntakeWithAi()}
-                  onGenerate={() => void generate()}
-                />
-                <LowConnectivityPanel
-                  isOnline={isOnline}
-                  queue={queuedDrafts}
-                  onQueueDraft={queueLocalDraft}
-                  onSyncDraft={syncQueuedDraft}
-                />
+            <div className="mt-4 space-y-4">
+              <div className="grid gap-4 xl:grid-cols-[400px_minmax(0,1fr)_400px]">
+                <div className="space-y-4">
+                  <IntakePanel
+                    copy={copy}
+                    form={form}
+                    error={error}
+                    isGenerating={isGenerating}
+                    isCleaningIntake={isCleaningIntake}
+                    onChange={setForm}
+                    onCleanIntake={() => void cleanIntakeWithAi()}
+                    onGenerate={() => void generate()}
+                  />
+                  <LowConnectivityPanel
+                    isOnline={isOnline}
+                    queue={queuedDrafts}
+                    onQueueDraft={queueLocalDraft}
+                    onSyncDraft={syncQueuedDraft}
+                  />
+                </div>
+                <div className="space-y-4">
+                  <DoctorConsole
+                    output={displayOutput}
+                    onSave={saveDraftEdits}
+                  />
+                  <PatientHandout copy={copy} output={displayOutput} />
+                  <PrintWorkflowPanel
+                    output={displayOutput}
+                    patientName={selectedCase?.patientName ?? form.patientName}
+                  />
+                </div>
+                <div className="space-y-4">
+                  <ClinicalSafetyGates gates={safetyGates} />
+                  <ApprovalReadiness
+                    checkSignal={approvalCheckSignal}
+                    commandInstruction={commandApprovalInstruction}
+                    model={selectedModel}
+                    onRunCommand={runCommandAndForget}
+                    output={displayOutput}
+                  />
+                  <VisitCloseout
+                    closeoutSignal={visitCloseoutSignal}
+                    commandInstruction={commandCloseoutInstruction}
+                    model={selectedModel}
+                    onRunCommand={runCommandAndForget}
+                    output={displayOutput}
+                    patientName={selectedCase?.patientName ?? form.patientName}
+                  />
+                </div>
               </div>
-              <div className="space-y-4">
-                <DocumentExtractor
-                  commandDocumentText={commandDocumentText}
-                  documentText={form.intake}
-                  extractSignal={documentExtractSignal}
-                  model={selectedModel}
-                  onRunCommand={runCommandAndForget}
-                  onApplyAddendum={(addendum) =>
-                    setForm((currentForm) => ({
-                      ...currentForm,
-                      intake: `${currentForm.intake}\n\nDocument addendum:\n${addendum}`,
-                    }))
-                  }
-                />
-                <NextStepNavigator
-                  commandInstruction={commandNextStepInstruction}
-                  model={selectedModel}
-                  onRunCommand={runCommandAndForget}
-                  output={displayOutput}
-                  patientName={selectedCase?.patientName ?? form.patientName}
-                  planSignal={nextStepSignal}
-                />
-              </div>
-            </div>
-          ) : null}
 
-          {activeWorkspacePage === "case" ? (
-            <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_420px]">
-              <div className="space-y-4">
-                <RiskExplainer
-                  commandInstruction={commandRiskInstruction}
-                  explainSignal={riskExplainSignal}
-                  model={selectedModel}
-                  output={displayOutput}
-                />
-                <StaffHandoff
-                  commandInstruction={commandHandoffInstruction}
-                  handoffSignal={handoffSignal}
-                  model={selectedModel}
-                  output={displayOutput}
-                  patientName={selectedCase?.patientName ?? form.patientName}
-                />
-                <CaseAssistant
-                  askSignal={caseAssistantAskSignal}
-                  commandQuestion={commandCaseQuestion}
-                  model={selectedModel}
-                  output={displayOutput}
-                />
-                <DoctorConsole output={displayOutput} onSave={saveDraftEdits} />
-              </div>
-              <div className="space-y-4">
-                <ClinicalSafetyGates gates={safetyGates} />
-                <ApprovalReadiness
-                  checkSignal={approvalCheckSignal}
-                  commandInstruction={commandApprovalInstruction}
-                  model={selectedModel}
-                  onRunCommand={runCommandAndForget}
-                  output={displayOutput}
-                />
-                <VisitCloseout
-                  closeoutSignal={visitCloseoutSignal}
-                  commandInstruction={commandCloseoutInstruction}
-                  model={selectedModel}
-                  onRunCommand={runCommandAndForget}
-                  output={displayOutput}
-                  patientName={selectedCase?.patientName ?? form.patientName}
-                />
-              </div>
-            </div>
-          ) : null}
-
-          {activeWorkspacePage === "case" ? (
-            <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_420px]">
-              <div className="space-y-4">
-                <PatientHandout copy={copy} output={displayOutput} />
-                <PrintWorkflowPanel
-                  output={displayOutput}
-                  patientName={selectedCase?.patientName ?? form.patientName}
-                />
-                <PatientLiteracyPanel
-                  activeMode={literacyMode}
-                  onModeChange={setLiteracyMode}
-                  output={displayOutput}
-                />
-                <TeachBackCheck output={displayOutput} />
-                <PatientQuestionAnswer
-                  answerSignal={patientQuestionSignal}
-                  commandQuestion={commandPatientQuestion}
-                  model={selectedModel}
-                  onRunCommand={runCommandAndForget}
-                  output={displayOutput}
-                  patientName={selectedCase?.patientName ?? form.patientName}
-                />
-                <FollowUpComposer
-                  commandInstruction={commandFollowUpInstruction}
-                  composeSignal={followUpComposeSignal}
-                  model={selectedModel}
-                  output={displayOutput}
-                  patientName={selectedCase?.patientName ?? form.patientName}
-                  preferredChannel={followUpChannel}
-                />
-              </div>
-              <div className="space-y-4">
-                <FollowUpScheduler
-                  commandInstruction={commandFollowUpScheduleInstruction}
-                  model={selectedModel}
-                  onRunCommand={runCommandAndForget}
-                  output={displayOutput}
-                  patientName={selectedCase?.patientName ?? form.patientName}
-                  scheduleSignal={followUpScheduleSignal}
-                />
-                <ReplyTriage
-                  commandReplyText={commandPatientReply}
-                  model={selectedModel}
-                  onRunCommand={runCommandAndForget}
-                  output={displayOutput}
-                  patientName={selectedCase?.patientName ?? form.patientName}
-                  triageSignal={replyTriageSignal}
-                />
-                <ReferralComposer
-                  commandInstruction={commandReferralInstruction}
-                  composeSignal={referralComposeSignal}
-                  documentType={referralDocumentType}
-                  model={selectedModel}
-                  output={displayOutput}
-                  patientName={selectedCase?.patientName ?? form.patientName}
-                />
-                <MedicineSafety
-                  commandMedicines={commandMedicines}
-                  medicineCheckSignal={medicineCheckSignal}
-                  model={selectedModel}
-                  output={displayOutput}
-                />
-              </div>
+              <details className="rounded-md border border-slate-200 bg-white shadow-sm">
+                <summary className="cursor-pointer px-4 py-3 font-bold text-sm">
+                  {t("Agent tool outputs")}
+                </summary>
+                <div className="grid gap-4 border-slate-200 border-t bg-[#fbfaf7] p-4 xl:grid-cols-2">
+                  <DocumentExtractor
+                    commandDocumentText={commandDocumentText}
+                    documentText={form.intake}
+                    extractSignal={documentExtractSignal}
+                    model={selectedModel}
+                    onRunCommand={runCommandAndForget}
+                    onApplyAddendum={(addendum) =>
+                      setForm((currentForm) => ({
+                        ...currentForm,
+                        intake: `${currentForm.intake}\n\nDocument addendum:\n${addendum}`,
+                      }))
+                    }
+                  />
+                  <NextStepNavigator
+                    commandInstruction={commandNextStepInstruction}
+                    model={selectedModel}
+                    onRunCommand={runCommandAndForget}
+                    output={displayOutput}
+                    patientName={selectedCase?.patientName ?? form.patientName}
+                    planSignal={nextStepSignal}
+                  />
+                  <RiskExplainer
+                    commandInstruction={commandRiskInstruction}
+                    explainSignal={riskExplainSignal}
+                    model={selectedModel}
+                    output={displayOutput}
+                  />
+                  <StaffHandoff
+                    commandInstruction={commandHandoffInstruction}
+                    handoffSignal={handoffSignal}
+                    model={selectedModel}
+                    output={displayOutput}
+                    patientName={selectedCase?.patientName ?? form.patientName}
+                  />
+                  <CaseAssistant
+                    askSignal={caseAssistantAskSignal}
+                    commandQuestion={commandCaseQuestion}
+                    model={selectedModel}
+                    output={displayOutput}
+                  />
+                  <PatientLiteracyPanel
+                    activeMode={literacyMode}
+                    onModeChange={setLiteracyMode}
+                    output={displayOutput}
+                  />
+                  <TeachBackCheck output={displayOutput} />
+                  <PatientQuestionAnswer
+                    answerSignal={patientQuestionSignal}
+                    commandQuestion={commandPatientQuestion}
+                    model={selectedModel}
+                    onRunCommand={runCommandAndForget}
+                    output={displayOutput}
+                    patientName={selectedCase?.patientName ?? form.patientName}
+                  />
+                  <FollowUpComposer
+                    commandInstruction={commandFollowUpInstruction}
+                    composeSignal={followUpComposeSignal}
+                    model={selectedModel}
+                    output={displayOutput}
+                    patientName={selectedCase?.patientName ?? form.patientName}
+                    preferredChannel={followUpChannel}
+                  />
+                  <FollowUpScheduler
+                    commandInstruction={commandFollowUpScheduleInstruction}
+                    model={selectedModel}
+                    onRunCommand={runCommandAndForget}
+                    output={displayOutput}
+                    patientName={selectedCase?.patientName ?? form.patientName}
+                    scheduleSignal={followUpScheduleSignal}
+                  />
+                  <ReplyTriage
+                    commandReplyText={commandPatientReply}
+                    model={selectedModel}
+                    onRunCommand={runCommandAndForget}
+                    output={displayOutput}
+                    patientName={selectedCase?.patientName ?? form.patientName}
+                    triageSignal={replyTriageSignal}
+                  />
+                  <ReferralComposer
+                    commandInstruction={commandReferralInstruction}
+                    composeSignal={referralComposeSignal}
+                    documentType={referralDocumentType}
+                    model={selectedModel}
+                    output={displayOutput}
+                    patientName={selectedCase?.patientName ?? form.patientName}
+                  />
+                  <MedicineSafety
+                    commandMedicines={commandMedicines}
+                    medicineCheckSignal={medicineCheckSignal}
+                    model={selectedModel}
+                    output={displayOutput}
+                  />
+                </div>
+              </details>
             </div>
           ) : null}
 
