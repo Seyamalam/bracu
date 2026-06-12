@@ -3,7 +3,6 @@
 import { useMutation, useQuery } from "convex/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/features/language/language-context";
 import { cn } from "@/lib/utils";
 import { api } from "../../../../convex/_generated/api";
@@ -29,17 +28,16 @@ import type {
   UiLanguage,
 } from "../types";
 import { useClinicText } from "../use-clinic-text";
-import { AiRunReceipts } from "./ai-run-receipts";
-import {
-  AppShellSidebar,
-  type WorkspacePage,
-  workspaceMeta,
-} from "./app-shell-sidebar";
+import { AppShellSidebar, type WorkspacePage } from "./app-shell-sidebar";
 import { ApprovalReadiness } from "./approval-readiness";
-import { ApprovalsInbox } from "./approvals-inbox";
 import { CaseAssistant } from "./case-assistant";
 import { CaseBoard } from "./case-board";
 import { ClinicBriefing } from "./clinic-briefing";
+import {
+  ClinicWorkspaceHeader,
+  CopilotSupportDrawer,
+  PrintPreviewDialog,
+} from "./clinic-workspace-shell";
 import {
   ClinicalSafetyGates,
   getClinicalSafetyGates,
@@ -56,7 +54,6 @@ import {
   type QueuedDraft,
 } from "./low-connectivity-panel";
 import { MedicineSafety } from "./medicine-safety";
-import { Metric } from "./metric";
 import { NextStepNavigator } from "./next-step-navigator";
 import { OperationsPulse } from "./operations-pulse";
 import { PatientHandout } from "./patient-handout";
@@ -1218,11 +1215,6 @@ export function ClinicCopilotApp({
     return <AuthScreen onLogin={auth.login} onRegister={auth.register} />;
   }
 
-  const activeWorkspace =
-    workspaceMeta.find((item) => item.id === activeWorkspacePage) ??
-    workspaceMeta[0];
-  const ActiveWorkspaceIcon = activeWorkspace.icon;
-
   return (
     <main
       className={cn(
@@ -1248,40 +1240,11 @@ export function ClinicCopilotApp({
         />
       ) : null}
       {printPreviewOpen ? (
-        <div className="fixed inset-0 z-50 overflow-auto bg-black/50 p-4">
-          <div className="mx-auto max-w-3xl rounded-lg bg-white p-4 shadow-xl">
-            <div className="flex items-start justify-between gap-3 border-b pb-3">
-              <div>
-                <p className="font-black text-xl">{t("Print Preview")}</p>
-                <p className="text-muted-foreground text-sm">
-                  {t("Review the packet before sending it to the printer.")}
-                </p>
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setPrintPreviewOpen(false)}
-              >
-                {t("Close")}
-              </Button>
-            </div>
-            <div className="mt-4">
-              <PatientHandout copy={copy} output={displayOutput} />
-            </div>
-            <div className="mt-4 flex justify-end gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setPrintPreviewOpen(false)}
-              >
-                {t("Keep editing")}
-              </Button>
-              <Button type="button" onClick={() => window.print()}>
-                {t("Print packet")}
-              </Button>
-            </div>
-          </div>
-        </div>
+        <PrintPreviewDialog
+          copy={copy}
+          output={displayOutput}
+          onClose={() => setPrintPreviewOpen(false)}
+        />
       ) : null}
       <AppShellSidebar
         activePage={activeWorkspacePage}
@@ -1295,58 +1258,22 @@ export function ClinicCopilotApp({
       />
 
       {aiDrawerOpen ? (
-        <div className="fixed inset-0 z-40 bg-black/30">
-          <aside className="absolute inset-y-0 right-0 flex w-full max-w-xl flex-col overflow-y-auto border-slate-200 border-l bg-white shadow-2xl">
-            <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-slate-200 border-b bg-white p-4">
-              <div>
-                <p className="font-black text-xl">{t("Ask Copilot")}</p>
-                <p className="text-muted-foreground text-sm">
-                  {t(
-                    "Page-aware help with chat, tools, approvals, and safety context.",
-                  )}
-                </p>
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setAiDrawerOpen(false)}
-              >
-                {t("Close")}
-              </Button>
-            </div>
-            <div className="space-y-4 p-4">
-              <Button
-                className="w-full justify-center"
-                type="button"
-                onClick={() => {
-                  setAiDrawerOpen(false);
-                  openWorkspacePage("ai");
-                }}
-              >
-                {t("Open full Copilot")}
-              </Button>
-              <AiRunReceipts
-                form={form}
-                output={displayOutput}
-                runningAction={runningAction}
-              />
-              <ApprovalsInbox
-                form={form}
-                output={displayOutput}
-                onCommand={runCommandAndForget}
-                onPrintPreview={() => setPrintPreviewOpen(true)}
-              />
-              <ClinicalSafetyGates gates={safetyGates} />
-              <ApprovalReadiness
-                checkSignal={approvalCheckSignal}
-                commandInstruction={commandApprovalInstruction}
-                model={selectedModel}
-                onRunCommand={runCommandAndForget}
-                output={displayOutput}
-              />
-            </div>
-          </aside>
-        </div>
+        <CopilotSupportDrawer
+          approvalCheckSignal={approvalCheckSignal}
+          commandApprovalInstruction={commandApprovalInstruction}
+          form={form}
+          model={selectedModel}
+          output={displayOutput}
+          runningAction={runningAction}
+          safetyGates={safetyGates}
+          onClose={() => setAiDrawerOpen(false)}
+          onOpenCopilot={() => {
+            setAiDrawerOpen(false);
+            openWorkspacePage("ai");
+          }}
+          onPrintPreview={() => setPrintPreviewOpen(true)}
+          onRunCommand={runCommandAndForget}
+        />
       ) : null}
 
       <div
@@ -1355,51 +1282,17 @@ export function ClinicCopilotApp({
           activeWorkspacePage === "ai" ? "lg:pl-0" : "lg:pl-72",
         )}
       >
-        <header className="border-slate-200 border-b bg-gradient-to-r from-white via-[#f7fff8] to-[#fff7d6]">
-          <div className="mx-auto grid max-w-[1680px] gap-4 px-4 py-4 sm:px-6 lg:grid-cols-[1fr_auto] lg:px-8">
-            <div>
-              <p className="font-semibold text-primary text-sm">
-                {currentUser.clinicName}
-              </p>
-              <div className="mt-1 flex items-center gap-3">
-                <span className="hidden size-11 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground shadow-sm sm:flex">
-                  <ActiveWorkspaceIcon size={22} aria-hidden="true" />
-                </span>
-                <div>
-                  <h1 className="font-black text-2xl tracking-normal sm:text-4xl">
-                    {activeWorkspace.label}
-                  </h1>
-                  <p className="mt-1 text-muted-foreground text-sm">
-                    {activeWorkspace.description}
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="grid grid-cols-4 gap-2 lg:min-w-[30rem]">
-              <Metric label={copy.cases} value={cases?.length ?? 0} />
-              <Metric label={copy.ready} value={`${readyScore}%`} />
-              <Metric
-                label={copy.mode}
-                value={mode === "idle" ? "Demo" : mode}
-              />
-              <Metric label={t("Provider")} value={activeProviderLabel} />
-              <ProviderSwitch
-                className="col-span-4"
-                value={selectedModel}
-                onChange={setSelectedModel}
-              />
-              {activeWorkspacePage !== "ai" ? (
-                <Button
-                  className="col-span-4 bg-[#f2c14e] text-slate-950 hover:bg-[#e2b243]"
-                  type="button"
-                  onClick={() => setAiDrawerOpen(true)}
-                >
-                  {t("Ask Copilot")}
-                </Button>
-              ) : null}
-            </div>
-          </div>
-        </header>
+        <ClinicWorkspaceHeader
+          activePage={activeWorkspacePage}
+          caseCount={cases?.length ?? 0}
+          clinicName={currentUser.clinicName}
+          mode={mode}
+          providerLabel={activeProviderLabel}
+          readyScore={readyScore}
+          selectedModel={selectedModel}
+          onAskCopilot={() => setAiDrawerOpen(true)}
+          onModelChange={setSelectedModel}
+        />
 
         <section
           className="mx-auto max-w-[1680px] px-4 py-4 sm:px-6 lg:px-8"
@@ -2129,54 +2022,4 @@ function useClinicDomLocalization(language: UiLanguage) {
     });
     return () => observer.disconnect();
   }, [language]);
-}
-
-function ProviderSwitch({
-  className,
-  value,
-  onChange,
-}: {
-  className?: string;
-  value: string;
-  onChange: (value: string) => void;
-}) {
-  const t = useClinicText();
-  const options = [
-    { label: "LM Studio", value: "lmstudio" },
-    { label: "Gemini", value: "gemini-2.5-flash" },
-  ];
-
-  return (
-    <fieldset
-      className={cn(
-        "grid grid-cols-2 rounded-lg border border-slate-200 bg-white p-1 shadow-sm",
-        className,
-      )}
-    >
-      <legend className="sr-only">{t("AI provider switcher")}</legend>
-      {options.map((option) => {
-        const isActive =
-          option.value === "lmstudio"
-            ? value === "lmstudio"
-            : value !== "lmstudio";
-        return (
-          <Button
-            key={option.value}
-            aria-pressed={isActive}
-            className={cn(
-              "h-9 rounded-md text-xs",
-              isActive
-                ? "bg-[#0f3d33] text-white hover:bg-[#0b2f28]"
-                : "bg-transparent text-slate-700 shadow-none hover:bg-slate-100",
-            )}
-            type="button"
-            variant={isActive ? "default" : "ghost"}
-            onClick={() => onChange(option.value)}
-          >
-            {t(option.label)}
-          </Button>
-        );
-      })}
-    </fieldset>
-  );
 }
