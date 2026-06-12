@@ -156,6 +156,31 @@ export const demo = mutation({
         updatedAt: Date.now(),
       }));
 
+    if (existing) {
+      await ctx.db.patch(userId, {
+        password: "demo1234",
+        clinicName: "Dhanmondi Care Desk",
+        role: "clinician",
+        updatedAt: Date.now(),
+      });
+    }
+
+    const existingAuditLogs = await ctx.db
+      .query("auditLogs")
+      .withIndex("by_userId_and_createdAt", (q) => q.eq("userId", userId))
+      .collect();
+    for (const auditLog of existingAuditLogs) {
+      await ctx.db.delete(auditLog._id);
+    }
+
+    const existingCases = await ctx.db
+      .query("cases")
+      .withIndex("by_userId_and_updatedAt", (q) => q.eq("userId", userId))
+      .collect();
+    for (const caseDoc of existingCases) {
+      await ctx.db.delete(caseDoc._id);
+    }
+
     const caseIds: Id<"cases">[] = [];
     for (const seedCase of seededCases) {
       const now = Date.now();
