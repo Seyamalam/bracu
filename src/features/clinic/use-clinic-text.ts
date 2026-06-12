@@ -679,6 +679,7 @@ const clinicTextBn: Record<string, string> = {
   "Attach prescription or lab text": "প্রেসক্রিপশন বা ল্যাব টেক্সট অ্যাটাচ করুন",
   "Audio readout": "অডিও রিডআউট",
   "Approve handout": "হ্যান্ডআউট অনুমোদন করুন",
+  "AI provider switcher": "AI প্রোভাইডার সুইচার",
   "Call sheet": "কল শিট",
   "Capture notes, vitals, documents, and missing basics.":
     "নোট, ভাইটাল, ডকুমেন্ট ও মিসিং বেসিক নিন।",
@@ -729,6 +730,7 @@ const clinicTextBn: Record<string, string> = {
   "Review the packet before sending it to the printer.":
     "প্রিন্টারে পাঠানোর আগে প্যাকেট রিভিউ করুন।",
   "Role View": "রোল ভিউ",
+  "Use Google Gemini through AI SDK": "AI SDK দিয়ে Google Gemini ব্যবহার করুন",
   "Schedule callback": "কলব্যাক শিডিউল করুন",
   "Simple Bangla": "সহজ বাংলা",
   "Simple Bangla, pictograms, audio, and teach-back confirmation":

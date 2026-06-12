@@ -1442,6 +1442,11 @@ export function ClinicCopilotApp({
                 value={mode === "idle" ? "Demo" : mode}
               />
               <Metric label={t("Provider")} value={activeProviderLabel} />
+              <ProviderSwitch
+                className="col-span-4"
+                value={selectedModel}
+                onChange={setSelectedModel}
+              />
               {activeWorkspacePage !== "ai" ? (
                 <Button
                   className="col-span-4 bg-[#f2c14e] text-slate-950 hover:bg-[#e2b243]"
@@ -2252,6 +2257,56 @@ function useClinicDomLocalization(language: UiLanguage) {
     });
     return () => observer.disconnect();
   }, [language]);
+}
+
+function ProviderSwitch({
+  className,
+  value,
+  onChange,
+}: {
+  className?: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const t = useClinicText();
+  const options = [
+    { label: "LM Studio", value: "lmstudio" },
+    { label: "Gemini", value: "gemini-2.5-flash" },
+  ];
+
+  return (
+    <fieldset
+      className={cn(
+        "grid grid-cols-2 rounded-lg border border-slate-200 bg-white p-1 shadow-sm",
+        className,
+      )}
+    >
+      <legend className="sr-only">{t("AI provider switcher")}</legend>
+      {options.map((option) => {
+        const isActive =
+          option.value === "lmstudio"
+            ? value === "lmstudio"
+            : value !== "lmstudio";
+        return (
+          <Button
+            key={option.value}
+            aria-pressed={isActive}
+            className={cn(
+              "h-9 rounded-md text-xs",
+              isActive
+                ? "bg-[#0f3d33] text-white hover:bg-[#0b2f28]"
+                : "bg-transparent text-slate-700 shadow-none hover:bg-slate-100",
+            )}
+            type="button"
+            variant={isActive ? "default" : "ghost"}
+            onClick={() => onChange(option.value)}
+          >
+            {t(option.label)}
+          </Button>
+        );
+      })}
+    </fieldset>
+  );
 }
 
 function inferAgentForCommand(command: string): AgentTimelineEvent["agent"] {
