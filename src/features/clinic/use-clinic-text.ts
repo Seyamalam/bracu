@@ -691,6 +691,7 @@ const clinicTextBn: Record<string, string> = {
   "Confirm allergies": "অ্যালার্জি কনফার্ম করুন",
   "Confirm teach-back": "টিচ-ব্যাক কনফার্ম করুন",
   "Doctor summary": "ডাক্তার সারাংশ",
+  Dictate: "ডিক্টেট করুন",
   "Escalate red flags": "রেড ফ্ল্যাগ এসক্যালেট করুন",
   "Family must repeat before leaving:": "যাওয়ার আগে পরিবারকে পুনরাবৃত্তি করতে হবে:",
   "Focused workflows for each clinic worker":
@@ -731,7 +732,12 @@ const clinicTextBn: Record<string, string> = {
     "প্রিন্টারে পাঠানোর আগে প্যাকেট রিভিউ করুন।",
   "Role View": "রোল ভিউ",
   "Use Google Gemini through AI SDK": "AI SDK দিয়ে Google Gemini ব্যবহার করুন",
+  "Voice transcription is not supported in this browser.":
+    "এই ব্রাউজারে ভয়েস ট্রান্সক্রিপশন সাপোর্টেড নয়।",
+  "Voice transcription stopped. Please try again.":
+    "ভয়েস ট্রান্সক্রিপশন বন্ধ হয়েছে। আবার চেষ্টা করুন।",
   "Schedule callback": "কলব্যাক শিডিউল করুন",
+  "Stop dictation": "ডিক্টেশন বন্ধ করুন",
   "Simple Bangla": "সহজ বাংলা",
   "Simple Bangla, pictograms, audio, and teach-back confirmation":
     "সহজ বাংলা, পিক্টোগ্রাম, অডিও ও টিচ-ব্যাক কনফার্মেশন",
