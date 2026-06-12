@@ -208,9 +208,8 @@ export const featureCatalog = [
       "SOAP-style clinical draft",
       "Current-case AI Q&A",
       "Natural-language Command Copilot",
-      "Agent Command Center with named tools",
-      "Agentic Workflow Studio",
-      "Canvas-style automation preview",
+      "One-click judge demo workflow",
+      "Chat-first Copilot with patient, queue, safety, and follow-up threads",
       "AI Run Receipts",
       "Approvals Inbox",
       "AI document extraction for OCR text",
@@ -270,7 +269,7 @@ export const featureCatalog = [
       "Workflow capability resource",
       "AI workflow brief tool",
       "Role-aware tool registry for external agents",
-      "In-app MCP Explorer",
+      "Docs and API-callable MCP evidence path",
       "Queue, safety, print, literacy, sync, approval, and simulation MCP tools",
       "Safety instructions in server metadata",
     ],
@@ -506,13 +505,13 @@ export const docsTesterWalkthrough = [
   },
   {
     steps: [
-      "Open /clinic/queue and sign in or create a demo session, then enter the shareable clinic workspace.",
-      "Open /judge first if presenting to judges; it gives the clean three-minute route.",
-      "Use the six main workspaces: Queue, Case, AI, Operations, Builder, and Admin.",
-      "Switch between Reception, Nurse, Doctor, Follow-up desk, and Admin roles and confirm each role changes ownership context.",
-      "Check the red-flag lane, waiting-time labels, follow-up due clock, and staff owner badges on the case board.",
+      "Open /clinic/copilot and sign in or create a demo session, then click Judge demo for the full agentic workflow.",
+      "Open /judge first if presenting to judges; it gives the full project story, report facts, and demo route.",
+      "Use the three current workspaces: Copilot, Case, and Queue.",
+      "Confirm Copilot can switch between patient, queue, safety, and follow-up threads.",
+      "Open Queue to check the red-flag lane, waiting-time labels, follow-up due clock, and staff owner badges on the case board.",
     ],
-    title: "2. Role and queue pass",
+    title: "2. Judge and queue pass",
   },
   {
     steps: [
@@ -524,15 +523,14 @@ export const docsTesterWalkthrough = [
   },
   {
     steps: [
-      "Use the agent command bar to ask for a doctor summary, medicine slip, referral, follow-up call sheet, or pictogram handout.",
-      "Open the command palette and run named tools from the Clinic Agent Swarm.",
-      "Open the Copilot workspace for chat, tool runs, approvals, memory, MCP-style commands, and agent timeline.",
-      "Use Ask Copilot from Queue, Case, Operations, Builder, and Admin to confirm page-aware help is always available.",
+      "Use Copilot to ask for a doctor summary, medicine slip, referral, follow-up call sheet, or simple Bangla handout.",
+      "Click Judge demo to run the pregnancy fever workflow across draft generation, document extraction, safety blockers, medicine review, handoff, closeout, and queue briefing.",
+      "Open the Copilot workspace for chat, tool runs, approvals, and MCP-style commands.",
+      "Use Ask Copilot from Case or Queue to confirm page-aware help is available outside the main chat.",
       "Check AI Run Receipts and Approvals Inbox for safety status, role, timestamp, and human-review boundaries.",
-      "Open Builder for Agentic Workflow Studio and click Canvas, Governor, Journey, Protocols, Shift, Simulation, and Marketplace.",
-      "Review the live tool stream, agent memory, agent inbox, command replay, and simulation judge output for clear status and human approval boundaries.",
+      "Review recent runs and agent messages for clear status and human approval boundaries.",
     ],
-    title: "4. Agent operating system",
+    title: "4. Agentic Copilot pass",
   },
   {
     steps: [
@@ -546,7 +544,7 @@ export const docsTesterWalkthrough = [
     steps: [
       "Turn on low-connectivity mode, create local drafts, and confirm queued sync status is visible.",
       "Return online and verify sync status updates without losing draft content.",
-      "Open Admin and run MCP Explorer for tools/list or safety blocker calls.",
+      "Call /api/mcp or run bun run mcp:smoke for tools/list or safety blocker calls.",
       "Paste mcp.json into LM Studio or another MCP host and enable the host's permission to call configured MCP servers.",
       "Capture screenshots of the queue, AI progress, safety gate, print preview, and low-connectivity states for the judging report.",
     ],

@@ -106,7 +106,7 @@ function PublicHeader({ activePage }: { activePage: PublicPage }) {
             onChange={setLanguage}
           />
           <Button asChild>
-            <Link href="/clinic/queue">
+            <Link href="/clinic/copilot">
               <LogIn size={17} aria-hidden="true" />
               Start demo
             </Link>
@@ -155,7 +155,7 @@ function HomePage({ authSlot }: { authSlot?: React.ReactNode }) {
             </div>
             <div className="mt-7 flex flex-wrap gap-3">
               <Button asChild size="lg" variant="secondary">
-                <Link href="/clinic/queue">
+                <Link href="/clinic/copilot">
                   <PlayCircle size={19} aria-hidden="true" />
                   Launch clinic demo
                 </Link>
@@ -1087,7 +1087,7 @@ function ProductScreenshotBand() {
             </h2>
           </div>
           <Button asChild variant="outline">
-            <Link href="/clinic/queue">
+            <Link href="/clinic/copilot">
               Open demo
               <ArrowRight size={17} aria-hidden="true" />
             </Link>
@@ -1461,10 +1461,10 @@ const publicBnTextMap = new Map<string, string>(
       "নির্বাচিত রোগীর কেস পেজ খুলে ইনটেক, ভাইটাল, সেফটি গেট, ড্রাফট, হ্যান্ডআউট ও ফলো-আপ রিভিউ করুন।",
     "Run or show the Copilot Console with chat, command palette, tool stream, run receipts, approvals, memory, and timeline.":
       "চ্যাট, কমান্ড প্যালেট, টুল স্ট্রিম, রান রিসিট, অনুমোদন, মেমরি ও টাইমলাইনসহ কোপাইলট কনসোল চালান বা দেখান।",
-    "Open Builder and show the Workflow Studio: Canvas, Governor, Journey, Protocols, Shift, Simulation, Marketplace.":
-      "Builder খুলে Workflow Studio দেখান: Canvas, Governor, Journey, Protocols, Shift, Simulation, Marketplace।",
-    "Use Admin MCP Explorer to run tools/list or safety blockers and prove external-agent readiness.":
-      "Admin MCP Explorer দিয়ে tools/list বা safety blockers চালিয়ে external-agent readiness প্রমাণ করুন।",
+    "Open the Copilot workspace and click Judge demo to run the full agentic workflow.":
+      "কোপাইলট ওয়ার্কস্পেস খুলে Judge demo ক্লিক করে পুরো এজেন্টিক ওয়ার্কফ্লো চালান।",
+    "Use /api/mcp or the docs tool catalog to prove external-agent readiness.":
+      "/api/mcp অথবা ডকস টুল ক্যাটালগ দিয়ে external-agent readiness প্রমাণ করুন।",
     "End with print preview, safety guardrails, impact metrics, and the clinician-review boundary.":
       "প্রিন্ট প্রিভিউ, সেফটি গার্ডরেইল, ইমপ্যাক্ট মেট্রিক এবং ক্লিনিশিয়ান-রিভিউ সীমা দিয়ে শেষ করুন।",
     "Launch demo": "ডেমো চালু করুন",

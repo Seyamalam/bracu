@@ -1,13 +1,22 @@
 "use client";
 
 import {
+  Activity,
+  ArrowRight,
+  BadgeCheck,
   Bot,
+  Building2,
+  CheckCircle2,
+  ClipboardCheck,
   FileText,
-  GitBranch,
+  Globe2,
   HeartPulse,
-  MonitorPlay,
-  Printer,
+  Laptop,
+  LockKeyhole,
+  Network,
+  PlayCircle,
   ShieldCheck,
+  Stethoscope,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -15,188 +24,530 @@ import { useLanguage } from "@/features/language/language-context";
 import { LanguageToggle } from "@/features/language/language-toggle";
 import { BrandMark } from "./brand-mark";
 
-const judgeSteps = [
+const demoRoute = [
   {
     detail:
-      "Open the live Queue workspace and show red-flag lane, wait time, owner badges, and follow-up due state.",
-    icon: MonitorPlay,
-    title: "1. Start in Queue",
+      "Click Judge demo on /clinic/copilot. It loads a pregnancy fever case with prescription text, lab report facts, mixed Bangla-English intake, and safety blockers.",
+    icon: PlayCircle,
+    title: "1. One-click agentic run",
   },
   {
     detail:
-      "Open the selected patient Case page and review intake, vitals, safety gates, draft, handout, and follow-up.",
-    icon: HeartPulse,
-    title: "2. Open Case",
-  },
-  {
-    detail:
-      "Run or show the Copilot Console with chat, command palette, tool stream, run receipts, approvals, memory, and timeline.",
+      "Show how the command maps to document extraction, intake cleanup, draft generation, medicine safety, risk explanation, handoff, referral, follow-up, closeout, and queue briefing.",
     icon: Bot,
-    title: "3. Show Copilot",
+    title: "2. Multi-tool workflow",
   },
   {
     detail:
-      "Open Builder and show the Workflow Studio: Canvas, Governor, Journey, Protocols, Shift, Simulation, Marketplace.",
-    icon: GitBranch,
-    title: "4. Show Builder",
+      "Open Case to show intake, draft support, clinical safety gates, approval readiness, visit closeout, patient handout, and print packet.",
+    icon: HeartPulse,
+    title: "3. Clinical review surface",
   },
   {
     detail:
-      "Use Admin MCP Explorer to run tools/list or safety blockers and prove external-agent readiness.",
-    icon: FileText,
-    title: "5. Prove MCP",
+      "Open Queue to show red-flag lane, status filters, owners, follow-up clocks, operations pulse, and clinic briefing.",
+    icon: Activity,
+    title: "4. Operations proof",
   },
   {
     detail:
-      "End with print preview, safety guardrails, impact metrics, and the clinician-review boundary.",
-    icon: Printer,
-    title: "6. Close Strong",
+      "Mention local LM Studio, cloud Gemini, deterministic fallback, /api/mcp, stdio MCP server, and human review as the safety boundary.",
+    icon: Network,
+    title: "5. Platform proof",
   },
+] as const;
+
+const reportStats = [
+  ["Bangladesh population", "173.6M", "Large frontline-care impact surface."],
+  ["Physicians", "0.722 / 1,000", "Staff need support before doctor review."],
+  [
+    "Out-of-pocket share",
+    "79.3%",
+    "Avoidable revisits are costly for families.",
+  ],
+  ["MCP tools", "12", "External agents can call bounded workflows."],
+  [
+    "Autonomous clinical decisions",
+    "0",
+    "The product drafts; clinicians decide.",
+  ],
+] as const;
+
+const painResponse = [
+  [
+    "Reception captures incomplete information",
+    "Bangla/English intake cleanup, missing question finder, and safety gate prompts.",
+  ],
+  [
+    "Doctor is overloaded",
+    "Queue risk summary, red-flag lane, concise handoff, and clinician-review drafts.",
+  ],
+  [
+    "Nurses juggle safety and coordination",
+    "Vitals/allergy blockers, staff task list, approval readiness, and closeout checklist.",
+  ],
+  [
+    "Patient instructions are unclear",
+    "Simple Bangla handout, teach-back checklist, urgent return warnings, and follow-up message.",
+  ],
+  [
+    "Follow-up falls through the cracks",
+    "Follow-up due panel, call ownership, reply triage, and queue briefing.",
+  ],
+  [
+    "Clinic owner lacks quality visibility",
+    "Run receipts, operations pulse, trends, MCP resources, and audit-ready workflow output.",
+  ],
+] as const;
+
+const safetyRules = [
+  "Summarize intake, suggest missing questions, draft handoff, draft education, flag blockers, and prepare review packets.",
+  "Do not diagnose, prescribe, approve final care, dismiss urgent symptoms, or finalize patient-facing instructions.",
+  "Patient-facing, printable, referral, and clinical outputs stay draft-only until a human reviews them.",
+  "Provider failure falls back to deterministic safe output so demos and training do not depend on fragile API state.",
+] as const;
+
+const mcpTools = [
+  "clinic.demo_manifest",
+  "clinic.list_demo_scenarios",
+  "clinic.workflow_brief",
+  "clinic.tools.list",
+  "clinic.tools.describe",
+  "clinic.queue.snapshot",
+  "clinic.safety.get_blockers",
+  "clinic.print.prepare_packet",
+  "clinic.literacy.prepare",
+  "clinic.sync.preview_queue",
+  "clinic.approval.request",
+  "clinic.demo.score_scenario",
+] as const;
+
+const stackRows = [
+  ["Frontend", "Next.js App Router, React, TypeScript, Tailwind CSS"],
+  ["Backend", "Convex realtime data plus Next.js API routes"],
+  [
+    "AI",
+    "Vercel AI SDK, Google Gemini, LM Studio via OpenAI-compatible provider",
+  ],
+  ["MCP", "@modelcontextprotocol/sdk, stdio server, JSON-RPC HTTP demo route"],
+  ["Validation", "Zod schemas, deterministic fallbacks, Bun tests, Biome"],
+] as const;
+
+const milestones = [
+  "Add explicit provider status: local live, cloud live, fallback, timeout.",
+  "Build offline-first Android wrapper or PWA field mode.",
+  "Add maternal, child, and NCD-specific field protocols.",
+  "Add supervisor dashboard for CHW and small-hospital programs.",
+  "Add exportable program reports and privacy-hardened production authentication.",
+  "Pilot with synthetic or anonymized workflows before any real patient use.",
+] as const;
+
+const sourceNotes = [
+  "Report source: reports/clinic-copilot-bd-health-worker-report.pdf and companion TeX source.",
+  "World Bank Bangladesh population, physician density, and out-of-pocket expenditure indicators.",
+  "WHO universal health coverage and health workforce reporting.",
+  "Bangladesh Digital Health Strategy 2023-2027 alignment with mHealth, AI, privacy, and interoperability.",
+  "Community clinic and CHW evidence from WHO, CHW Central, and frontline health worker references listed in the report.",
 ] as const;
 
 export function JudgeModePage() {
   const { language, setLanguage } = useLanguage();
-  const copy = judgeCopy[language];
 
   return (
-    <main className="min-h-screen bg-[#071f1a] text-white">
-      <header className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-5 sm:px-6 lg:px-8">
-        <BrandMark />
-        <div className="flex flex-wrap justify-end gap-2">
-          <LanguageToggle
-            className="min-w-52"
-            value={language}
-            onChange={setLanguage}
-          />
-          <Button asChild variant="secondary">
-            <Link href="/clinic/queue">{copy.launchDemo}</Link>
-          </Button>
-          <Button asChild variant="outline">
-            <Link href="/docs">{copy.docs}</Link>
-          </Button>
+    <main className="min-h-screen bg-[#fbfaf6] text-slate-950">
+      <header className="sticky top-0 z-40 border-slate-200 border-b bg-[#fbfaf6]/95 backdrop-blur">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
+          <Link href="/" aria-label="Clinic Copilot BD home">
+            <BrandMark />
+          </Link>
+          <div className="flex flex-wrap justify-end gap-2">
+            <LanguageToggle
+              className="hidden min-w-52 sm:grid"
+              value={language}
+              onChange={setLanguage}
+            />
+            <Button asChild variant="secondary">
+              <Link href="/clinic/copilot">
+                <PlayCircle size={17} aria-hidden="true" />
+                Launch Judge demo
+              </Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/docs">Docs</Link>
+            </Button>
+          </div>
         </div>
       </header>
-      <section className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:px-8">
-        <div>
-          <p className="font-semibold text-[#f2c14e] text-sm uppercase tracking-[0.16em]">
-            {copy.eyebrow}
-          </p>
-          <h1 className="mt-4 font-black text-4xl tracking-normal sm:text-6xl">
-            {copy.title}
-          </h1>
-          <p className="mt-5 text-lg text-white/76 leading-8">{copy.body}</p>
-          <div className="mt-6 grid gap-3 sm:grid-cols-3">
-            {[
-              ["6", copy.workspaces],
-              ["10+", copy.mcpTools],
-              ["0", copy.autonomousDecisions],
-            ].map(([value, label]) => (
-              <div
-                className="border border-white/16 bg-white/10 p-4"
+
+      <section className="bg-[#12332c] text-white">
+        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
+          <div>
+            <p className="font-semibold text-[#f2c14e] text-sm uppercase tracking-[0.16em]">
+              Judge mode
+            </p>
+            <h1 className="mt-4 font-black text-4xl tracking-normal sm:text-6xl">
+              Everything judges need to understand Clinic Copilot BD.
+            </h1>
+            <p className="mt-5 max-w-3xl text-lg text-white/82 leading-8">
+              A Bangla-first health worker assistant for overloaded clinics. It
+              turns messy patient stories into draft support, safety blockers,
+              handoff tasks, print packets, follow-up ownership, and MCP-ready
+              tool calls while keeping clinicians in control.
+            </p>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <Button asChild size="lg" variant="secondary">
+                <Link href="/clinic/copilot">
+                  Click the Judge demo button
+                  <ArrowRight size={18} aria-hidden="true" />
+                </Link>
+              </Button>
+              <Button
+                asChild
+                className="border-white/35 bg-white/10 text-white hover:bg-white/20"
+                size="lg"
+                variant="outline"
+              >
+                <Link href="/docs">Review MCP and AI docs</Link>
+              </Button>
+            </div>
+          </div>
+          <div className="grid content-start gap-3 sm:grid-cols-2">
+            {reportStats.map(([label, value, detail]) => (
+              <article
+                className="border border-white/18 bg-white/10 p-4"
                 key={label}
               >
-                <p className="font-black text-3xl">{value}</p>
-                <p className="text-white/70 text-sm">{label}</p>
+                <p className="font-black text-3xl text-[#f2c14e]">{value}</p>
+                <h2 className="mt-2 font-bold">{label}</h2>
+                <p className="mt-1 text-white/72 text-sm leading-6">{detail}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <PageSection
+        eyebrow="3 minute script"
+        title="Show the one-click workflow first, then prove the system around it."
+        intro="Use this exact route when judges arrive. It is grounded in the current app: Copilot, Case, Queue, local/cloud AI, deterministic fallback, and MCP."
+      >
+        <div className="grid gap-3 lg:grid-cols-5">
+          {demoRoute.map((step) => {
+            const Icon = step.icon;
+            return (
+              <article
+                className="border border-border bg-white p-4"
+                key={step.title}
+              >
+                <Icon className="text-primary" size={22} aria-hidden="true" />
+                <h3 className="mt-3 font-bold text-lg">{step.title}</h3>
+                <p className="mt-2 text-muted-foreground text-sm leading-6">
+                  {step.detail}
+                </p>
+              </article>
+            );
+          })}
+        </div>
+      </PageSection>
+
+      <PageSection
+        eyebrow="Executive summary"
+        title="The product thesis from the report."
+        intro="The best health-worker AI for Bangladesh is not the most medically aggressive chatbot. It is the one that reduces workload, catches missing checks, keeps outputs draft-only, works with local or cloud models, and makes human review auditable."
+      >
+        <div className="grid gap-4 lg:grid-cols-3">
+          <InfoCard
+            icon={Stethoscope}
+            title="Primary wedge"
+            body="Smaller hospitals, local private clinics, diagnostic-linked clinics, NGO clinics, community clinics, and busy outpatient desks where staff are stretched and workflows are paper-heavy."
+          />
+          <InfoCard
+            icon={Building2}
+            title="Larger hospital path"
+            body="OPD throughput, emergency intake, nursing handoff, discharge education, quality review, training, audit, and research evaluation."
+          />
+          <InfoCard
+            icon={Globe2}
+            title="Global relevance"
+            body="Frontline delivery pressure, physician scarcity, essential service gaps, and out-of-pocket burden create demand for practical support instead of generic chat."
+          />
+        </div>
+      </PageSection>
+
+      <PageSection
+        eyebrow="Market and operations"
+        title="Why small clinics feel the pain first."
+        intro="The report positions smaller facilities as the highest-probability first buyer because they need immediate workload relief without buying a heavy hospital information system."
+      >
+        <div className="grid gap-3 md:grid-cols-2">
+          {painResponse.map(([pain, response]) => (
+            <article className="border border-border bg-white p-5" key={pain}>
+              <h3 className="font-bold text-lg">{pain}</h3>
+              <p className="mt-2 text-muted-foreground leading-7">{response}</p>
+            </article>
+          ))}
+        </div>
+      </PageSection>
+
+      <section className="bg-white">
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-14 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
+          <div>
+            <p className="font-semibold text-primary text-sm uppercase tracking-[0.16em]">
+              Workflow design
+            </p>
+            <h2 className="mt-3 font-black text-3xl tracking-normal sm:text-5xl">
+              Field story to clinic action, without bypassing humans.
+            </h2>
+            <p className="mt-4 text-muted-foreground text-lg leading-8">
+              Patient story goes through intake cleanup, safety blockers,
+              missing questions, draft support, human review, patient education,
+              follow-up, and audit receipts.
+            </p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {[
+              "Reception captures story quickly.",
+              "Community health worker asks what matters next.",
+              "Nurse confirms vitals, allergies, return warnings, and escalation.",
+              "Doctor reviews concise draft support and risk explanation.",
+              "Follow-up desk owns callback and reply triage.",
+              "External agents call bounded MCP tools.",
+            ].map((item) => (
+              <div
+                className="flex gap-3 border border-border bg-[#fbfaf6] p-4"
+                key={item}
+              >
+                <CheckCircle2
+                  className="mt-0.5 shrink-0 text-primary"
+                  size={18}
+                  aria-hidden="true"
+                />
+                <p className="text-muted-foreground leading-7">{item}</p>
               </div>
             ))}
           </div>
         </div>
-        <div className="grid gap-3">
-          {copy.steps.map((step) => {
-            const Icon = step.icon;
-            return (
-              <article
-                className="border border-white/16 bg-white/10 p-5"
-                key={step.title}
-              >
-                <div className="flex gap-3">
-                  <div className="flex size-11 shrink-0 items-center justify-center bg-[#f2c14e] text-slate-950">
-                    <Icon size={21} aria-hidden="true" />
-                  </div>
-                  <div>
-                    <h2 className="font-bold text-xl">{step.title}</h2>
-                    <p className="mt-1 text-white/76 leading-7">
-                      {step.detail}
-                    </p>
-                  </div>
-                </div>
-              </article>
-            );
-          })}
-          <div className="border border-emerald-300/30 bg-emerald-300/10 p-5">
-            <div className="flex gap-3">
-              <ShieldCheck className="text-emerald-200" aria-hidden="true" />
-              <p className="text-emerald-50 leading-7">{copy.safetyLine}</p>
+      </section>
+
+      <PageSection
+        eyebrow="Safety architecture"
+        title="Safety is the product, not an afterthought."
+        intro="Clinic Copilot BD sells decision support, documentation acceleration, safety checks, and human-reviewed patient communication. It does not sell autonomous diagnosis."
+      >
+        <div className="grid gap-3 lg:grid-cols-4">
+          {safetyRules.map((rule) => (
+            <article
+              className="border border-amber-200 bg-amber-50 p-4"
+              key={rule}
+            >
+              <ShieldCheck
+                className="text-amber-700"
+                size={21}
+                aria-hidden="true"
+              />
+              <p className="mt-3 text-sm leading-6">{rule}</p>
+            </article>
+          ))}
+        </div>
+      </PageSection>
+
+      <section className="bg-[#071f1a] text-white">
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-14 sm:px-6 lg:grid-cols-[0.88fr_1.12fr] lg:px-8">
+          <div>
+            <p className="font-semibold text-[#f2c14e] text-sm uppercase tracking-[0.16em]">
+              Agentic and MCP layer
+            </p>
+            <h2 className="mt-3 font-black text-3xl tracking-normal sm:text-5xl">
+              The app is also a safe tool layer for other agents.
+            </h2>
+            <p className="mt-4 text-white/76 text-lg leading-8">
+              MCP turns the standalone app into an agent-ready health workflow
+              layer. LM Studio, Claude, Codex, Cursor-style clients, and HTTP
+              demos can inspect schemas and call bounded tools.
+            </p>
+            <div className="mt-6 grid gap-3 sm:grid-cols-3">
+              <MiniStat label="Local" value="LM Studio" />
+              <MiniStat label="Cloud" value="Gemini" />
+              <MiniStat label="No key" value="Fallback" />
             </div>
           </div>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {mcpTools.map((tool) => (
+              <div
+                className="border border-white/14 bg-white/10 p-3 font-mono text-sm"
+                key={tool}
+              >
+                {tool}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <PageSection
+        eyebrow="Security and production hardening"
+        title="Prototype boundaries are explicit."
+        intro="The current demo uses synthetic data and temporary demo authentication. The production model is designed around privacy, role boundaries, model governance, MCP allowlists, and auditability."
+      >
+        <div className="grid gap-4 lg:grid-cols-3">
+          <InfoCard
+            icon={LockKeyhole}
+            title="Production controls"
+            body="Organization accounts, SSO/OIDC, role-based access, server-side authorization, encryption, tenant isolation, retention controls, and consent flow."
+          />
+          <InfoCard
+            icon={Laptop}
+            title="Model governance"
+            body="Local LM Studio inside clinic networks, cloud Gemini with minimum necessary context, provider allowlist, timeout, schema validation, and audit logging."
+          />
+          <InfoCard
+            icon={ClipboardCheck}
+            title="MCP safety"
+            body="Tool allowlist, role-scoped outputs, server-side validation, safety envelopes, and no MCP bypass of clinic permissions."
+          />
+        </div>
+      </PageSection>
+
+      <PageSection
+        eyebrow="Technology stack"
+        title="Built as a real app, not a slide-only concept."
+        intro="The report documents the current implementation stack and the verification path used for the prototype."
+      >
+        <div className="overflow-hidden border border-border bg-white">
+          {stackRows.map(([label, value]) => (
+            <div
+              className="grid gap-2 border-border border-b p-4 last:border-b-0 md:grid-cols-[12rem_1fr]"
+              key={label}
+            >
+              <p className="font-bold text-primary">{label}</p>
+              <p className="text-muted-foreground">{value}</p>
+            </div>
+          ))}
+        </div>
+      </PageSection>
+
+      <PageSection
+        eyebrow="Milestones and limitations"
+        title="Honest next steps after the hackathon."
+        intro="The report is clear that real deployment requires usability testing, privacy hardening, production authentication, and supervised pilots before real patient use."
+      >
+        <div className="grid gap-3 md:grid-cols-2">
+          {milestones.map((item) => (
+            <div
+              className="flex gap-3 border border-border bg-white p-4"
+              key={item}
+            >
+              <BadgeCheck className="mt-0.5 shrink-0 text-primary" size={18} />
+              <p className="text-muted-foreground leading-7">{item}</p>
+            </div>
+          ))}
+        </div>
+      </PageSection>
+
+      <section className="bg-white">
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-14 sm:px-6 lg:grid-cols-[0.75fr_1.25fr] lg:px-8">
+          <div>
+            <p className="font-semibold text-primary text-sm uppercase tracking-[0.16em]">
+              Source notes
+            </p>
+            <h2 className="mt-3 font-black text-3xl tracking-normal sm:text-5xl">
+              Report-backed claims.
+            </h2>
+            <p className="mt-4 text-muted-foreground text-lg leading-8">
+              This page condenses the local health worker assistant report into
+              one long judge-facing page.
+            </p>
+          </div>
+          <ul className="space-y-3">
+            {sourceNotes.map((note) => (
+              <li
+                className="flex gap-3 text-muted-foreground leading-7"
+                key={note}
+              >
+                <FileText className="mt-1 shrink-0 text-primary" size={17} />
+                <span>{note}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <section className="bg-[#f2c14e]">
+        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-10 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
+          <div>
+            <p className="font-black text-3xl tracking-normal">
+              Ready for judges: run the demo from Copilot.
+            </p>
+            <p className="mt-2 max-w-3xl text-slate-800 leading-7">
+              The one-click workflow uses the pregnancy fever case from the demo
+              assets and shows safe agentic orchestration without claiming
+              autonomous medical authority.
+            </p>
+          </div>
+          <Button asChild size="lg">
+            <Link href="/clinic/copilot">
+              Open Copilot
+              <ArrowRight size={18} aria-hidden="true" />
+            </Link>
+          </Button>
         </div>
       </section>
     </main>
   );
 }
 
-const judgeCopy = {
-  en: {
-    autonomousDecisions: "autonomous clinical decisions",
-    body: "Use this page as the judging script. It highlights the calm clinic workflow first, then proves the agentic layer with receipts, approvals, Builder, MCP Explorer, global Ask Copilot, and print-first outputs.",
-    docs: "Docs",
-    eyebrow: "Judge Mode",
-    launchDemo: "Launch demo",
-    mcpTools: "MCP tools",
-    safetyLine:
-      "Say this clearly: the AI drafts, checks, explains, and prepares work. Humans approve clinical and patient-facing outputs.",
-    steps: judgeSteps,
-    title: "A clean 3-minute route through the whole clinic OS.",
-    workspaces: "workspaces",
-  },
-  bn: {
-    autonomousDecisions: "স্বয়ংক্রিয় ক্লিনিক্যাল সিদ্ধান্ত",
-    body: "এই পেজটি জাজিং স্ক্রিপ্ট হিসেবে ব্যবহার করুন। এটি আগে শান্ত ক্লিনিক ওয়ার্কফ্লো দেখায়, তারপর রিসিট, অনুমোদন, Builder, MCP Explorer, global Ask Copilot এবং প্রিন্ট-ফার্স্ট আউটপুট দিয়ে এজেন্টিক লেয়ার প্রমাণ করে।",
-    docs: "ডকস",
-    eyebrow: "জাজ মোড",
-    launchDemo: "ডেমো চালু করুন",
-    mcpTools: "MCP টুল",
-    safetyLine:
-      "এটি পরিষ্কারভাবে বলুন: AI ড্রাফট করে, চেক করে, ব্যাখ্যা করে এবং কাজ প্রস্তুত করে। ক্লিনিক্যাল ও রোগীমুখী আউটপুট মানুষ অনুমোদন করে।",
-    steps: [
-      {
-        detail:
-          "লাইভ Queue ওয়ার্কস্পেস খুলে red-flag lane, wait time, owner badges এবং follow-up due state দেখান।",
-        icon: MonitorPlay,
-        title: "১. Queue থেকে শুরু",
-      },
-      {
-        detail:
-          "নির্বাচিত রোগীর Case পেজ খুলে intake, vitals, safety gates, draft, handout এবং follow-up রিভিউ করুন।",
-        icon: HeartPulse,
-        title: "২. Case খুলুন",
-      },
-      {
-        detail:
-          "chat, command palette, tool stream, run receipts, approvals, memory এবং timeline সহ Copilot Console চালান বা দেখান।",
-        icon: Bot,
-        title: "৩. Copilot দেখান",
-      },
-      {
-        detail:
-          "Builder খুলে Workflow Studio দেখান: Canvas, Governor, Journey, Protocols, Shift, Simulation, Marketplace।",
-        icon: GitBranch,
-        title: "৪. Builder দেখান",
-      },
-      {
-        detail:
-          "Admin MCP Explorer দিয়ে tools/list বা safety blockers চালিয়ে external-agent readiness প্রমাণ করুন।",
-        icon: FileText,
-        title: "৫. MCP প্রমাণ করুন",
-      },
-      {
-        detail:
-          "print preview, safety guardrails, impact metrics এবং clinician-review boundary দিয়ে শেষ করুন।",
-        icon: Printer,
-        title: "৬. শক্তভাবে শেষ করুন",
-      },
-    ],
-    title: "পুরো clinic OS দেখানোর পরিষ্কার ৩ মিনিটের পথ।",
-    workspaces: "ওয়ার্কস্পেস",
-  },
-} as const;
+function PageSection({
+  children,
+  eyebrow,
+  intro,
+  title,
+}: {
+  children: React.ReactNode;
+  eyebrow: string;
+  intro: string;
+  title: string;
+}) {
+  return (
+    <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+      <div className="mb-8 max-w-4xl">
+        <p className="font-semibold text-primary text-sm uppercase tracking-[0.16em]">
+          {eyebrow}
+        </p>
+        <h2 className="mt-3 font-black text-3xl tracking-normal sm:text-5xl">
+          {title}
+        </h2>
+        <p className="mt-4 text-muted-foreground text-lg leading-8">{intro}</p>
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function InfoCard({
+  body,
+  icon: Icon,
+  title,
+}: {
+  body: string;
+  icon: typeof ShieldCheck;
+  title: string;
+}) {
+  return (
+    <article className="border border-border bg-white p-5">
+      <Icon className="text-primary" size={24} aria-hidden="true" />
+      <h3 className="mt-4 font-bold text-xl">{title}</h3>
+      <p className="mt-2 text-muted-foreground leading-7">{body}</p>
+    </article>
+  );
+}
+
+function MiniStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="border border-white/14 bg-white/10 p-4">
+      <p className="font-semibold text-[#f2c14e] text-xs uppercase tracking-[0.14em]">
+        {label}
+      </p>
+      <p className="mt-2 font-black text-xl">{value}</p>
+    </div>
+  );
+}
