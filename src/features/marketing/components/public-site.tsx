@@ -1366,13 +1366,36 @@ const publicBnTextMap = new Map<string, string>(
       "পূর্ণ ক্লিনিক ডেমোর ধাপে ধাপে প্রমাণের পথ।",
     "Acceptance checklist": "অ্যাকসেপ্টেন্স চেকলিস্ট",
     "Keyboard shortcuts": "কিবোর্ড শর্টকাট",
+    "Copilot and tools": "কোপাইলট ও টুল",
+    "The app stays simple; the tool catalog lives here.":
+      "অ্যাপ সহজ থাকে; টুল ক্যাটালগ এখানে থাকে।",
+    "Healthcare workers see a chat-first Copilot with threads, patient context, safety blockers, and inline tool results. Detailed tool names, shortcuts, and external-agent capabilities are documented here for testers, admins, and judges.":
+      "হেলথকেয়ার কর্মীরা থ্রেড, রোগী কনটেক্সট, সেফটি ব্লকার ও ইনলাইন টুল রেজাল্টসহ চ্যাট-ফার্স্ট কোপাইলট দেখেন। টেস্টার, অ্যাডমিন ও জাজদের জন্য ডিটেইলড টুল নাম, শর্টকাট ও এক্সটার্নাল-এজেন্ট সক্ষমতা এখানে ডকুমেন্ট করা আছে।",
+    "Cmd/Ctrl+K opens Copilot": "Cmd/Ctrl+K কোপাইলট খোলে",
+    "Cmd/Ctrl+G generates a draft": "Cmd/Ctrl+G ড্রাফট তৈরি করে",
+    "Cmd/Ctrl+P opens presentation mode": "Cmd/Ctrl+P প্রেজেন্টেশন মোড খোলে",
+    "Esc closes presentation mode": "Esc প্রেজেন্টেশন মোড বন্ধ করে",
+    "MCP usage": "MCP ব্যবহার",
+    "Agent-readable clinic context for HTTP demos and real MCP clients.":
+      "HTTP ডেমো ও বাস্তব MCP ক্লায়েন্টের জন্য এজেন্ট-পাঠযোগ্য ক্লিনিক কনটেক্সট।",
+    "The app exposes a curl-friendly JSON-RPC demo endpoint at":
+      "অ্যাপটি curl-ফ্রেন্ডলি JSON-RPC ডেমো এন্ডপয়েন্ট দেয়",
+    "and a real stdio MCP server at": "এবং বাস্তব stdio MCP সার্ভার দেয়",
+    ". External clients can inspect synthetic scenarios, capability metadata, safety gates, and workflow tools without touching real patient records.":
+      "। বাস্তব রোগী রেকর্ডে হাত না দিয়েই এক্সটার্নাল ক্লায়েন্ট সিনথেটিক সিনারিও, সক্ষমতা মেটাডেটা, সেফটি গেট ও ওয়ার্কফ্লো টুল দেখতে পারে।",
     Methods: "মেথড",
     Tools: "টুল",
     Public: "পাবলিক",
     "Practical AI for the clinics that need time back.":
       "যেসব ক্লিনিকের সময় ফেরত দরকার, তাদের জন্য বাস্তবসম্মত AI।",
+    "Mission and vision": "মিশন ও ভিশন",
+    "The product is designed for low-resource, Bangla-first care settings where staff need speed, clarity, and safety framing more than generic automation.":
+      "প্রোডাক্টটি কম-রিসোর্স, বাংলা-প্রথম কেয়ার সেটিংসের জন্য ডিজাইন করা, যেখানে স্টাফদের জেনেরিক অটোমেশনের চেয়ে গতি, স্পষ্টতা ও সেফটি ফ্রেমিং বেশি দরকার।",
+    "Human understanding": "মানব বোঝাপড়া",
     "Patient communication ends with teach-back, not a PDF.":
       "রোগী যোগাযোগ PDF-এ নয়, টিচ-ব্যাকে শেষ হয়।",
+    "The product helps staff confirm that families can repeat care steps, medicine instructions, return warnings, and follow-up timing.":
+      "প্রোডাক্টটি স্টাফকে নিশ্চিত করতে সাহায্য করে যে পরিবার যত্নের ধাপ, ওষুধ নির্দেশনা, রিটার্ন সতর্কতা ও ফলো-আপ টাইমিং পুনরাবৃত্তি করতে পারে।",
     "Product mission": "প্রোডাক্ট মিশন",
     "Make safe clinic workflow support accessible to Bangla-first care teams.":
       "বাংলা-প্রথম কেয়ার টিমের জন্য নিরাপদ ক্লিনিক ওয়ার্কফ্লো সহায়তা সহজলভ্য করা।",
@@ -1421,9 +1444,13 @@ const publicBnTextMap = new Map<string, string>(
     "Final proof": "চূড়ান্ত প্রমাণ",
     "Close the demo on operational evidence.":
       "অপারেশনাল প্রমাণ দিয়ে ডেমো শেষ করুন।",
+    "After the AI draft, the team can see queue state, follow-up ownership, trend signals, audit history, and readiness scoring. That is the difference between a clever prompt and a viable product.":
+      "AI ড্রাফটের পরে টিম কিউ স্টেট, ফলো-আপ মালিকানা, ট্রেন্ড সিগনাল, অডিট হিস্ট্রি ও রেডিনেস স্কোরিং দেখতে পারে। এটাই চতুর প্রম্পট আর কার্যকর প্রোডাক্টের পার্থক্য।",
     "Responsive clinic OS": "রেসপনসিভ ক্লিনিক OS",
     "Dense enough for staff. Clear enough for review.":
       "স্টাফের জন্য যথেষ্ট ঘন। রিভিউয়ের জন্য যথেষ্ট পরিষ্কার।",
+    "The authenticated app combines queue pressure, visit progress, safety review, handout, teach-back, referral, follow-up, and audit surfaces in one operational workspace.":
+      "অথেন্টিকেটেড অ্যাপ কিউ চাপ, ভিজিট প্রগ্রেস, সেফটি রিভিউ, হ্যান্ডআউট, টিচ-ব্যাক, রেফারাল, ফলো-আপ ও অডিট সারফেসকে এক অপারেশনাল ওয়ার্কস্পেসে আনে।",
     "Real product screens": "বাস্তব প্রোডাক্ট স্ক্রিন",
     "Screenshots from the working app, not mockups.":
       "ওয়ার্কিং অ্যাপের স্ক্রিনশট, মকআপ নয়।",

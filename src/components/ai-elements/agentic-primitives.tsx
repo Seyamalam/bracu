@@ -2,6 +2,7 @@ import { CornerDownLeft, Loader2 } from "lucide-react";
 import type { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useClinicText } from "@/features/clinic/use-clinic-text";
 import { cn } from "@/lib/utils";
 
 export function Agent({
@@ -11,13 +12,14 @@ export function Agent({
   children: ReactNode;
   className?: string;
 }) {
+  const t = useClinicText();
   return (
     <section
       className={cn(
         "overflow-hidden rounded-lg border border-border bg-background shadow-sm",
         className,
       )}
-      aria-label="AI agent workspace"
+      aria-label={t("AI agent workspace")}
     >
       {children}
     </section>
@@ -35,12 +37,13 @@ export function AgentHeader({
   model: string;
   status: string;
 }) {
+  const t = useClinicText();
   return (
     <div className="flex flex-wrap items-start justify-between gap-3 border-border border-b bg-[#fbfaf6] p-4">
       <div>
         <p className="font-black text-lg">{name}</p>
         <p className="mt-1 text-muted-foreground text-xs">
-          {detail ?? "Agentic clinic operating layer"}
+          {detail ?? t("Agentic clinic operating layer")}
         </p>
       </div>
       <div className="flex flex-wrap gap-2">
@@ -68,6 +71,7 @@ export function PromptInput({
   onSubmit: (value?: string) => void;
   placeholder: string;
 }) {
+  const t = useClinicText();
   return (
     <form
       className="grid gap-2 rounded-lg border border-border bg-white p-2 shadow-sm sm:grid-cols-[minmax(0,1fr)_auto]"
@@ -81,7 +85,7 @@ export function PromptInput({
       }}
     >
       <textarea
-        aria-label="Agent command"
+        aria-label={t("Agent command")}
         name="agent-command"
         className="min-h-24 resize-none rounded-md border-0 bg-transparent px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-0"
         disabled={disabled}
@@ -99,7 +103,7 @@ export function PromptInput({
         ) : (
           <CornerDownLeft size={16} aria-hidden="true" />
         )}
-        {disabled ? "Running" : "Run agent"}
+        {disabled ? t("Running") : t("Run agent")}
       </Button>
     </form>
   );
@@ -152,9 +156,10 @@ export function ToolCard({
   onRun: (command: string) => void;
   tone?: "danger" | "neutral" | "success";
 }) {
+  const t = useClinicText();
   return (
     <button
-      aria-label={`Run agent tool: ${label}`}
+      aria-label={`${t("Run agent tool")}: ${label}`}
       className={cn(
         "rounded-md border border-border bg-background p-3 text-left transition hover:border-primary hover:bg-[#eaf6f1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         tone === "danger" && "border-red-200 bg-red-50",
@@ -165,7 +170,7 @@ export function ToolCard({
     >
       <div className="flex items-start justify-between gap-2">
         <p className="font-semibold text-sm">{label}</p>
-        <Badge variant="outline">tool</Badge>
+        <Badge variant="outline">{t("tool")}</Badge>
       </div>
       <p className="mt-2 text-muted-foreground text-xs leading-5">
         {description}
@@ -184,6 +189,7 @@ export function TaskQueue({
   items: { command: string; label: string; owner: string; priority: string }[];
   onRun: (command: string) => void;
 }) {
+  const t = useClinicText();
   return (
     <div className="space-y-2">
       {items.map((item) => (
@@ -198,13 +204,13 @@ export function TaskQueue({
             </p>
           </div>
           <Button
-            aria-label={`Run queued agent task: ${item.label}`}
+            aria-label={`${t("Run queued agent task")}: ${item.label}`}
             size="sm"
             type="button"
             variant="outline"
             onClick={() => onRun(item.command)}
           >
-            Run
+            {t("Run")}
           </Button>
         </div>
       ))}

@@ -155,7 +155,7 @@ export function CopilotConsole({
           <div className="flex items-center gap-2">
             <Bot className="text-primary" size={18} aria-hidden="true" />
             <div>
-              <p className="font-black text-sm">Copilot</p>
+              <p className="font-black text-sm">{t("Copilot")}</p>
               <p className="text-muted-foreground text-xs">{model}</p>
             </div>
           </div>

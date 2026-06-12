@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { demoScenarios, sampleIntakes } from "../data";
 import type { IntakeFormState, Sex } from "../types";
+import { useClinicText } from "../use-clinic-text";
 import { SectionHeading } from "./section-heading";
 
 const sexOptions = ["female", "male", "other", "unknown"] as const;
@@ -71,6 +72,7 @@ export function IntakePanel({
   isCleaningIntake: boolean;
   error: string;
 }) {
+  const t = useClinicText();
   const [isListening, setIsListening] = useState(false);
   const updateForm = (patch: Partial<IntakeFormState>) => {
     onChange({ ...form, ...patch });
@@ -155,7 +157,7 @@ export function IntakePanel({
           <div className="mt-2 grid gap-2">
             {demoScenarios.map((scenario) => (
               <Button
-                aria-label={`Load ${scenario.label} demo scenario: ${scenario.focus}`}
+                aria-label={`${t("Load demo scenario")}: ${t(scenario.label)}, ${t(scenario.focus)}`}
                 className="h-auto justify-start px-3 py-2 text-left"
                 key={scenario.label}
                 type="button"
@@ -170,9 +172,11 @@ export function IntakePanel({
                 }
               >
                 <span>
-                  <span className="block font-semibold">{scenario.label}</span>
+                  <span className="block font-semibold">
+                    {t(scenario.label)}
+                  </span>
                   <span className="block text-muted-foreground text-xs">
-                    {scenario.focus}
+                    {t(scenario.focus)}
                   </span>
                 </span>
               </Button>
@@ -187,7 +191,7 @@ export function IntakePanel({
           <div className="mt-1 grid grid-cols-4 gap-2">
             {sexOptions.map((option) => (
               <Button
-                aria-label={`Set patient sex to ${option}`}
+                aria-label={`${t("Set patient sex to")}: ${t(option)}`}
                 className={cn(
                   "px-1 text-[0.72rem] capitalize",
                   form.sex === option && "bg-primary text-primary-foreground",
@@ -197,7 +201,7 @@ export function IntakePanel({
                 variant={form.sex === option ? "default" : "outline"}
                 onClick={() => updateForm({ sex: option as Sex })}
               >
-                {option}
+                {t(option)}
               </Button>
             ))}
           </div>
@@ -215,8 +219,8 @@ export function IntakePanel({
         <Button
           aria-label={
             isListening
-              ? "Voice intake is listening"
-              : "Start Bangla voice intake"
+              ? t("Voice intake is listening")
+              : t("Start Bangla voice intake")
           }
           className="mb-3 w-full"
           type="button"
@@ -228,7 +232,7 @@ export function IntakePanel({
         </Button>
 
         <Button
-          aria-label="Clean intake note with AI"
+          aria-label={t("Clean intake note with AI")}
           className="mb-3 w-full"
           type="button"
           variant="outline"
@@ -240,7 +244,7 @@ export function IntakePanel({
           ) : (
             <Sparkles size={17} aria-hidden="true" />
           )}
-          Clean intake with AI
+          {t("Clean intake with AI")}
         </Button>
 
         <Label htmlFor="intake-file">{copy.attach}</Label>
