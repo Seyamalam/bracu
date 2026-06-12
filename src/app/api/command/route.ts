@@ -361,6 +361,7 @@ function fallbackPlan(command: string) {
     normalized.includes("approval check") ||
     normalized.includes("signoff check") ||
     normalized.includes("ready to print") ||
+    normalized.includes("safe to print") ||
     normalized.includes("before print") ||
     normalized.includes("before approve") ||
     normalized.includes("gate audit") ||
@@ -404,7 +405,8 @@ function fallbackPlan(command: string) {
     normalized.includes("wrap up") ||
     normalized.includes("checkout") ||
     normalized.includes("ready to leave") ||
-    normalized.includes("visit closeout")
+    normalized.includes("visit closeout") ||
+    normalized.includes("closeout")
   ) {
     actions.push({
       type: "close_visit",
@@ -560,6 +562,7 @@ function fallbackPlan(command: string) {
   }
   if (
     normalized.includes("explain risk") ||
+    normalized.includes("risk explanation") ||
     normalized.includes("risky") ||
     normalized.includes("why risky") ||
     normalized.includes("why this is risky") ||

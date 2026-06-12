@@ -1,0 +1,28 @@
+DEMO PRESCRIPTION - NOT FOR REAL CLINICAL USE
+
+Patient: Nusrat Akter
+Age/Sex: 29/F
+Context: 18 weeks pregnant, fever and urinary burning for 2 days.
+
+Outside clinic note:
+- Fever up to 102 F at home.
+- Lower abdominal discomfort and back pain.
+- Burning urination, reduced appetite, nausea.
+- No known drug allergy documented in this prescription.
+- Blood pressure was not recorded.
+- Fetal movement not discussed.
+
+Medicines written:
+- Paracetamol 500 mg, 1 tablet every 6 hours if fever.
+- Cefixime 200 mg, 1 tablet twice daily for 5 days.
+- ORS after loose stool or poor intake.
+
+Advice written:
+- Drink water.
+- Come back if fever continues.
+
+Safety concerns to ask Copilot to detect:
+- Pregnancy plus fever and urinary symptoms.
+- Missing allergy check before antibiotic.
+- Missing blood pressure, pulse, temperature, urine output, and fetal movement.
+- Needs clinician approval before handout or antibiotic instruction.

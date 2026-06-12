@@ -1,0 +1,77 @@
+Run the full clinic workflow for this patient.
+
+Patient: Nusrat Akter, 29-year-old female, 18 weeks pregnant.
+Complaint: Fever for 2 days, urinary burning, back pain, lower abdominal discomfort, nausea, and reduced urine overnight.
+Mixed Bangla intake: "Ami 18 week pregnant. Jor 102, prosrab e jala, kamar betha, pet e halka betha. Baby movement niye sure na. Kal raat e kom prosrab hoyeche."
+
+Use the attached prescription and lab report text below. Act like a clinic copilot, not a doctor. Do not diagnose or prescribe. Do all workflow steps that are safe for draft support:
+1. Extract key facts from intake, prescription, and lab report.
+2. Identify red flags, missing vitals, allergy gaps, pregnancy-specific blockers, and approval blockers.
+3. Create a clinician-review draft summary and SOAP-style note.
+4. Check medicine safety wording and flag what needs clinician confirmation.
+5. Prepare a simple Bangla patient explanation with urgent return warnings.
+6. Prepare a referral or escalation packet if needed.
+7. Prepare staff handoff tasks for receptionist, nurse, doctor, and follow-up desk.
+8. Prepare follow-up ownership and a WhatsApp/SMS message.
+9. Check if this is safe to print or close out.
+10. Brief today's queue pressure and tell me the next safest action.
+
+After running tools, keep every output draft-only and list exactly what still needs human clinician approval.
+
+Attached prescription:
+DEMO PRESCRIPTION - NOT FOR REAL CLINICAL USE
+
+Patient: Nusrat Akter
+Age/Sex: 29/F
+Context: 18 weeks pregnant, fever and urinary burning for 2 days.
+
+Outside clinic note:
+- Fever up to 102 F at home.
+- Lower abdominal discomfort and back pain.
+- Burning urination, reduced appetite, nausea.
+- No known drug allergy documented in this prescription.
+- Blood pressure was not recorded.
+- Fetal movement not discussed.
+
+Medicines written:
+- Paracetamol 500 mg, 1 tablet every 6 hours if fever.
+- Cefixime 200 mg, 1 tablet twice daily for 5 days.
+- ORS after loose stool or poor intake.
+
+Advice written:
+- Drink water.
+- Come back if fever continues.
+
+Safety concerns to detect:
+- Pregnancy plus fever and urinary symptoms.
+- Missing allergy check before antibiotic.
+- Missing blood pressure, pulse, temperature, urine output, and fetal movement.
+- Needs clinician approval before handout or antibiotic instruction.
+
+Attached lab report:
+DEMO LAB REPORT - NOT FOR REAL CLINICAL USE
+
+Patient: Nusrat Akter
+Age/Sex: 29/F
+Date: Demo day
+
+CBC:
+- WBC: 15,800 /uL
+- Neutrophils: 84%
+- Hemoglobin: 10.1 g/dL
+- Platelets: 182,000 /uL
+
+Urine R/E:
+- Pus cells: 20-25 /HPF
+- RBC: 4-6 /HPF
+- Nitrite: positive
+- Protein: trace
+
+Vitals noted on lab slip:
+- Temperature: 102.2 F
+- Pulse: 112/min
+- BP: not written
+- SpO2: not written
+
+Patient comment at desk:
+"Ami 18 week pregnant. Jor komche na, kamar betha ache, prosrab e jala. Baby movement niye sure na. Kal raat e kom prosrab hoyeche."

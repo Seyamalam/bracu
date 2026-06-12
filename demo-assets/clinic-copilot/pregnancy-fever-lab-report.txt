@@ -1,0 +1,26 @@
+DEMO LAB REPORT - NOT FOR REAL CLINICAL USE
+
+Patient: Nusrat Akter
+Age/Sex: 29/F
+Date: Demo day
+
+CBC:
+- WBC: 15,800 /uL
+- Neutrophils: 84%
+- Hemoglobin: 10.1 g/dL
+- Platelets: 182,000 /uL
+
+Urine R/E:
+- Pus cells: 20-25 /HPF
+- RBC: 4-6 /HPF
+- Nitrite: positive
+- Protein: trace
+
+Vitals noted on lab slip:
+- Temperature: 102.2 F
+- Pulse: 112/min
+- BP: not written
+- SpO2: not written
+
+Patient comment at desk:
+"Ami 18 week pregnant. Jor komche na, kamar betha ache, prosrab e jala. Baby movement niye sure na. Kal raat e kom prosrab hoyeche."

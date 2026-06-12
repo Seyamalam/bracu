@@ -67,7 +67,24 @@ const quickPrompts = [
   "Explain this in simple Bangla",
 ] as const;
 
+const judgeDemoPrompt = `Run the full clinic workflow for a judge demo.
+
+Patient: Nusrat Akter, 29-year-old female, 18 weeks pregnant.
+Complaint: fever for 2 days, urinary burning, back pain, lower abdominal discomfort, nausea, and reduced urine overnight.
+Mixed Bangla intake: "Ami 18 week pregnant. Jor 102, prosrab e jala, kamar betha, pet e halka betha. Baby movement niye sure na. Kal raat e kom prosrab hoyeche."
+
+Attached prescription says paracetamol 500 mg every 6 hours if fever, cefixime 200 mg twice daily for 5 days, ORS as needed. It does not document allergy status, blood pressure, fetal movement, or clinician approval.
+
+Attached lab report: WBC 15,800, neutrophils 84%, Hb 10.1, platelets 182,000. Urine R/E: pus cells 20-25/HPF, RBC 4-6/HPF, nitrite positive, protein trace. Vitals on slip: temperature 102.2 F, pulse 112/min, BP not written, SpO2 not written.
+
+Act like a clinic copilot, not a doctor. Do not diagnose or prescribe. Run safe draft-support workflow steps: extract document facts, clean intake, generate draft, check medicine safety, list pregnancy/vitals/allergy/approval blockers, explain risk, prepare staff handoff, prepare referral or visit summary, prepare Bangla patient explanation and follow-up WhatsApp message, check if safe to print or close out, and brief queue pressure. Keep every output draft-only and list exactly what still needs clinician approval.`;
+
 const primaryActions = [
+  {
+    command: judgeDemoPrompt,
+    icon: Sparkles,
+    label: "Judge demo",
+  },
   {
     command: "Run the full clinic workflow for this case",
     icon: Play,
@@ -240,16 +257,21 @@ export function CopilotConsole({
           ))}
         </div>
 
-        <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
           {primaryActions.map((action) => {
             const Icon = action.icon;
+            const isJudgeDemo = action.label === "Judge demo";
             return (
               <Button
-                className="min-h-12 justify-start whitespace-normal text-left"
+                className={
+                  isJudgeDemo
+                    ? "min-h-12 justify-start whitespace-normal bg-[#f2c14e] text-left text-slate-950 hover:bg-[#e2b243]"
+                    : "min-h-12 justify-start whitespace-normal text-left"
+                }
                 disabled={isSubmitting}
                 key={action.label}
                 type="button"
-                variant="outline"
+                variant={isJudgeDemo ? "default" : "outline"}
                 onClick={() => submitPrompt(action.command)}
               >
                 <Icon size={16} aria-hidden="true" />

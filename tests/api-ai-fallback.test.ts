@@ -357,6 +357,21 @@ describe("AI and agent routes without provider keys", () => {
     },
     {
       command:
+        "Run the full clinic workflow for a judge demo with attached prescription, lab report, medicine safety, risk explanation, staff handoff, referral, follow-up WhatsApp, safe to print closeout, and queue brief",
+      expectedActions: [
+        "run_full_workflow",
+        "extract_document",
+        "check_medicine",
+        "explain_risk",
+        "compose_handoff",
+        "compose_referral",
+        "compose_followup",
+        "close_visit",
+        "compose_briefing",
+      ],
+    },
+    {
+      command:
         "Check medicine safety for paracetamol 500mg and antibiotic twice daily",
       expectedActions: ["check_medicine"],
     },
