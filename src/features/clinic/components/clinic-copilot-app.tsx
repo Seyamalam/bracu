@@ -28,6 +28,7 @@ import type {
   Severity,
   UiLanguage,
 } from "../types";
+import { useClinicText } from "../use-clinic-text";
 import {
   AccessibilityControls,
   type AccessibilitySettings,
@@ -278,6 +279,7 @@ export function ClinicCopilotApp({
   const approveCase = useMutation(api.cases.approveCase);
   const updateDraft = useMutation(api.cases.updateDraft);
   const copy = uiCopy[uiLanguage];
+  const t = useClinicText();
   useClinicDomLocalization(uiLanguage);
   const activeProviderLabel =
     selectedModel === "lmstudio" ? "LM Studio" : "Gemini";
@@ -1305,9 +1307,9 @@ export function ClinicCopilotApp({
           <div className="mx-auto max-w-3xl rounded-lg bg-white p-4 shadow-xl">
             <div className="flex items-start justify-between gap-3 border-b pb-3">
               <div>
-                <p className="font-black text-xl">Print Preview</p>
+                <p className="font-black text-xl">{t("Print Preview")}</p>
                 <p className="text-muted-foreground text-sm">
-                  Review the packet before sending it to the printer.
+                  {t("Review the packet before sending it to the printer.")}
                 </p>
               </div>
               <Button
@@ -1315,7 +1317,7 @@ export function ClinicCopilotApp({
                 variant="outline"
                 onClick={() => setPrintPreviewOpen(false)}
               >
-                Close
+                {t("Close")}
               </Button>
             </div>
             <div className="mt-4">
@@ -1327,10 +1329,10 @@ export function ClinicCopilotApp({
                 variant="outline"
                 onClick={() => setPrintPreviewOpen(false)}
               >
-                Keep editing
+                {t("Keep editing")}
               </Button>
               <Button type="button" onClick={() => window.print()}>
-                Print packet
+                {t("Print packet")}
               </Button>
             </div>
           </div>
@@ -1352,10 +1354,11 @@ export function ClinicCopilotApp({
           <aside className="absolute inset-y-0 right-0 flex w-full max-w-xl flex-col overflow-y-auto border-slate-200 border-l bg-white shadow-2xl">
             <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-slate-200 border-b bg-white p-4">
               <div>
-                <p className="font-black text-xl">Ask Copilot</p>
+                <p className="font-black text-xl">{t("Ask Copilot")}</p>
                 <p className="text-muted-foreground text-sm">
-                  Page-aware help with chat, tools, approvals, and safety
-                  context.
+                  {t(
+                    "Page-aware help with chat, tools, approvals, and safety context.",
+                  )}
                 </p>
               </div>
               <Button
@@ -1363,7 +1366,7 @@ export function ClinicCopilotApp({
                 variant="outline"
                 onClick={() => setAiDrawerOpen(false)}
               >
-                Close
+                {t("Close")}
               </Button>
             </div>
             <div className="space-y-4 p-4">
@@ -1438,14 +1441,14 @@ export function ClinicCopilotApp({
                 label={copy.mode}
                 value={mode === "idle" ? "Demo" : mode}
               />
-              <Metric label="Provider" value={activeProviderLabel} />
+              <Metric label={t("Provider")} value={activeProviderLabel} />
               {activeWorkspacePage !== "ai" ? (
                 <Button
                   className="col-span-4 bg-[#f2c14e] text-slate-950 hover:bg-[#e2b243]"
                   type="button"
                   onClick={() => setAiDrawerOpen(true)}
                 >
-                  Ask Copilot
+                  {t("Ask Copilot")}
                 </Button>
               ) : null}
             </div>

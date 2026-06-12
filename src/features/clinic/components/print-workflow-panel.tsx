@@ -2,6 +2,7 @@ import { FileText, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import type { CopilotOutput } from "../types";
+import { useClinicText } from "../use-clinic-text";
 import { SectionHeading } from "./section-heading";
 
 type PrintItem = {
@@ -17,10 +18,11 @@ export function PrintWorkflowPanel({
   output: CopilotOutput | null;
   patientName: string;
 }) {
-  const packet = buildPrintPacket(output, patientName);
+  const t = useClinicText();
+  const packet = buildPrintPacket(output, patientName, t);
 
   async function copyItem(item: PrintItem) {
-    await navigator.clipboard.writeText(`${item.label}\n\n${item.body}`);
+    await navigator.clipboard.writeText(`${t(item.label)}\n\n${item.body}`);
   }
 
   return (
@@ -28,8 +30,10 @@ export function PrintWorkflowPanel({
       <CardHeader>
         <SectionHeading
           icon={<Printer size={18} aria-hidden="true" />}
-          title="Print Packet"
-          subtitle="Handout, referral, medicine slip, call sheet, doctor summary"
+          title={t("Print Packet")}
+          subtitle={t(
+            "Handout, referral, medicine slip, call sheet, doctor summary",
+          )}
         />
       </CardHeader>
       <CardContent>
@@ -41,14 +45,14 @@ export function PrintWorkflowPanel({
             >
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="font-semibold text-sm">{item.label}</p>
+                  <p className="font-semibold text-sm">{t(item.label)}</p>
                   <p className="mt-1 line-clamp-2 text-muted-foreground text-xs leading-5">
                     {item.body}
                   </p>
                 </div>
                 <div className="flex gap-2">
                   <Button
-                    aria-label={`Copy ${item.label}`}
+                    aria-label={`${t("Copy")} ${t(item.label)}`}
                     size="icon"
                     type="button"
                     variant="outline"
@@ -57,7 +61,7 @@ export function PrintWorkflowPanel({
                     <FileText size={15} aria-hidden="true" />
                   </Button>
                   <Button
-                    aria-label={`Print ${item.label}`}
+                    aria-label={`${t("Print")} ${t(item.label)}`}
                     size="icon"
                     type="button"
                     variant="outline"
@@ -78,21 +82,24 @@ export function PrintWorkflowPanel({
 function buildPrintPacket(
   output: CopilotOutput | null,
   patientName: string,
+  t: (text: string) => string,
 ): PrintItem[] {
-  const fallback = "Generate or select a case to fill this printable packet.";
+  const fallback = t(
+    "Generate or select a case to fill this printable packet.",
+  );
   return [
     {
       id: "handout",
       label: "Patient handout",
       body: output
-        ? `${output.patientHandout.title}\n${output.patientHandout.plainSummary}\nReturn warnings: ${output.patientHandout.urgentReturnWarnings.join("; ")}`
+        ? `${output.patientHandout.title}\n${output.patientHandout.plainSummary}\n${t("Return warnings")}: ${output.patientHandout.urgentReturnWarnings.join("; ")}`
         : fallback,
     },
     {
       id: "referral",
       label: "Referral cover note",
       body: output
-        ? `${patientName || "Patient"}: ${output.chiefComplaint}\nReason: ${output.summary}\nRed flags: ${output.redFlags.join("; ") || "None documented"}`
+        ? `${patientName || t("Patient")}: ${output.chiefComplaint}\n${t("Reason")}: ${output.summary}\n${t("Red flags")}: ${output.redFlags.join("; ") || t("None documented")}`
         : fallback,
     },
     {

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import type { CopilotOutput } from "../types";
+import { useClinicText } from "../use-clinic-text";
 import { SectionHeading } from "./section-heading";
 
 export type LiteracyMode = "audio" | "pictogram" | "simple_bn" | "teach_back";
@@ -16,6 +17,7 @@ export function PatientLiteracyPanel({
   onModeChange: (mode: LiteracyMode) => void;
   output: CopilotOutput | null;
 }) {
+  const t = useClinicText();
   const simpleText = output
     ? simplifyBangla(output.patientHandout.plainSummary)
     : "ড্রাফট তৈরি করলে সহজ বাংলা নির্দেশনা দেখা যাবে।";
@@ -34,8 +36,10 @@ export function PatientLiteracyPanel({
       <CardHeader>
         <SectionHeading
           icon={<CheckSquare size={18} aria-hidden="true" />}
-          title="Patient Literacy Modes"
-          subtitle="Simple Bangla, pictograms, audio, and teach-back confirmation"
+          title={t("Patient Literacy Modes")}
+          subtitle={t(
+            "Simple Bangla, pictograms, audio, and teach-back confirmation",
+          )}
         />
       </CardHeader>
       <CardContent>
@@ -47,7 +51,7 @@ export function PatientLiteracyPanel({
             ["teach_back", "Teach-back"],
           ].map(([mode, label]) => (
             <Button
-              aria-label={`Switch patient literacy mode to ${label}`}
+              aria-label={`${t("Switch patient literacy mode to")}: ${t(label)}`}
               className={cn(
                 "h-auto px-2 py-2 text-xs",
                 activeMode === mode && "ring-2 ring-primary",
@@ -57,7 +61,7 @@ export function PatientLiteracyPanel({
               variant={activeMode === mode ? "default" : "outline"}
               onClick={() => onModeChange(mode as LiteracyMode)}
             >
-              {label}
+              {t(label)}
             </Button>
           ))}
         </div>
@@ -92,32 +96,35 @@ export function PatientLiteracyPanel({
             <div>
               <Button type="button" onClick={readAloud}>
                 <Volume2 size={16} aria-hidden="true" />
-                Read patient instructions aloud
+                {t("Read patient instructions aloud")}
               </Button>
               <p className="mt-2 text-muted-foreground text-xs leading-5">
-                Uses the device speech engine when available; staff should still
-                review wording.
+                {t(
+                  "Uses the device speech engine when available; staff should still review wording.",
+                )}
               </p>
             </div>
           ) : null}
           {activeMode === "teach_back" ? (
             <div className="space-y-2 text-sm">
               <p className="font-semibold">
-                Family must repeat before leaving:
+                {t("Family must repeat before leaving:")}
               </p>
               <label className="flex gap-2">
-                <input type="checkbox" /> What care steps will happen at home.
+                <input type="checkbox" />{" "}
+                {t("What care steps will happen at home.")}
               </label>
               <label className="flex gap-2">
-                <input type="checkbox" /> When and how follow-up will happen.
+                <input type="checkbox" />{" "}
+                {t("When and how follow-up will happen.")}
               </label>
               <label className="flex gap-2">
-                <input type="checkbox" /> Which danger signs require urgent
-                return.
+                <input type="checkbox" />{" "}
+                {t("Which danger signs require urgent return.")}
               </label>
               {urgentWarnings.length ? (
                 <p className="text-muted-foreground text-xs">
-                  Key warning: {urgentWarnings[0]}
+                  {t("Key warning")}: {urgentWarnings[0]}
                 </p>
               ) : null}
             </div>

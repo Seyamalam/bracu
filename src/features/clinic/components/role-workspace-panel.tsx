@@ -8,6 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { useClinicText } from "../use-clinic-text";
 import type { WorkspacePage } from "./app-shell-sidebar";
 import { SectionHeading } from "./section-heading";
 
@@ -78,6 +79,7 @@ export function RoleWorkspacePanel({
   onRoleChange: (role: ClinicRole) => void;
   onOpenPage: (page: WorkspacePage) => void;
 }) {
+  const t = useClinicText();
   const config = roleConfig[activeRole];
   const ActiveIcon = config.icon;
 
@@ -86,15 +88,15 @@ export function RoleWorkspacePanel({
       <CardHeader>
         <SectionHeading
           icon={<ActiveIcon size={18} aria-hidden="true" />}
-          title="Role View"
-          subtitle="Focused workflows for each clinic worker"
+          title={t("Role View")}
+          subtitle={t("Focused workflows for each clinic worker")}
         />
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 gap-2 lg:grid-cols-5">
           {(Object.keys(roleConfig) as ClinicRole[]).map((role) => (
             <Button
-              aria-label={`Switch role view to ${roleConfig[role].label}`}
+              aria-label={`${t("Switch role view to")}: ${t(roleConfig[role].label)}`}
               className={cn(
                 "h-auto px-2 py-2 text-xs",
                 activeRole === role && "ring-2 ring-primary",
@@ -107,15 +109,15 @@ export function RoleWorkspacePanel({
                 onOpenPage(roleConfig[role].page);
               }}
             >
-              {roleConfig[role].label}
+              {t(roleConfig[role].label)}
             </Button>
           ))}
         </div>
         <div className="mt-3 rounded-md bg-[#f7f4ee] p-3">
-          <p className="font-semibold text-sm">{config.focus}</p>
+          <p className="font-semibold text-sm">{t(config.focus)}</p>
           <ul className="mt-2 space-y-1 text-muted-foreground text-xs">
             {config.tasks.map((task) => (
-              <li key={task}>• {task}</li>
+              <li key={task}>• {t(task)}</li>
             ))}
           </ul>
         </div>

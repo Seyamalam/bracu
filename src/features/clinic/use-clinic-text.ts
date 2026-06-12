@@ -646,6 +646,104 @@ const clinicTextBn: Record<string, string> = {
     "বর্তমান কেসে কোনো অ্যাপ্রুভাল ব্লকার ধরা পড়েনি, তবে ক্লিনিশিয়ান রিভিউ এখনও প্রয়োজন।",
   "Clinic team": "ক্লিনিক টিম",
   "Preview print": "প্রিন্ট প্রিভিউ",
+  "Ask Copilot": "কোপাইলটকে জিজ্ঞেস করুন",
+  "Assign owners": "মালিকানা অ্যাসাইন করুন",
+  "Attach prescription or lab text": "প্রেসক্রিপশন বা ল্যাব টেক্সট অ্যাটাচ করুন",
+  "Audio readout": "অডিও রিডআউট",
+  "Approve handout": "হ্যান্ডআউট অনুমোদন করুন",
+  "Call sheet": "কল শিট",
+  "Capture notes, vitals, documents, and missing basics.":
+    "নোট, ভাইটাল, ডকুমেন্ট ও মিসিং বেসিক নিন।",
+  "Check safety gates": "সেফটি গেট চেক করুন",
+  "Check vitals": "ভাইটাল চেক করুন",
+  "Clinic status": "ক্লিনিক স্ট্যাটাস",
+  "Clinic workflow progress": "ক্লিনিক ওয়ার্কফ্লো প্রগ্রেস",
+  complete: "সম্পন্ন",
+  "Confirm allergies": "অ্যালার্জি কনফার্ম করুন",
+  "Confirm teach-back": "টিচ-ব্যাক কনফার্ম করুন",
+  "Doctor summary": "ডাক্তার সারাংশ",
+  "Escalate red flags": "রেড ফ্ল্যাগ এসক্যালেট করুন",
+  "Family must repeat before leaving:": "যাওয়ার আগে পরিবারকে পুনরাবৃত্তি করতে হবে:",
+  "Focused workflows for each clinic worker":
+    "প্রতিটি ক্লিনিক কর্মীর জন্য ফোকাসড ওয়ার্কফ্লো",
+  "Generate or select a case to fill this printable packet.":
+    "এই প্রিন্টযোগ্য প্যাকেট পূরণ করতে একটি কেস জেনারেট বা সিলেক্ট করুন।",
+  "Handout, referral, medicine slip, call sheet, doctor summary":
+    "হ্যান্ডআউট, রেফারাল, মেডিসিন স্লিপ, কল শিট, ডাক্তার সারাংশ",
+  "Keep editing": "এডিটিং চালিয়ে যান",
+  "Key warning": "মূল সতর্কতা",
+  "Medicine slip": "মেডিসিন স্লিপ",
+  "Monitor queue, staffing load, audit, and clinic readiness.":
+    "কিউ, স্টাফিং লোড, অডিট ও ক্লিনিক রেডিনেস মনিটর করুন।",
+  "No hard blocks": "কোনো হার্ড ব্লক নেই",
+  "None documented": "কিছু ডকুমেন্টেড নেই",
+  "Own call-backs, reply triage, and patient understanding.":
+    "কলব্যাক, রিপ্লাই ট্রায়াজ ও রোগীর বোঝাপড়া পরিচালনা করুন।",
+  "Page-aware help with chat, tools, approvals, and safety context.":
+    "চ্যাট, টুল, অ্যাপ্রুভাল ও সেফটি কনটেক্সটসহ পেজ-অওয়ার সহায়তা।",
+  "Patient handout": "রোগীর হ্যান্ডআউট",
+  "Patient Literacy Modes": "রোগী লিটারেসি মোড",
+  Pictogram: "পিক্টোগ্রাম",
+  "Prepare triage, red flags, and staff handoff.":
+    "ট্রায়াজ, রেড ফ্ল্যাগ ও স্টাফ হ্যান্ডঅফ প্রস্তুত করুন।",
+  Provider: "প্রোভাইডার",
+  "Print Preview": "প্রিন্ট প্রিভিউ",
+  "Read patient instructions aloud": "রোগীর নির্দেশনা জোরে পড়ুন",
+  Reception: "রিসেপশন",
+  "Record vitals": "ভাইটাল রেকর্ড করুন",
+  "Referral cover note": "রেফারাল কভার নোট",
+  "Register patient": "রোগী রেজিস্টার করুন",
+  "Return warnings": "রিটার্ন সতর্কতা",
+  "Review audit trail": "অডিট ট্রেইল রিভিউ করুন",
+  "Review draft": "ড্রাফট রিভিউ করুন",
+  "Review SOAP draft, approve, and close safely.":
+    "SOAP ড্রাফট রিভিউ, অনুমোদন ও নিরাপদে ক্লোজ করুন।",
+  "Review the packet before sending it to the printer.":
+    "প্রিন্টারে পাঠানোর আগে প্যাকেট রিভিউ করুন।",
+  "Role View": "রোল ভিউ",
+  "Schedule callback": "কলব্যাক শিডিউল করুন",
+  "Simple Bangla": "সহজ বাংলা",
+  "Simple Bangla, pictograms, audio, and teach-back confirmation":
+    "সহজ বাংলা, পিক্টোগ্রাম, অডিও ও টিচ-ব্যাক কনফার্মেশন",
+  "steps completed": "ধাপ সম্পন্ন",
+  "Switch patient literacy mode to": "রোগী লিটারেসি মোড বদলান",
+  "Switch role view to": "রোল ভিউ বদলান",
+  "Triage replies": "রিপ্লাই ট্রায়াজ করুন",
+  "Uses the device speech engine when available; staff should still review wording.":
+    "ডিভাইস স্পিচ ইঞ্জিন থাকলে তা ব্যবহার করে; তবু স্টাফের ভাষা রিভিউ করা উচিত।",
+  "Watch queue pressure": "কিউ চাপ দেখুন",
+  "What care steps will happen at home.": "বাড়িতে কোন যত্নের ধাপ হবে।",
+  "When and how follow-up will happen.": "কখন এবং কীভাবে ফলো-আপ হবে।",
+  "Which danger signs require urgent return.":
+    "কোন বিপদ চিহ্নে জরুরি ফেরত আসতে হবে।",
+  "Visit Journey": "ভিজিট জার্নি",
+  "One glance from intake to closeout": "ইনটেক থেকে ক্লোজআউট এক নজরে",
+  "Next move": "পরবর্তী মুভ",
+  Intake: "ইনটেক",
+  "Capture patient, age, and story.": "রোগী, বয়স ও গল্প নিন।",
+  "Finish enough intake detail for AI support.":
+    "AI সহায়তার জন্য যথেষ্ট ইনটেক তথ্য সম্পন্ন করুন।",
+  "Reception intake is ready.": "রিসেপশন ইনটেক প্রস্তুত।",
+  "AI draft": "AI ড্রাফট",
+  "Generate draft documentation.": "ড্রাফট ডকুমেন্টেশন জেনারেট করুন।",
+  "Create the clinician-review draft.": "ক্লিনিশিয়ান-রিভিউ ড্রাফট তৈরি করুন।",
+  "Draft, handout, and checklist are generated.":
+    "ড্রাফট, হ্যান্ডআউট ও চেকলিস্ট জেনারেট হয়েছে।",
+  "Review missing questions and red flags.": "মিসিং প্রশ্ন ও রেড ফ্ল্যাগ রিভিউ করুন।",
+  "Clinician reviews risks and missing checks.":
+    "ক্লিনিশিয়ান ঝুঁকি ও মিসিং চেক রিভিউ করেন।",
+  "Safety signals are visible for clinician review.":
+    "ক্লিনিশিয়ান রিভিউয়ের জন্য সেফটি সিগনাল দৃশ্যমান।",
+  "Prepare patient-facing instructions.": "রোগীমুখী নির্দেশনা প্রস্তুত করুন।",
+  "Clinician approves wording before sharing.":
+    "শেয়ার করার আগে ক্লিনিশিয়ান ভাষা অনুমোদন করেন।",
+  "Patient handout is ready to share.": "রোগীর হ্যান্ডআউট শেয়ার করার জন্য প্রস্তুত।",
+  "Confirm the family understood.": "পরিবার বুঝেছে কিনা কনফার্ম করুন।",
+  "Ask the family to repeat the plan.": "পরিবারকে প্ল্যান পুনরাবৃত্তি করতে বলুন।",
+  "Understanding is confirmed by staff.": "স্টাফ বোঝাপড়া কনফার্ম করেছেন।",
+  "Assign callback or closeout.": "কলব্যাক বা ক্লোজআউট অ্যাসাইন করুন।",
+  "Schedule callback and closure owner.": "কলব্যাক ও ক্লোজার মালিকানা শিডিউল করুন।",
+  "Follow-up workflow is queued.": "ফলো-আপ ওয়ার্কফ্লো কিউ হয়েছে।",
 };
 
 export function useClinicText() {

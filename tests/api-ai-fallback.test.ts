@@ -373,6 +373,16 @@ describe("AI and agent routes without provider keys", () => {
       command: "Move this patient to handout",
       expectedActions: ["set_status"],
     },
+    {
+      command: "Use Gemini model",
+      expectedActions: ["set_model"],
+      forbiddenActions: ["fill_intake", "generate_draft"],
+    },
+    {
+      command: "Use local LM Studio model",
+      expectedActions: ["set_model"],
+      forbiddenActions: ["fill_intake", "generate_draft"],
+    },
   ])(
     "agent command '$command' maps to concrete actions",
     async ({ command, expectedActions, forbiddenActions = [] }) => {

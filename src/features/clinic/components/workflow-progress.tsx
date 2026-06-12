@@ -1,6 +1,7 @@
 import { CheckCircle2, Circle, Loader2, XCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { useClinicText } from "../use-clinic-text";
 
 export type WorkflowStepStatus = "blocked" | "complete" | "idle" | "running";
 
@@ -25,6 +26,7 @@ export function WorkflowProgress({
   steps: WorkflowStep[];
   toast: ToastNotice | null;
 }) {
+  const t = useClinicText();
   const blockedCount = steps.filter((step) => step.status === "blocked").length;
   const runningStep = steps.find((step) => step.status === "running");
   const completeCount = steps.filter(
@@ -32,7 +34,7 @@ export function WorkflowProgress({
   ).length;
 
   return (
-    <section className="space-y-3" aria-label="Clinic workflow progress">
+    <section className="space-y-3" aria-label={t("Clinic workflow progress")}>
       {toast ? (
         <div
           className={cn(
@@ -61,11 +63,11 @@ export function WorkflowProgress({
                     blockedCount ? "blocked" : runningStep ? "running" : "idle"
                   }
                 />
-                Clinic status
+                {t("Clinic status")}
               </span>
               <span className="flex flex-wrap gap-2 text-xs">
                 <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 font-semibold text-emerald-900">
-                  {completeCount}/{steps.length} complete
+                  {completeCount}/{steps.length} {t("complete")}
                 </span>
                 <span
                   className={cn(
@@ -75,11 +77,13 @@ export function WorkflowProgress({
                       : "border-emerald-200 bg-emerald-50 text-emerald-900",
                   )}
                 >
-                  {blockedCount ? `${blockedCount} blocked` : "No hard blocks"}
+                  {blockedCount
+                    ? `${blockedCount} ${t("blocked")}`
+                    : t("No hard blocks")}
                 </span>
                 {runningStep ? (
                   <span className="rounded-full border border-sky-200 bg-sky-50 px-2 py-1 font-semibold text-sky-900">
-                    Running: {runningStep.label}
+                    {t("Running")}: {t(runningStep.label)}
                   </span>
                 ) : null}
               </span>
@@ -98,10 +102,10 @@ export function WorkflowProgress({
                 >
                   <div className="flex items-center gap-2">
                     <StepIcon status={step.status} />
-                    <p className="font-semibold text-sm">{step.label}</p>
+                    <p className="font-semibold text-sm">{t(step.label)}</p>
                   </div>
                   <p className="mt-1 text-muted-foreground text-xs leading-4">
-                    {step.detail}
+                    {t(step.detail)}
                   </p>
                 </div>
               ))}

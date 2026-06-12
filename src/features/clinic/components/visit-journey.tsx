@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { visitJourneyCopy } from "../data";
 import type { CaseStatus, CopilotOutput, IntakeFormState } from "../types";
+import { useClinicText } from "../use-clinic-text";
 import { SectionHeading } from "./section-heading";
 
 type JourneyState = "active" | "done" | "waiting";
@@ -17,6 +18,7 @@ export function VisitJourney({
   output: CopilotOutput | null;
   status?: CaseStatus;
 }) {
+  const t = useClinicText();
   const intakeReady =
     form.patientName.trim().length > 0 &&
     Number(form.age) > 0 &&
@@ -51,8 +53,8 @@ export function VisitJourney({
       <CardHeader>
         <SectionHeading
           icon={<Route size={18} aria-hidden="true" />}
-          title={visitJourneyCopy.title}
-          subtitle={visitJourneyCopy.subtitle}
+          title={t(visitJourneyCopy.title)}
+          subtitle={t(visitJourneyCopy.subtitle)}
         />
       </CardHeader>
       <CardContent>
@@ -61,10 +63,12 @@ export function VisitJourney({
             <p className="font-black text-2xl text-primary">
               {completed}/{visitJourneyCopy.steps.length}
             </p>
-            <p className="text-muted-foreground text-xs">steps completed</p>
+            <p className="text-muted-foreground text-xs">
+              {t("steps completed")}
+            </p>
           </div>
           <Badge variant={completed >= 4 ? "success" : "warning"}>
-            {visitJourneyCopy.nextMoveLabel}: {activeStep?.label}
+            {t(visitJourneyCopy.nextMoveLabel)}: {t(activeStep?.label ?? "")}
           </Badge>
         </div>
 
@@ -102,10 +106,10 @@ export function VisitJourney({
                   />
                   <div>
                     <p className="font-semibold text-xs">
-                      {index + 1}. {step.label}
+                      {index + 1}. {t(step.label)}
                     </p>
                     <p className="mt-1 text-muted-foreground text-xs leading-5">
-                      {detail}
+                      {t(detail)}
                     </p>
                   </div>
                 </div>

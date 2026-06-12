@@ -308,6 +308,16 @@ function fallbackPlan(command: string) {
   ) {
     actions.push({ type: "set_model", model: "gemini-2.5-flash" });
   }
+  if (
+    actions.length > 0 &&
+    actions.every((action) => action.type === "set_model") &&
+    /model|gemini|studio|lmstudio|local|provider|cloud/.test(normalized)
+  ) {
+    return {
+      summary: "Switching the active AI provider model.",
+      actions,
+    };
+  }
   if (normalized.includes("presentation")) {
     actions.push({ type: "presentation_mode", enabled: true });
   }
