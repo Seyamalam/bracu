@@ -1,6 +1,7 @@
 import { History } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import type { Doc } from "../../../../convex/_generated/dataModel";
+import { useClinicText } from "../use-clinic-text";
 import { SectionHeading } from "./section-heading";
 
 export function AuditLogViewer({
@@ -8,13 +9,14 @@ export function AuditLogViewer({
 }: {
   logs: Doc<"auditLogs">[] | undefined;
 }) {
+  const t = useClinicText();
   return (
     <Card>
       <CardHeader>
         <SectionHeading
           icon={<History size={18} aria-hidden="true" />}
-          title="Audit Trail"
-          subtitle="Every important AI and workflow action"
+          title={t("Audit Trail")}
+          subtitle={t("Every important AI and workflow action")}
         />
       </CardHeader>
       <CardContent>
@@ -35,7 +37,7 @@ export function AuditLogViewer({
           ))}
           {logs?.length === 0 ? (
             <p className="text-muted-foreground text-sm">
-              Audit events will appear after actions.
+              {t("Audit events will appear after actions.")}
             </p>
           ) : null}
         </div>

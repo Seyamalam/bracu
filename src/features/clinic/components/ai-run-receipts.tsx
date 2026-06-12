@@ -2,6 +2,7 @@ import { ClipboardCheck, ShieldCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import type { CopilotOutput, IntakeFormState } from "../types";
+import { useClinicText } from "../use-clinic-text";
 import { SectionHeading } from "./section-heading";
 
 type Receipt = {
@@ -24,15 +25,18 @@ export function AiRunReceipts({
   output: CopilotOutput | null;
   runningAction: string | null;
 }) {
-  const receipts = buildReceipts({ form, output, runningAction });
+  const t = useClinicText();
+  const receipts = buildReceipts({ form, output, runningAction, t });
 
   return (
     <Card>
       <CardHeader>
         <SectionHeading
           icon={<ClipboardCheck size={18} aria-hidden="true" />}
-          title="AI Run Receipts"
-          subtitle="Every AI action shows inputs, safety checks, review state, and audit context"
+          title={t("AI Run Receipts")}
+          subtitle={t(
+            "Every AI action shows inputs, safety checks, review state, and audit context",
+          )}
         />
       </CardHeader>
       <CardContent>
@@ -58,13 +62,13 @@ export function AiRunReceipts({
                         : "outline"
                   }
                 >
-                  {receipt.status.replace("_", " ")}
+                  {t(receipt.status.replace("_", " "))}
                 </Badge>
               </div>
               <div className="mt-3 grid gap-2 md:grid-cols-3">
-                <ReceiptField label="Input" value={receipt.input} />
-                <ReceiptField label="Output" value={receipt.outputType} />
-                <ReceiptField label="Safety" value={receipt.safety} />
+                <ReceiptField label={t("Input")} value={receipt.input} />
+                <ReceiptField label={t("Output")} value={receipt.outputType} />
+                <ReceiptField label={t("Safety")} value={receipt.safety} />
               </div>
             </article>
           ))}
@@ -90,27 +94,30 @@ function buildReceipts({
   form,
   output,
   runningAction,
+  t,
 }: {
   form: IntakeFormState;
   output: CopilotOutput | null;
   runningAction: string | null;
+  t: (text: string) => string;
 }): Receipt[] {
   const now = new Date().toLocaleString();
   const baseInput = form.patientName
-    ? `${form.patientName}, age ${form.age || "unknown"}`
-    : "No active patient";
+    ? `${form.patientName}, ${t("age")} ${form.age || t("unknown")}`
+    : t("No active patient");
 
   const receipts: Receipt[] = [
     {
       id: "receipt-intake",
       action: runningAction
-        ? `Running ${runningAction}`
-        : "Intake readiness check",
+        ? `${t("Running")} ${runningAction}`
+        : t("Intake readiness check"),
       input: baseInput,
-      outputType: "Structured workflow context",
-      role: "Ops Agent",
-      safety:
+      outputType: t("Structured workflow context"),
+      role: t("Ops Agent"),
+      safety: t(
         "Draft support only. Missing vitals, allergy status, and escalation triggers remain visible.",
+      ),
       status: runningAction ? "needs_review" : "draft",
       timestamp: now,
     },
@@ -119,11 +126,11 @@ function buildReceipts({
   if (output) {
     receipts.unshift({
       id: "receipt-draft",
-      action: "Clinical draft generation",
-      input: `${output.chiefComplaint} · ${output.severity} priority`,
-      outputType: "SOAP support, red flags, handout, follow-up",
-      role: "Doctor Agent",
-      safety: `${output.redFlags.length} red flags and ${output.missingQuestions.length} missing questions require human review.`,
+      action: t("Clinical draft generation"),
+      input: `${output.chiefComplaint} · ${t(output.severity)} ${t("priority")}`,
+      outputType: t("SOAP support, red flags, handout, follow-up"),
+      role: t("Doctor Agent"),
+      safety: `${output.redFlags.length} ${t("red flags")} ${t("and")} ${output.missingQuestions.length} ${t("missing questions require human review.")}`,
       status: output.redFlags.length ? "needs_review" : "draft",
       timestamp: now,
     });

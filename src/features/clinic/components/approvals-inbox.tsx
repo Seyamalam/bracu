@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import type { CopilotOutput, IntakeFormState } from "../types";
+import { useClinicText } from "../use-clinic-text";
 import { SectionHeading } from "./section-heading";
 
 type ApprovalItem = {
@@ -24,15 +25,18 @@ export function ApprovalsInbox({
   onPrintPreview: () => void;
   output: CopilotOutput | null;
 }) {
-  const items = buildApprovalItems({ form, output });
+  const t = useClinicText();
+  const items = buildApprovalItems({ form, output, t });
 
   return (
     <Card>
       <CardHeader>
         <SectionHeading
           icon={<Inbox size={18} aria-hidden="true" />}
-          title="Approvals Inbox"
-          subtitle="One place for signoff, escalation acknowledgment, return warnings, and print approval"
+          title={t("Approvals Inbox")}
+          subtitle={t(
+            "One place for signoff, escalation acknowledgment, return warnings, and print approval",
+          )}
         />
       </CardHeader>
       <CardContent>
@@ -54,19 +58,19 @@ export function ApprovalsInbox({
                       size={17}
                       aria-hidden="true"
                     />
-                    <h3 className="font-bold text-sm">{item.action}</h3>
+                    <h3 className="font-bold text-sm">{t(item.action)}</h3>
                   </div>
                   <p className="mt-2 text-muted-foreground text-sm leading-6">
-                    {item.detail}
+                    {t(item.detail)}
                   </p>
                   <p className="mt-1 font-semibold text-muted-foreground text-xs">
-                    Owner: {item.owner}
+                    {t("Owner")}: {t(item.owner)}
                   </p>
                 </div>
                 <Badge
                   variant={item.priority === "high" ? "destructive" : "outline"}
                 >
-                  {item.priority}
+                  {t(item.priority)}
                 </Badge>
               </div>
               <div className="mt-3 flex flex-wrap gap-2">
@@ -75,7 +79,7 @@ export function ApprovalsInbox({
                   type="button"
                   onClick={() => onCommand(item.action)}
                 >
-                  Review
+                  {t("Review")}
                 </Button>
                 {item.id.includes("print") ? (
                   <Button
@@ -84,7 +88,7 @@ export function ApprovalsInbox({
                     variant="outline"
                     onClick={onPrintPreview}
                   >
-                    Preview print
+                    {t("Preview print")}
                   </Button>
                 ) : null}
               </div>
@@ -99,9 +103,11 @@ export function ApprovalsInbox({
 function buildApprovalItems({
   form,
   output,
+  t,
 }: {
   form: IntakeFormState;
   output: CopilotOutput | null;
+  t: (text: string) => string;
 }): ApprovalItem[] {
   const items: ApprovalItem[] = [];
 
@@ -130,7 +136,7 @@ function buildApprovalItems({
   if (output?.redFlags.length) {
     items.push({
       action: "Acknowledge red-flag escalation",
-      detail: `${output.redFlags.length} red flags require human escalation acknowledgment.`,
+      detail: `${output.redFlags.length} ${t("red flags require human escalation acknowledgment.")}`,
       id: "red-flags",
       owner: "Doctor",
       priority: "high",

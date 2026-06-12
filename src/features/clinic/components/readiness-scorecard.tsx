@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { readinessPillars, readinessSignals } from "../data";
 import type { CaseStatus, CopilotOutput, Language, Severity } from "../types";
+import { useClinicText } from "../use-clinic-text";
 import { SectionHeading } from "./section-heading";
 
 type ReadinessCase = {
@@ -27,6 +28,7 @@ export function ReadinessScorecard({
   cases: ReadinessCase[] | undefined;
   output: CopilotOutput | null;
 }) {
+  const t = useClinicText();
   const rows = cases ?? [];
   const highPriority = rows.filter((item) => item.severity === "high").length;
   const banglaReady = rows.filter((item) => item.language !== "en").length;
@@ -67,8 +69,8 @@ export function ReadinessScorecard({
       <CardHeader>
         <SectionHeading
           icon={<Rocket size={18} aria-hidden="true" />}
-          title="Readiness"
-          subtitle="Safety, access, workflow, and operating proof"
+          title={t("Readiness")}
+          subtitle={t("Safety, access, workflow, and operating proof")}
         />
       </CardHeader>
       <CardContent>
@@ -77,16 +79,18 @@ export function ReadinessScorecard({
             <div>
               <p className="font-black text-3xl text-primary">{score}%</p>
               <p className="text-muted-foreground text-xs">
-                Clinic workflow readiness
+                {t("Clinic workflow readiness")}
               </p>
             </div>
-            <Badge variant={badgeVariant}>{scoreLabel}</Badge>
+            <Badge variant={badgeVariant}>{t(scoreLabel)}</Badge>
           </div>
           <div className="mt-3 grid grid-cols-2 gap-2">
             {metrics.map((metric) => (
               <div className="rounded-md bg-[#f7f4ee] p-2" key={metric.label}>
                 <p className="font-semibold text-sm">{metric.value}</p>
-                <p className="text-muted-foreground text-xs">{metric.label}</p>
+                <p className="text-muted-foreground text-xs">
+                  {t(metric.label)}
+                </p>
               </div>
             ))}
           </div>
@@ -107,9 +111,9 @@ export function ReadinessScorecard({
                     aria-hidden="true"
                   />
                   <div>
-                    <p className="font-semibold text-xs">{pillar.label}</p>
+                    <p className="font-semibold text-xs">{t(pillar.label)}</p>
                     <p className="mt-1 text-muted-foreground text-xs leading-5">
-                      {pillar.description}
+                      {t(pillar.description)}
                     </p>
                   </div>
                 </div>
@@ -121,7 +125,7 @@ export function ReadinessScorecard({
         <div className="mt-3 rounded-md bg-[#f7f4ee] p-3">
           <div className="flex items-center gap-2">
             <Languages size={15} aria-hidden="true" />
-            <p className="font-semibold text-xs">Proof points</p>
+            <p className="font-semibold text-xs">{t("Proof points")}</p>
           </div>
           <ul className="mt-2 space-y-1 text-muted-foreground text-xs leading-5">
             {readinessSignals.map((signal) => (
@@ -131,7 +135,7 @@ export function ReadinessScorecard({
                   size={13}
                   aria-hidden="true"
                 />
-                <span>{signal}</span>
+                <span>{t(signal)}</span>
               </li>
             ))}
           </ul>

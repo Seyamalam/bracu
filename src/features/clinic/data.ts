@@ -233,6 +233,11 @@ export const initialIntake = {
 
 export const modelOptions = [
   {
+    label: "Local LM Studio",
+    value: "lmstudio",
+    description: "Run through local LM Studio",
+  },
+  {
     label: "Gemini 2.5 Flash",
     value: "gemini-2.5-flash",
     description: "Best live-demo balance",

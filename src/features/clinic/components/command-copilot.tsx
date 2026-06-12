@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { commandExamples, commandPlaybook } from "../data";
 import type { CommandHistoryEntry, CommandPlan } from "../types";
+import { useClinicText } from "../use-clinic-text";
 import { CommandPlanPreview } from "./command-plan-preview";
 import { SectionHeading } from "./section-heading";
 
@@ -59,11 +60,12 @@ export const CommandCopilot = forwardRef<HTMLInputElement, CommandCopilotProps>(
     const [isRunning, setIsRunning] = useState(false);
     const [isPreviewing, setIsPreviewing] = useState(false);
     const [error, setError] = useState("");
+    const t = useClinicText();
 
     async function buildPlan(commandOverride = command) {
       const nextCommand = commandOverride.trim();
       if (!nextCommand) {
-        setError("Type a command first.");
+        setError(t("Type a command first."));
         return null;
       }
 
@@ -76,7 +78,7 @@ export const CommandCopilot = forwardRef<HTMLInputElement, CommandCopilotProps>(
       });
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(formatApiError(data, "Command failed."));
+        throw new Error(formatApiError(data, t("Command failed.")));
       }
       return {
         command: nextCommand,
@@ -97,7 +99,9 @@ export const CommandCopilot = forwardRef<HTMLInputElement, CommandCopilotProps>(
         setLastPlanMode(planned.mode);
         setLastPlanState("preview");
       } catch (caught) {
-        setError(caught instanceof Error ? caught.message : "Preview failed.");
+        setError(
+          caught instanceof Error ? caught.message : t("Preview failed."),
+        );
       } finally {
         setIsPreviewing(false);
       }
@@ -124,7 +128,9 @@ export const CommandCopilot = forwardRef<HTMLInputElement, CommandCopilotProps>(
           createdAt: Date.now(),
         });
       } catch (caught) {
-        setError(caught instanceof Error ? caught.message : "Command failed.");
+        setError(
+          caught instanceof Error ? caught.message : t("Command failed."),
+        );
       } finally {
         setIsRunning(false);
       }
@@ -153,7 +159,9 @@ export const CommandCopilot = forwardRef<HTMLInputElement, CommandCopilotProps>(
           createdAt: Date.now(),
         });
       } catch (caught) {
-        setError(caught instanceof Error ? caught.message : "Command failed.");
+        setError(
+          caught instanceof Error ? caught.message : t("Command failed."),
+        );
       } finally {
         setIsRunning(false);
       }
@@ -164,14 +172,14 @@ export const CommandCopilot = forwardRef<HTMLInputElement, CommandCopilotProps>(
         <CardHeader>
           <SectionHeading
             icon={<Bot size={18} aria-hidden="true" />}
-            title="Command Copilot"
-            subtitle="Type your way through the clinic workflow"
+            title={t("Command Copilot")}
+            subtitle={t("Type your way through the clinic workflow")}
           />
         </CardHeader>
         <CardContent>
           <div className="grid gap-2 lg:grid-cols-[1fr_auto_auto]">
             <Input
-              aria-label="Command Copilot input"
+              aria-label={t("Command Copilot input")}
               ref={ref}
               value={command}
               onChange={(event) => setCommand(event.target.value)}
@@ -188,7 +196,7 @@ export const CommandCopilot = forwardRef<HTMLInputElement, CommandCopilotProps>(
               onClick={() => void previewCommand()}
             >
               <Eye size={17} aria-hidden="true" />
-              {isPreviewing ? "Previewing..." : "Preview"}
+              {isPreviewing ? t("Previewing...") : t("Preview")}
             </Button>
             <Button
               type="button"
@@ -196,7 +204,7 @@ export const CommandCopilot = forwardRef<HTMLInputElement, CommandCopilotProps>(
               onClick={() => void runCommand()}
             >
               <CornerDownLeft size={17} aria-hidden="true" />
-              Run
+              {t("Run")}
             </Button>
           </div>
 
@@ -206,9 +214,9 @@ export const CommandCopilot = forwardRef<HTMLInputElement, CommandCopilotProps>(
                 className="rounded-md border border-border bg-[#f7f4ee] p-2"
                 key={group.label}
               >
-                <p className="font-semibold text-xs">{group.label}</p>
+                <p className="font-semibold text-xs">{t(group.label)}</p>
                 <p className="mt-1 text-[0.72rem] text-muted-foreground">
-                  {group.examples.join(" · ")}
+                  {group.examples.map((example) => t(example)).join(" · ")}
                 </p>
               </div>
             ))}
@@ -225,7 +233,7 @@ export const CommandCopilot = forwardRef<HTMLInputElement, CommandCopilotProps>(
                 onClick={() => void runCommand(example)}
               >
                 <Wand2 size={13} aria-hidden="true" />
-                {example}
+                {t(example)}
               </Button>
             ))}
           </div>
@@ -246,7 +254,7 @@ export const CommandCopilot = forwardRef<HTMLInputElement, CommandCopilotProps>(
             <div className="mt-3 border-border border-t pt-3">
               <div className="mb-2 flex items-center gap-2 font-semibold text-sm">
                 <History size={15} aria-hidden="true" />
-                Recent command trail
+                {t("Recent command trail")}
               </div>
               <div className="grid gap-2">
                 {history.slice(0, 3).map((entry) => (
@@ -265,7 +273,7 @@ export const CommandCopilot = forwardRef<HTMLInputElement, CommandCopilotProps>(
                     </span>
                     <span className="mt-2 flex items-center gap-1 text-primary text-xs">
                       <CheckCircle2 size={13} aria-hidden="true" />
-                      Run again
+                      {t("Run again")}
                     </span>
                   </button>
                 ))}

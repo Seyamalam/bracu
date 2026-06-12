@@ -1,6 +1,7 @@
 import { CalendarClock } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import type { Id } from "../../../../convex/_generated/dataModel";
+import { useClinicText } from "../use-clinic-text";
 import { SectionHeading } from "./section-heading";
 
 type FollowUpCase = {
@@ -20,6 +21,7 @@ export function FollowUpPanel({
   cases: FollowUpCase[] | undefined;
   onSelectCase: (caseId: Id<"cases">) => void;
 }) {
+  const t = useClinicText();
   const followUps = (cases ?? []).filter(
     (caseItem) => caseItem.status === "followup",
   );
@@ -29,8 +31,8 @@ export function FollowUpPanel({
       <CardHeader>
         <SectionHeading
           icon={<CalendarClock size={18} aria-hidden="true" />}
-          title="Due Follow-ups"
-          subtitle="Close the loop after discharge"
+          title={t("Due Follow-ups")}
+          subtitle={t("Close the loop after discharge")}
         />
       </CardHeader>
       <CardContent>
@@ -44,13 +46,13 @@ export function FollowUpPanel({
             >
               <p className="font-semibold text-sm">{caseItem.patientName}</p>
               <p className="mt-1 text-muted-foreground text-xs">
-                {caseItem.followUp?.timing ?? "Follow-up timing not set"}
+                {caseItem.followUp?.timing ?? t("Follow-up timing not set")}
               </p>
             </button>
           ))}
           {followUps.length === 0 ? (
             <p className="text-muted-foreground text-sm">
-              No follow-up cases are queued.
+              {t("No follow-up cases are queued.")}
             </p>
           ) : null}
         </div>

@@ -2,9 +2,11 @@ import { generateText, Output } from "ai";
 import { z } from "zod";
 import { demoCopilotOutput, modelOptions } from "@/features/clinic/data";
 import {
-  aiProviderErrorResponse,
   buildPromptForProvider,
+  describeAiProviderError,
+  getAiProviderLabel,
   hasAiProvider,
+  logAiProviderError,
   resolveAiModel,
 } from "@/lib/ai-provider";
 
@@ -83,10 +85,14 @@ Return safe clinical documentation support. ${
 
     return Response.json({ output: result.output, mode: "live" });
   } catch (error) {
-    return aiProviderErrorResponse(
-      "api/copilot",
-      resolvedModel.provider,
-      error,
-    );
+    logAiProviderError("api/copilot", error);
+    return Response.json({
+      output: demoCopilotOutput,
+      mode: "fallback",
+      providerError: {
+        detail: describeAiProviderError(error),
+        provider: getAiProviderLabel(resolvedModel.provider),
+      },
+    });
   }
 }

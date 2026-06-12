@@ -1,6 +1,7 @@
 import { Activity, ClipboardList, PlayCircle, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { useClinicText } from "../use-clinic-text";
 import type { WorkspacePage } from "./app-shell-sidebar";
 import { SectionHeading } from "./section-heading";
 
@@ -32,13 +33,17 @@ export function OverviewQuickActions({
   onOpenPage: (page: WorkspacePage) => void;
   onStartGuidedWorkflow: () => void;
 }) {
+  const t = useClinicText();
+
   return (
     <Card className="border-primary/25 bg-white">
       <CardHeader>
         <SectionHeading
           icon={<PlayCircle size={18} aria-hidden="true" />}
-          title="Start here"
-          subtitle="Run the guided workflow or jump straight into the work area you need."
+          title={t("Start here")}
+          subtitle={t(
+            "Run the guided workflow or jump straight into the work area you need.",
+          )}
         />
       </CardHeader>
       <CardContent>
@@ -50,10 +55,11 @@ export function OverviewQuickActions({
         >
           <PlayCircle size={19} aria-hidden="true" />
           <span>
-            <span className="block">Start guided workflow</span>
+            <span className="block">{t("Start guided workflow")}</span>
             <span className="block font-normal text-primary-foreground/80 text-xs">
-              Load a realistic case, generate the draft, and open presentation
-              mode.
+              {t(
+                "Load a realistic case, generate the draft, and open presentation mode.",
+              )}
             </span>
           </span>
         </Button>
@@ -70,10 +76,10 @@ export function OverviewQuickActions({
               >
                 <Icon className="text-primary" size={20} aria-hidden="true" />
                 <span className="mt-3 block font-semibold text-sm">
-                  {action.label}
+                  {t(action.label)}
                 </span>
                 <span className="mt-1 block text-muted-foreground text-xs leading-5">
-                  {action.body}
+                  {t(action.body)}
                 </span>
               </button>
             );

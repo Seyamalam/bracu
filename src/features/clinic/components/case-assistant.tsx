@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import type { CopilotOutput } from "../types";
+import { useClinicText } from "../use-clinic-text";
 import { SectionHeading } from "./section-heading";
 
 const suggestions = [
@@ -30,12 +31,13 @@ export function CaseAssistant({
   const [answer, setAnswer] = useState("");
   const [isAsking, setIsAsking] = useState(false);
   const [error, setError] = useState("");
+  const t = useClinicText();
 
   const ask = useCallback(
     async (questionOverride?: string) => {
       const nextQuestion = (questionOverride ?? question).trim();
       if (nextQuestion.length < 3) {
-        setError("Ask a question about the selected case.");
+        setError(t("Ask a question about the selected case."));
         return;
       }
 
@@ -55,18 +57,18 @@ export function CaseAssistant({
         });
         const data = await response.json();
         if (!response.ok) {
-          throw new Error(data.error ?? "Assistant failed.");
+          throw new Error(t(data.error ?? "Assistant failed."));
         }
         setAnswer(data.answer as string);
       } catch (caught) {
         setError(
-          caught instanceof Error ? caught.message : "Assistant failed.",
+          caught instanceof Error ? caught.message : t("Assistant failed."),
         );
       } finally {
         setIsAsking(false);
       }
     },
-    [model, output, question],
+    [model, output, question, t],
   );
 
   useEffect(() => {
@@ -80,14 +82,14 @@ export function CaseAssistant({
       <CardHeader>
         <SectionHeading
           icon={<MessageSquareText size={18} aria-hidden="true" />}
-          title="Ask This Case"
-          subtitle="Free-text AI help for the selected patient"
+          title={t("Ask This Case")}
+          subtitle={t("Free-text AI help for the selected patient")}
         />
       </CardHeader>
       <CardContent>
         <div className="flex gap-2">
           <Input
-            aria-label="Ask about selected case"
+            aria-label={t("Ask about selected case")}
             value={question}
             onChange={(event) => setQuestion(event.target.value)}
             onKeyDown={(event) => {
@@ -97,7 +99,7 @@ export function CaseAssistant({
             }}
           />
           <Button type="button" disabled={isAsking} onClick={() => void ask()}>
-            Ask
+            {t("Ask")}
           </Button>
         </div>
         <div className="mt-3 flex flex-wrap gap-2">
@@ -109,7 +111,7 @@ export function CaseAssistant({
               variant="outline"
               onClick={() => setQuestion(item)}
             >
-              {item}
+              {t(item)}
             </Button>
           ))}
         </div>

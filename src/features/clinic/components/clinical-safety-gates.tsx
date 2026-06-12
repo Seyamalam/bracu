@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import type { CaseStatus, CopilotOutput, IntakeFormState } from "../types";
+import { useClinicText } from "../use-clinic-text";
 import { SectionHeading } from "./section-heading";
 
 export type SafetyGate = {
@@ -98,6 +99,7 @@ export function getClinicalSafetyGates({
 }
 
 export function ClinicalSafetyGates({ gates }: { gates: SafetyGate[] }) {
+  const t = useClinicText();
   const blocked = gates.filter((gate) => !gate.passed);
 
   return (
@@ -105,17 +107,19 @@ export function ClinicalSafetyGates({ gates }: { gates: SafetyGate[] }) {
       <CardHeader>
         <SectionHeading
           icon={<ShieldCheck size={18} aria-hidden="true" />}
-          title="Clinical Safety Gates"
-          subtitle="Required checks before print, approval, and closeout"
+          title={t("Clinical Safety Gates")}
+          subtitle={t("Required checks before print, approval, and closeout")}
         />
       </CardHeader>
       <CardContent>
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <Badge variant={blocked.length ? "destructive" : "secondary"}>
-            {blocked.length ? `${blocked.length} open` : "All gates clear"}
+            {blocked.length
+              ? `${blocked.length} ${t("open")}`
+              : t("All gates clear")}
           </Badge>
           <span className="text-muted-foreground text-xs">
-            AI drafts remain clinician-review material.
+            {t("AI drafts remain clinician-review material.")}
           </span>
         </div>
         <div className="grid gap-2">
@@ -141,9 +145,9 @@ export function ClinicalSafetyGates({ gates }: { gates: SafetyGate[] }) {
                   aria-hidden="true"
                 />
                 <div>
-                  <p className="font-semibold text-sm">{gate.label}</p>
+                  <p className="font-semibold text-sm">{t(gate.label)}</p>
                   <p className="mt-1 text-muted-foreground text-xs leading-5">
-                    {gate.detail}
+                    {t(gate.detail)}
                   </p>
                 </div>
               </div>

@@ -136,6 +136,11 @@ type ApiErrorPayload = {
   provider?: string;
 };
 
+type ProviderErrorPayload = {
+  detail?: string;
+  provider?: string;
+};
+
 function formatApiError(data: ApiErrorPayload, fallback: string) {
   const parts = [data.error ?? fallback];
   if (data.provider) {
@@ -145,6 +150,14 @@ function formatApiError(data: ApiErrorPayload, fallback: string) {
     parts.push(`Detail: ${data.detail}`);
   }
   return parts.join(" ");
+}
+
+function formatProviderFallback(providerError?: ProviderErrorPayload) {
+  if (!providerError) {
+    return "";
+  }
+  const detail = providerError.detail ? `: ${providerError.detail}` : "";
+  return ` Provider fallback (${providerError.provider ?? "AI provider"}${detail}).`;
 }
 
 export function ClinicCopilotApp({
@@ -159,7 +172,7 @@ export function ClinicCopilotApp({
   const [selectedCaseId, setSelectedCaseId] = useState<
     Id<"cases"> | undefined
   >();
-  const [selectedModel, setSelectedModel] = useState("gemini-2.5-flash");
+  const [selectedModel, setSelectedModel] = useState("lmstudio");
   const [commandDocumentText, setCommandDocumentText] = useState<
     string | undefined
   >();
@@ -266,6 +279,8 @@ export function ClinicCopilotApp({
   const updateDraft = useMutation(api.cases.updateDraft);
   const copy = uiCopy[uiLanguage];
   useClinicDomLocalization(uiLanguage);
+  const activeProviderLabel =
+    selectedModel === "lmstudio" ? "LM Studio" : "Gemini";
 
   useEffect(() => {
     setActiveWorkspacePage(initialWorkspace);
@@ -577,6 +592,13 @@ export function ClinicCopilotApp({
       const generated = data.output as CopilotOutput;
       setOutput(generated);
       setMode(data.mode ?? "live");
+      if (data.providerError) {
+        notify(
+          "Provider fallback",
+          formatProviderFallback(data.providerError).trim(),
+          "warning",
+        );
+      }
       setLiveMessage(`Generated draft for ${nextForm.patientName}.`);
 
       const caseId = await createCase({
@@ -1170,10 +1192,11 @@ export function ClinicCopilotApp({
       }
       const plan = data.output as CommandPlan;
       await applyCommandPlan(plan);
+      const providerFallback = formatProviderFallback(data.providerError);
       const entry: CommandHistoryEntry = {
         id: crypto.randomUUID(),
         command: nextCommand,
-        summary: plan.summary,
+        summary: `${plan.summary}${providerFallback}`,
         actions: plan.actions.map((action) => action.type),
         mode: data.mode ?? "live",
         createdAt: Date.now(),
@@ -1408,16 +1431,17 @@ export function ClinicCopilotApp({
                 </div>
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-2 lg:min-w-96">
+            <div className="grid grid-cols-4 gap-2 lg:min-w-[30rem]">
               <Metric label={copy.cases} value={cases?.length ?? 0} />
               <Metric label={copy.ready} value={`${readyScore}%`} />
               <Metric
                 label={copy.mode}
                 value={mode === "idle" ? "Demo" : mode}
               />
+              <Metric label="Provider" value={activeProviderLabel} />
               {activeWorkspacePage !== "ai" ? (
                 <Button
-                  className="col-span-3 bg-[#f2c14e] text-slate-950 hover:bg-[#e2b243]"
+                  className="col-span-4 bg-[#f2c14e] text-slate-950 hover:bg-[#e2b243]"
                   type="button"
                   onClick={() => setAiDrawerOpen(true)}
                 >

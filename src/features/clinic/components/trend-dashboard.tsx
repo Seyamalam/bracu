@@ -2,6 +2,7 @@ import { BarChart3 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { trendLabels } from "../data";
 import type { CaseStatus, Severity } from "../types";
+import { useClinicText } from "../use-clinic-text";
 import { SectionHeading } from "./section-heading";
 
 type TrendCase = {
@@ -11,6 +12,7 @@ type TrendCase = {
 };
 
 export function TrendDashboard({ cases }: { cases: TrendCase[] | undefined }) {
+  const t = useClinicText();
   const rows = cases ?? [];
   const high = rows.filter((item) => item.severity === "high").length;
   const medium = rows.filter((item) => item.severity === "medium").length;
@@ -24,23 +26,27 @@ export function TrendDashboard({ cases }: { cases: TrendCase[] | undefined }) {
       <CardHeader>
         <SectionHeading
           icon={<BarChart3 size={18} aria-hidden="true" />}
-          title="Clinic Trends"
-          subtitle="Anonymized demo signals"
+          title={t("Clinic Trends")}
+          subtitle={t("Anonymized demo signals")}
         />
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
-          <TrendBar label={trendLabels.high} value={high} max={max} />
-          <TrendBar label={trendLabels.medium} value={medium} max={max} />
-          <TrendBar label={trendLabels.low} value={low} max={max} />
-          <TrendBar label={trendLabels.followup} value={followup} max={max} />
+          <TrendBar label={t(trendLabels.high)} value={high} max={max} />
+          <TrendBar label={t(trendLabels.medium)} value={medium} max={max} />
+          <TrendBar label={t(trendLabels.low)} value={low} max={max} />
+          <TrendBar
+            label={t(trendLabels.followup)}
+            value={followup}
+            max={max}
+          />
         </div>
         <div className="mt-4 rounded-lg bg-[#f7f4ee] p-3">
           <p className="font-semibold text-2xl">
             {rows.length ? Math.round((banglaFirst / rows.length) * 100) : 0}%
           </p>
           <p className="text-muted-foreground text-xs">
-            Bangla or mixed-language intakes
+            {t("Bangla or mixed-language intakes")}
           </p>
         </div>
       </CardContent>

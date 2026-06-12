@@ -1,6 +1,7 @@
 import { TimerReset } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import type { CopilotOutput } from "../types";
+import { useClinicText } from "../use-clinic-text";
 import { SectionHeading } from "./section-heading";
 
 export function ImpactSnapshot({
@@ -10,6 +11,7 @@ export function ImpactSnapshot({
   output: CopilotOutput | null;
   title: string;
 }) {
+  const t = useClinicText();
   const missingQuestions = output?.missingQuestions.length ?? 4;
   const redFlags = output?.redFlags.length ?? 1;
   const minutesSaved = Math.min(8, 3 + missingQuestions);
@@ -20,14 +22,14 @@ export function ImpactSnapshot({
         <SectionHeading
           icon={<TimerReset size={18} aria-hidden="true" />}
           title={title}
-          subtitle="Operational proof points the clinic can act on"
+          subtitle={t("Operational proof points the clinic can act on")}
         />
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-3 gap-2">
-          <ImpactNumber label="min saved" value={minutesSaved} />
-          <ImpactNumber label="questions found" value={missingQuestions} />
-          <ImpactNumber label="red flags" value={redFlags} />
+          <ImpactNumber label={t("min saved")} value={minutesSaved} />
+          <ImpactNumber label={t("questions found")} value={missingQuestions} />
+          <ImpactNumber label={t("red flags")} value={redFlags} />
         </div>
       </CardContent>
     </Card>

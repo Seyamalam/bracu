@@ -466,6 +466,7 @@ export function AgentCommandCenter({
   const criticalCount = agentTools.filter(
     (tool) => tool.priority === "critical",
   ).length;
+  const providerLabel = model === "lmstudio" ? "LM Studio" : "Gemini";
   const queueItems = useMemo(
     () => [
       {
@@ -659,8 +660,8 @@ export function AgentCommandCenter({
               />
               <MiniAgent
                 icon={<CheckCircle2 size={17} aria-hidden="true" />}
-                title={t("Local model")}
-                body={t("LM Studio is used when AI_PROVIDER=lmstudio.")}
+                title={t("Provider")}
+                body={`${providerLabel}: ${model}`}
               />
             </div>
             <TaskQueue

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import type { IntakeFormState } from "../types";
+import { useClinicText } from "../use-clinic-text";
 import { SectionHeading } from "./section-heading";
 
 export type QueuedDraft = IntakeFormState & {
@@ -22,6 +23,8 @@ export function LowConnectivityPanel({
   onQueueDraft: (note: string) => void;
   onSyncDraft: (draft: QueuedDraft) => void;
 }) {
+  const t = useClinicText();
+
   return (
     <Card>
       <CardHeader>
@@ -33,16 +36,16 @@ export function LowConnectivityPanel({
               <CloudOff size={18} aria-hidden="true" />
             )
           }
-          title="Low-Connectivity Mode"
+          title={t("Low-Connectivity Mode")}
           subtitle={
             isOnline
-              ? "Online with local backup queue"
-              : "Offline intake queue active"
+              ? t("Online with local backup queue")
+              : t("Offline intake queue active")
           }
         />
       </CardHeader>
       <CardContent>
-        <DraftCapture onQueueDraft={onQueueDraft} />
+        <DraftCapture onQueueDraft={onQueueDraft} t={t} />
         <div className="mt-3 space-y-2">
           {queue.map((draft) => (
             <div
@@ -52,22 +55,22 @@ export function LowConnectivityPanel({
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="font-semibold text-sm">
-                    {draft.patientName || "Unnamed offline intake"}
+                    {draft.patientName || t("Unnamed offline intake")}
                   </p>
                   <p className="mt-1 text-muted-foreground text-xs">
                     {new Date(draft.createdAt).toLocaleTimeString()} ·{" "}
-                    {draft.syncStatus}
+                    {t(draft.syncStatus)}
                   </p>
                 </div>
                 <Button
-                  aria-label={`Sync queued draft for ${draft.patientName || "unnamed patient"}`}
+                  aria-label={`${t("Sync queued draft")}: ${draft.patientName || t("unnamed patient")}`}
                   size="sm"
                   type="button"
                   variant="outline"
                   onClick={() => onSyncDraft(draft)}
                 >
                   <UploadCloud size={15} aria-hidden="true" />
-                  Sync
+                  {t("Sync")}
                 </Button>
               </div>
               <p className="mt-2 line-clamp-2 text-muted-foreground text-xs">
@@ -77,7 +80,7 @@ export function LowConnectivityPanel({
           ))}
           {queue.length === 0 ? (
             <p className="text-muted-foreground text-sm">
-              No local drafts are waiting to sync.
+              {t("No local drafts are waiting to sync.")}
             </p>
           ) : null}
         </div>
@@ -88,8 +91,10 @@ export function LowConnectivityPanel({
 
 function DraftCapture({
   onQueueDraft,
+  t,
 }: {
   onQueueDraft: (note: string) => void;
+  t: (text: string) => string;
 }) {
   let note = "";
 
@@ -107,17 +112,19 @@ function DraftCapture({
       }}
     >
       <Textarea
-        aria-label="Offline intake note"
+        aria-label={t("Offline intake note")}
         className="min-h-20 resize-none"
         name="offline-note"
-        placeholder="Queue a quick note when the clinic internet is weak..."
+        placeholder={t(
+          "Queue a quick note when the clinic internet is weak...",
+        )}
         defaultValue={note}
         onChange={(event) => {
           note = event.target.value;
         }}
       />
       <Button className="w-full" type="submit" variant="outline">
-        Queue local draft
+        {t("Queue local draft")}
       </Button>
     </form>
   );

@@ -1,5 +1,6 @@
 import { Keyboard } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { useClinicText } from "../use-clinic-text";
 import { SectionHeading } from "./section-heading";
 
 const shortcuts = [
@@ -10,13 +11,14 @@ const shortcuts = [
 ];
 
 export function ShortcutHelp() {
+  const t = useClinicText();
   return (
     <Card>
       <CardHeader>
         <SectionHeading
           icon={<Keyboard size={18} aria-hidden="true" />}
-          title="Fast Demo Keys"
-          subtitle="Keyboard-first clinic operation"
+          title={t("Fast Demo Keys")}
+          subtitle={t("Keyboard-first clinic operation")}
         />
       </CardHeader>
       <CardContent>
@@ -26,7 +28,7 @@ export function ShortcutHelp() {
               <kbd className="rounded border border-border bg-background px-2 py-1 font-semibold text-xs">
                 {keys}
               </kbd>
-              <span className="text-muted-foreground text-xs">{label}</span>
+              <span className="text-muted-foreground text-xs">{t(label)}</span>
             </div>
           ))}
         </div>

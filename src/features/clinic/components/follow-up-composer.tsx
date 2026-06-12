@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import type { CopilotOutput, FollowUpMessageOutput } from "../types";
+import { useClinicText } from "../use-clinic-text";
 import { SectionHeading } from "./section-heading";
 
 export function FollowUpComposer({
@@ -29,6 +30,7 @@ export function FollowUpComposer({
   const [isGenerating, setIsGenerating] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
+  const t = useClinicText();
 
   useEffect(() => {
     setChannel(preferredChannel);
@@ -37,7 +39,7 @@ export function FollowUpComposer({
   const composeFollowUp = useCallback(
     async (nextChannel = channel) => {
       if (!output) {
-        setError("Generate or select a case before composing follow-up.");
+        setError(t("Generate or select a case before composing follow-up."));
         return;
       }
 
@@ -61,20 +63,20 @@ export function FollowUpComposer({
         });
         const data = await response.json();
         if (!response.ok) {
-          throw new Error(data.error ?? "Follow-up composition failed.");
+          throw new Error(t(data.error ?? "Follow-up composition failed."));
         }
         setMessage(data.output as FollowUpMessageOutput);
       } catch (caught) {
         setError(
           caught instanceof Error
             ? caught.message
-            : "Follow-up composition failed.",
+            : t("Follow-up composition failed."),
         );
       } finally {
         setIsGenerating(false);
       }
     },
-    [channel, commandInstruction, model, output, patientName],
+    [channel, commandInstruction, model, output, patientName, t],
   );
 
   useEffect(() => {
@@ -98,8 +100,8 @@ export function FollowUpComposer({
       <CardHeader>
         <SectionHeading
           icon={<MessageCircle size={18} aria-hidden="true" />}
-          title="Follow-up Messenger"
-          subtitle="AI-drafted SMS or WhatsApp callback"
+          title={t("Follow-up Messenger")}
+          subtitle={t("AI-drafted SMS or WhatsApp callback")}
         />
       </CardHeader>
       <CardContent>
@@ -123,7 +125,7 @@ export function FollowUpComposer({
           onClick={() => void composeFollowUp()}
         >
           <MessageCircle size={17} aria-hidden="true" />
-          {isGenerating ? "Composing..." : "Compose Follow-up"}
+          {isGenerating ? t("Composing...") : t("Compose Follow-up")}
         </Button>
 
         {message ? (
@@ -142,7 +144,7 @@ export function FollowUpComposer({
               ))}
             </div>
             <Textarea
-              aria-label="Follow-up message"
+              aria-label={t("Follow-up message")}
               className="min-h-36"
               value={activeText ?? ""}
               onChange={(event) =>
@@ -156,16 +158,17 @@ export function FollowUpComposer({
             <div className="grid grid-cols-2 gap-2">
               <Button type="button" variant="outline" onClick={copyMessage}>
                 <Copy size={16} aria-hidden="true" />
-                Copy
+                {t("Copy")}
               </Button>
               <Button type="button" onClick={() => setSent(true)}>
                 <Send size={16} aria-hidden="true" />
-                Queue for review
+                {t("Queue for review")}
               </Button>
             </div>
             <div className="rounded-md border border-border bg-background p-3">
               <p className="font-semibold text-sm">
-                Urgency: <span className="capitalize">{message.urgency}</span>
+                {t("Urgency")}:{" "}
+                <span className="capitalize">{t(message.urgency)}</span>
               </p>
               <ul className="mt-2 space-y-1 text-muted-foreground text-xs">
                 {message.checklist.map((item) => (
@@ -175,13 +178,14 @@ export function FollowUpComposer({
             </div>
             {sent ? (
               <p className="rounded-md bg-emerald-50 p-2 text-emerald-900 text-sm">
-                Follow-up queued for staff review: {patientName} via {channel}.
+                {t("Follow-up queued for staff review")}: {patientName}{" "}
+                {t("via")} {t(channel)}.
               </p>
             ) : null}
           </div>
         ) : (
           <p className="mt-3 text-muted-foreground text-sm">
-            Compose a reviewed callback after a draft is generated.
+            {t("Compose a reviewed callback after a draft is generated.")}
           </p>
         )}
 

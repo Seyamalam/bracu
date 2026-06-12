@@ -238,6 +238,92 @@ const clinicTextBn: Record<string, string> = {
     "পরবর্তী নিরাপদ মুভের জন্য AI কিউ সারাংশ",
   "Ask Command Copilot to brief the clinic, or run it here.":
     "কমান্ড কোপাইলটকে ক্লিনিক ব্রিফ করতে বলুন, অথবা এখানে চালান।",
+  "Agent actions will appear here after you run a command.":
+    "কমান্ড চালানোর পরে এজেন্ট অ্যাকশন এখানে দেখা যাবে।",
+  age: "বয়স",
+  and: "এবং",
+  "AI Run Receipts": "AI রান রিসিট",
+  "Ask Copilot...": "কোপাইলটকে জিজ্ঞেস করুন...",
+  Actions: "অ্যাকশন",
+  "Answer this patient question in Bangla": "এই রোগীর প্রশ্নের উত্তর বাংলায় দিন",
+  "Ask for the next action, a draft, a safety check, or a patient explanation. Tools run inline and remain draft-only.":
+    "পরবর্তী অ্যাকশন, ড্রাফট, সেফটি চেক বা রোগীর ব্যাখ্যা চাইুন। টুল ইনলাইন চলে এবং ড্রাফট-অনলি থাকে।",
+  "Attach note": "নোট অ্যাটাচ করুন",
+  "Audio/Bangla": "অডিও/বাংলা",
+  "Clinical draft generation": "ক্লিনিক্যাল ড্রাফট জেনারেশন",
+  "Clinical review stays required": "ক্লিনিক্যাল রিভিউ বাধ্যতামূলক থাকে",
+  context: "কনটেক্সট",
+  "Copilot command room": "কোপাইলট কমান্ড রুম",
+  "Copilot can draft, summarize, and route work. It should not diagnose, prescribe, or bypass clinician approval.":
+    "কোপাইলট ড্রাফট, সারাংশ ও কাজ রাউট করতে পারে। এটি রোগ নির্ণয়, প্রেসক্রাইব বা ক্লিনিশিয়ান অনুমোদন বাইপাস করবে না।",
+  "Discover all external-agent tools.": "সব এক্সটার্নাল-এজেন্ট টুল খুঁজে দেখুন।",
+  done: "শেষ",
+  "Doctor Agent": "ডাক্তার এজেন্ট",
+  draft: "ড্রাফট",
+  "Draft support only. Missing vitals, allergy status, and escalation triggers remain visible.":
+    "শুধু ড্রাফট সহায়তা। মিসিং ভাইটাল, অ্যালার্জি স্ট্যাটাস ও এসক্যালেশন ট্রিগার দৃশ্যমান থাকে।",
+  "Every AI action shows inputs, safety checks, review state, and audit context":
+    "প্রতিটি AI অ্যাকশনে ইনপুট, সেফটি চেক, রিভিউ স্টেট ও অডিট কনটেক্সট দেখা যায়",
+  "Explain this in simple Bangla": "এটা সহজ বাংলায় ব্যাখ্যা করুন",
+  "Extract this prescription and lab report":
+    "এই প্রেসক্রিপশন ও ল্যাব রিপোর্ট এক্সট্র্যাক্ট করুন",
+  "I can help with queue triage, missing clinical details, patient-friendly Bangla, follow-up ownership, and print-ready drafts.":
+    "আমি কিউ ট্রায়াজ, মিসিং ক্লিনিক্যাল তথ্য, রোগীবান্ধব বাংলা, ফলো-আপ মালিকানা ও প্রিন্ট-রেডি ড্রাফটে সাহায্য করতে পারি।",
+  "I found": "আমি পেয়েছি",
+  "I received the command, but no visible workflow action was returned.":
+    "কমান্ড পেয়েছি, কিন্তু দৃশ্যমান কোনো ওয়ার্কফ্লো অ্যাকশন ফেরত আসেনি।",
+  Input: "ইনপুট",
+  "Inspect the role-aware tool registry.": "রোল-অওয়ার টুল রেজিস্ট্রি দেখুন।",
+  "Inspect tools, copy payloads, and run demo-safe external-agent calls":
+    "টুল দেখুন, পেলোড কপি করুন, এবং ডেমো-সেফ এক্সটার্নাল-এজেন্ট কল চালান",
+  "Intake readiness check": "ইনটেক রেডিনেস চেক",
+  "MCP explorer response": "MCP এক্সপ্লোরার রেসপন্স",
+  "MCP Explorer": "MCP এক্সপ্লোরার",
+  "min saved": "মিনিট সাশ্রয়",
+  "missing questions require human review.": "মিসিং প্রশ্নের জন্য মানব রিভিউ দরকার।",
+  "needs review": "রিভিউ দরকার",
+  needs_review: "রিভিউ দরকার",
+  "No active patient": "অ্যাকটিভ রোগী নেই",
+  "No active patient selected.": "কোনো অ্যাকটিভ রোগী সিলেক্ট করা নেই।",
+  "Open case": "কেস খুলুন",
+  "Operational proof points the clinic can act on":
+    "অপারেশনাল প্রমাণ, যার ওপর ক্লিনিক অ্যাকশন নিতে পারে",
+  "Ops Agent": "অপস এজেন্ট",
+  Output: "আউটপুট",
+  "Patient thread": "রোগী থ্রেড",
+  "Prepare follow-up ownership and patient communication":
+    "ফলো-আপ মালিকানা ও রোগীর যোগাযোগ প্রস্তুত করুন",
+  "Queue ops": "কিউ অপস",
+  "Brief me on today's queue pressure and red flags":
+    "আজকের কিউ চাপ ও রেড ফ্ল্যাগ নিয়ে আমাকে ব্রিফ করুন",
+  "questions found": "প্রশ্ন পাওয়া",
+  "Recent runs": "সাম্প্রতিক রান",
+  "Review this case and suggest the next safest action":
+    "এই কেস রিভিউ করে পরবর্তী সবচেয়ে নিরাপদ অ্যাকশন সাজেস্ট করুন",
+  "Review this patient and tell me the next safest action":
+    "এই রোগী রিভিউ করে পরবর্তী সবচেয়ে নিরাপদ অ্যাকশন বলুন",
+  "Run an MCP call.": "একটি MCP কল চালান।",
+  "Run MCP call": "MCP কল চালান",
+  "Run the safety blocker check.": "সেফটি ব্লকার চেক চালান।",
+  "Run through local LM Studio": "লোকাল LM Studio দিয়ে চালান",
+  "Running MCP call": "MCP কল চলছে",
+  Running: "চলছে",
+  "Safety review": "সেফটি রিভিউ",
+  "List clinical blockers before print or closeout":
+    "প্রিন্ট বা ক্লোজআউটের আগে ক্লিনিক্যাল ব্লকার তালিকা করুন",
+  "SOAP support, red flags, handout, follow-up":
+    "SOAP সহায়তা, রেড ফ্ল্যাগ, হ্যান্ডআউট, ফলো-আপ",
+  "Structured workflow context": "স্ট্রাকচার্ড ওয়ার্কফ্লো কনটেক্সট",
+  "The command could not be completed.": "কমান্ড সম্পন্ন করা যায়নি।",
+  "What is missing?": "কী মিসিং?",
+  Role: "রোল",
+  error: "এরর",
+  idle: "আইডল",
+  "missing questions": "মিসিং প্রশ্ন",
+  "open safety gates": "ওপেন সেফটি গেট",
+  run: "রান",
+  running: "চলছে",
+  unknown: "অজানা",
   "Brief Clinic Queue": "ক্লিনিক কিউ ব্রিফ করুন",
   "Briefing...": "ব্রিফিং হচ্ছে...",
   "Check medicine safety": "ওষুধের সেফটি চেক করুন",
@@ -260,6 +346,7 @@ const clinicTextBn: Record<string, string> = {
   Paperwork: "পেপারওয়ার্ক",
   "Patient instructions": "রোগীর নির্দেশনা",
   "Print handout": "হ্যান্ডআউট প্রিন্ট করুন",
+  Print: "প্রিন্ট",
   "Generate a draft to create a shareable handout.":
     "শেয়ার করা যায় এমন হ্যান্ডআউট তৈরি করতে একটি ড্রাফট জেনারেট করুন।",
   "Urgent return": "জরুরি ফেরত আসা",
@@ -313,7 +400,252 @@ const clinicTextBn: Record<string, string> = {
   ready: "রেডি",
   "Safety issues": "সেফটি ইস্যু",
   urgent: "জরুরি",
+  urgency: "জরুরিতা",
   Vitals: "ভাইটাল",
+  "Access for BD clinics": "বাংলাদেশি ক্লিনিকের অ্যাক্সেস",
+  "AI drafts remain clinician-review material.":
+    "AI ড্রাফট ক্লিনিশিয়ান-রিভিউ ম্যাটেরিয়াল হিসেবেই থাকে।",
+  "All gates clear": "সব গেট ক্লিয়ার",
+  "Audit log records important auth, AI, and case workflow actions.":
+    "অডিট লগ গুরুত্বপূর্ণ অথ, AI ও কেস ওয়ার্কফ্লো অ্যাকশন রেকর্ড করে।",
+  "Bangla-first copy, print slips, mobile layout, and low literacy.":
+    "বাংলা-ফার্স্ট কপি, প্রিন্ট স্লিপ, মোবাইল লেআউট ও লো লিটারেসি।",
+  "Bangla/mixed": "বাংলা/মিশ্র",
+  "Bilingual handout is generated for clinician review.":
+    "ক্লিনিশিয়ান রিভিউয়ের জন্য দ্বিভাষিক হ্যান্ডআউট জেনারেট হয়।",
+  "Build up": "আরও তৈরি করুন",
+  "Capture or clean the reception note before AI drafting.":
+    "AI ড্রাফটের আগে রিসেপশন নোট নিন বা পরিষ্কার করুন।",
+  "Check the draft, handoff, risk explanation, and approval status.":
+    "ড্রাফট, হ্যান্ডঅফ, ঝুঁকি ব্যাখ্যা ও অ্যাপ্রুভাল স্ট্যাটাস চেক করুন।",
+  "Clinic ready": "ক্লিনিক রেডি",
+  "Clinic workflow readiness": "ক্লিনিক ওয়ার্কফ্লো রেডিনেস",
+  "Clinical Safety Gates": "ক্লিনিক্যাল সেফটি গেট",
+  "Clinician approval before handout": "হ্যান্ডআউটের আগে ক্লিনিশিয়ান অনুমোদন",
+  "Closed loop": "ক্লোজড লুপ",
+  "Draft support should be reviewed before handout, follow-up, or discharge packet.":
+    "হ্যান্ডআউট, ফলো-আপ বা ডিসচার্জ প্যাকেটের আগে ড্রাফট সহায়তা রিভিউ করা উচিত।",
+  "Human review, red flags, medicine clarity, and audit trail.":
+    "মানব রিভিউ, রেড ফ্ল্যাগ, ওষুধের স্পষ্টতা ও অডিট ট্রেইল।",
+  "Intake, draft, handout, follow-up, referral, and closeout.":
+    "ইনটেক, ড্রাফট, হ্যান্ডআউট, ফলো-আপ, রেফারাল ও ক্লোজআউট।",
+  "Load a realistic case, generate the draft, and open presentation mode.":
+    "বাস্তবসম্মত কেস লোড করুন, ড্রাফট জেনারেট করুন, এবং প্রেজেন্টেশন মোড খুলুন।",
+  "Low-Connectivity Mode": "লো-কানেক্টিভিটি মোড",
+  "Medicine and allergy clarity": "ওষুধ ও অ্যালার্জি স্পষ্টতা",
+  "Medicine instructions need dose clarity and allergy status before patient instructions.":
+    "রোগীর নির্দেশনার আগে ওষুধে ডোজ স্পষ্টতা ও অ্যালার্জি স্ট্যাটাস দরকার।",
+  "Nearly ready": "প্রায় রেডি",
+  "No local drafts are waiting to sync.": "সিঙ্কের অপেক্ষায় কোনো লোকাল ড্রাফট নেই।",
+  "Offline intake note": "অফলাইন ইনটেক নোট",
+  "Offline intake queue active": "অফলাইন ইনটেক কিউ অ্যাকটিভ",
+  "Online with local backup queue": "লোকাল ব্যাকআপ কিউসহ অনলাইন",
+  "Open Case": "কেস খুলুন",
+  "Open Copilot": "কোপাইলট খুলুন",
+  "Open Ops": "অপস খুলুন",
+  open: "ওপেন",
+  "Patient-facing output must include urgent-return warnings before printing or closeout.":
+    "প্রিন্ট বা ক্লোজআউটের আগে রোগীমুখী আউটপুটে জরুরি ফেরত সতর্কতা থাকতে হবে।",
+  "Pregnancy, child cases, chest pain, or breathing symptoms must stay in clinician review.":
+    "প্রেগন্যান্সি, শিশু কেস, বুক ব্যথা বা শ্বাসকষ্ট ক্লিনিশিয়ান রিভিউতেই থাকতে হবে।",
+  "Pregnancy, child, chest-pain escalation": "প্রেগন্যান্সি, শিশু, বুক ব্যথা এসক্যালেশন",
+  "Printable clinic slip and mobile layout support real clinic desks.":
+    "প্রিন্টযোগ্য ক্লিনিক স্লিপ ও মোবাইল লেআউট বাস্তব ক্লিনিক ডেস্কে সহায়ক।",
+  "Proof points": "প্রুফ পয়েন্ট",
+  "Queue a quick note when the clinic internet is weak...":
+    "ক্লিনিক ইন্টারনেট দুর্বল হলে দ্রুত নোট কিউ করুন...",
+  "Queue local draft": "লোকাল ড্রাফট কিউ করুন",
+  queued: "কিউড",
+  Readiness: "রেডিনেস",
+  "Record BP, temperature, pulse, SpO2, or equivalent triage vitals before signoff.":
+    "সাইনঅফের আগে BP, তাপমাত্রা, পালস, SpO2 বা সমতুল্য ট্রায়াজ ভাইটাল রেকর্ড করুন।",
+  "Required checks before print, approval, and closeout":
+    "প্রিন্ট, অনুমোদন ও ক্লোজআউটের আগে বাধ্যতামূলক চেক",
+  "Return warnings confirmed": "রিটার্ন সতর্কতা কনফার্মড",
+  "Review queue pressure, follow-ups, trends, model, and audit trail.":
+    "কিউ চাপ, ফলো-আপ, ট্রেন্ড, মডেল ও অডিট ট্রেইল রিভিউ করুন।",
+  "Run the guided workflow or jump straight into the work area you need.":
+    "গাইডেড ওয়ার্কফ্লো চালান বা প্রয়োজনীয় ওয়ার্ক এরিয়ায় সরাসরি যান।",
+  "Safety banner and approval guard frame the AI as draft support.":
+    "সেফটি ব্যানার ও অ্যাপ্রুভাল গার্ড AI-কে ড্রাফট সহায়তা হিসেবে ফ্রেম করে।",
+  "Safety controls": "সেফটি কন্ট্রোল",
+  "Safety, access, workflow, and operating proof":
+    "সেফটি, অ্যাক্সেস, ওয়ার্কফ্লো ও অপারেটিং প্রমাণ",
+  "Seed cases": "সিড কেস",
+  "Seed cases, impact metrics, presentation mode, and live AI.":
+    "সিড কেস, ইমপ্যাক্ট মেট্রিক, প্রেজেন্টেশন মোড ও লাইভ AI।",
+  "Six Bangladesh-native seed cases prove the workflow beyond one happy path.":
+    "বাংলাদেশ-নেটিভ ছয়টি সিড কেস এক হ্যাপি পাথের বাইরে ওয়ার্কফ্লো প্রমাণ করে।",
+  "Start guided workflow": "গাইডেড ওয়ার্কফ্লো শুরু করুন",
+  "Start here": "এখান থেকে শুরু করুন",
+  Sync: "সিঙ্ক",
+  synced: "সিঙ্কড",
+  syncing: "সিঙ্ক হচ্ছে",
+  "Sync queued draft": "কিউড ড্রাফট সিঙ্ক করুন",
+  "Unnamed offline intake": "নামহীন অফলাইন ইনটেক",
+  "unnamed patient": "নামহীন রোগী",
+  "Vitals required": "ভাইটাল প্রয়োজন",
+  "Workflow coverage": "ওয়ার্কফ্লো কভারেজ",
+  "Workflow proof": "ওয়ার্কফ্লো প্রমাণ",
+  "Anonymized demo signals": "অ্যানোনিমাইজড ডেমো সিগনাল",
+  "Approvals Inbox": "অ্যাপ্রুভাল ইনবক্স",
+  "Audit events will appear after actions.": "অ্যাকশনের পরে অডিট ইভেন্ট দেখা যাবে।",
+  "Audit Trail": "অডিট ট্রেইল",
+  "Bangla or mixed-language intakes": "বাংলা বা মিশ্র ভাষার ইনটেক",
+  "Built for responsible demo judging": "দায়িত্বশীল ডেমো জাজিংয়ের জন্য তৈরি",
+  "Close the loop after discharge": "ডিসচার্জের পরে লুপ ক্লোজ করুন",
+  "Close presentation mode": "প্রেজেন্টেশন মোড বন্ধ করুন",
+  "Clinic Trends": "ক্লিনিক ট্রেন্ড",
+  "Due Follow-ups": "ডিউ ফলো-আপ",
+  "Every important AI and workflow action": "প্রতিটি গুরুত্বপূর্ণ AI ও ওয়ার্কফ্লো অ্যাকশন",
+  "Fast Demo Keys": "ফাস্ট ডেমো কী",
+  "Focus Command Copilot": "কমান্ড কোপাইলটে ফোকাস করুন",
+  "Follow-up timing not set": "ফলো-আপ টাইমিং সেট করা নেই",
+  "Keyboard-first clinic operation": "কীবোর্ড-ফার্স্ট ক্লিনিক অপারেশন",
+  "No follow-up cases are queued.": "কোনো ফলো-আপ কেস কিউতে নেই।",
+  "One place for signoff, escalation acknowledgment, return warnings, and print approval":
+    "সাইনঅফ, এসক্যালেশন স্বীকৃতি, রিটার্ন সতর্কতা ও প্রিন্ট অনুমোদনের এক জায়গা",
+  "Presentation mode": "প্রেজেন্টেশন মোড",
+  "Safety Frame": "সেফটি ফ্রেম",
+  "AI drafts notes. Doctors decide care.":
+    "AI নোট ড্রাফট করে। চিকিৎসার সিদ্ধান্ত ডাক্তার নেন।",
+  "No diagnosis claims. No autonomous prescribing.":
+    "রোগ নির্ণয়ের দাবি নয়। স্বয়ংক্রিয় প্রেসক্রাইবিং নয়।",
+  "Patient copy prioritizes plain language and return warnings.":
+    "রোগীর কপিতে সহজ ভাষা ও রিটার্ন সতর্কতাকে অগ্রাধিকার দেওয়া হয়।",
+  "High priority": "উচ্চ অগ্রাধিকার",
+  "Medium priority": "মাঝারি অগ্রাধিকার",
+  "Low priority": "নিম্ন অগ্রাধিকার",
+  "Needs follow-up": "ফলো-আপ দরকার",
+  Operate: "অপারেট",
+  Navigate: "নেভিগেট",
+  Demo: "ডেমো",
+  "AI setup": "AI সেটআপ",
+  "answer question": "প্রশ্নের উত্তর",
+  "triage reply": "রিপ্লাই ট্রায়াজ",
+  "close visit": "ভিজিট ক্লোজ",
+  undo: "আনডু",
+  "brief queue": "কিউ ব্রিফ",
+  "show high priority": "উচ্চ অগ্রাধিকার দেখান",
+  "clear filters": "ফিল্টার ক্লিয়ার",
+  "full workflow": "ফুল ওয়ার্কফ্লো",
+  "guided workflow": "গাইডেড ওয়ার্কফ্লো",
+  "open presentation": "প্রেজেন্টেশন খুলুন",
+  "extract document": "ডকুমেন্ট এক্সট্র্যাক্ট",
+  "clean intake": "ইনটেক পরিষ্কার",
+  "check medicines": "ওষুধ চেক",
+  "AI Model": "AI মডেল",
+  "AI-drafted SMS or WhatsApp callback": "AI-ড্রাফটেড SMS বা WhatsApp কলব্যাক",
+  Ask: "জিজ্ঞেস করুন",
+  "Ask a question about the selected case.":
+    "সিলেক্ট করা কেস সম্পর্কে একটি প্রশ্ন করুন।",
+  "Ask about selected case": "সিলেক্ট করা কেস সম্পর্কে জিজ্ঞেস করুন",
+  "Ask This Case": "এই কেস জিজ্ঞেস করুন",
+  "Clinical summary": "ক্লিনিক্যাল সারাংশ",
+  "Clinician checklist": "ক্লিনিশিয়ান চেকলিস্ট",
+  "Clinician-reviewable referral or visit summary":
+    "ক্লিনিশিয়ান-রিভিউযোগ্য রেফারাল বা ভিজিট সারাংশ",
+  "Compose a reviewed callback after a draft is generated.":
+    "ড্রাফট তৈরি হওয়ার পরে রিভিউড কলব্যাক লিখুন।",
+  "Compose Follow-up": "ফলো-আপ লিখুন",
+  "Composing...": "লেখা হচ্ছে...",
+  "Explain this to the patient in simple Bangla": "এটা রোগীকে সহজ বাংলায় ব্যাখ্যা করুন",
+  "Follow-up composition failed.": "ফলো-আপ লেখা ব্যর্থ হয়েছে।",
+  "Follow-up message": "ফলো-আপ মেসেজ",
+  "Follow-up Messenger": "ফলো-আপ মেসেঞ্জার",
+  "Follow-up queued for staff review": "স্টাফ রিভিউয়ের জন্য ফলো-আপ কিউ হয়েছে",
+  "Free-text AI help for the selected patient":
+    "সিলেক্ট করা রোগীর জন্য ফ্রি-টেক্সট AI সহায়তা",
+  "Generate a draft, then ask for a referral or family visit summary.":
+    "একটি ড্রাফট জেনারেট করুন, তারপর রেফারাল বা পরিবারের ভিজিট সারাংশ চাইুন।",
+  "Generate or select a case before composing follow-up.":
+    "ফলো-আপ লেখার আগে একটি কেস জেনারেট বা সিলেক্ট করুন।",
+  "Generate or select a case before creating paperwork.":
+    "পেপারওয়ার্ক তৈরির আগে একটি কেস জেনারেট বা সিলেক্ট করুন।",
+  "Generation model": "জেনারেশন মডেল",
+  "Key findings": "মূল ফাইন্ডিং",
+  "Make a follow-up call script": "একটি ফলো-আপ কল স্ক্রিপ্ট তৈরি করুন",
+  "Paperwork generation failed.": "পেপারওয়ার্ক জেনারেশন ব্যর্থ হয়েছে।",
+  Patient: "রোগী",
+  "Queue for review": "রিভিউয়ের জন্য কিউ করুন",
+  Reason: "কারণ",
+  Recipient: "প্রাপক",
+  Referral: "রেফারাল",
+  "Referral or visit summary": "রেফারাল বা ভিজিট সারাংশ",
+  "Referral Writer": "রেফারাল রাইটার",
+  "Requested action": "প্রয়োজনীয় অ্যাকশন",
+  "Switch provider model for demos": "ডেমোর জন্য প্রোভাইডার মডেল বদলান",
+  "Best live-demo balance": "লাইভ ডেমোর সেরা ভারসাম্য",
+  "Fastest low-cost mode": "সবচেয়ে দ্রুত কম খরচের মোড",
+  Local: "লোকাল",
+  "Use server configuration": "সার্ভার কনফিগারেশন ব্যবহার করুন",
+  sms: "SMS",
+  "Visit summary": "ভিজিট সারাংশ",
+  "What are the safety-net warnings?": "সেফটি-নেট সতর্কতাগুলো কী?",
+  "What should reception ask next?": "রিসেপশনের এরপর কী জিজ্ঞেস করা উচিত?",
+  "Write Paperwork": "পেপারওয়ার্ক লিখুন",
+  "Writing...": "লেখা হচ্ছে...",
+  via: "মাধ্যম",
+  whatsapp: "WhatsApp",
+  "Command Copilot input": "কমান্ড কোপাইলট ইনপুট",
+  "Command failed.": "কমান্ড ব্যর্থ হয়েছে।",
+  "Type your way through the clinic workflow": "টাইপ করে ক্লিনিক ওয়ার্কফ্লো চালান",
+  Preview: "প্রিভিউ",
+  "Preview failed.": "প্রিভিউ ব্যর্থ হয়েছে।",
+  "Previewing...": "প্রিভিউ হচ্ছে...",
+  Run: "চালান",
+  "Run again": "আবার চালান",
+  "Recent command trail": "সাম্প্রতিক কমান্ড ট্রেইল",
+  "Type a command first.": "আগে একটি কমান্ড লিখুন।",
+  "Run the full clinic workflow": "ফুল ক্লিনিক ওয়ার্কফ্লো চালান",
+  "Run the guided clinic workflow": "গাইডেড ক্লিনিক ওয়ার্কফ্লো চালান",
+  "Undo last command": "শেষ কমান্ড আনডু করুন",
+  "Load dengue watch and generate a draft": "ডেঙ্গু ওয়াচ লোড করে ড্রাফট জেনারেট করুন",
+  "Switch to Bangla and open presentation mode": "বাংলায় বদলে প্রেজেন্টেশন মোড খুলুন",
+  "Approve this case and move it to handout": "এই কেস অনুমোদন করে হ্যান্ডআউটে নিন",
+  "Check if this case is ready to approve":
+    "এই কেস অনুমোদনের জন্য প্রস্তুত কিনা চেক করুন",
+  "Search for Farzana and show high priority cases":
+    "Farzana খুঁজুন এবং উচ্চ অগ্রাধিকার কেস দেখান",
+  "Use the fastest model and clear filters":
+    "দ্রুততম মডেল ব্যবহার করুন এবং ফিল্টার ক্লিয়ার করুন",
+  "Mark this patient for follow-up": "এই রোগীকে ফলো-আপের জন্য মার্ক করুন",
+  "Schedule follow-up for this patient": "এই রোগীর ফলো-আপ শিডিউল করুন",
+  "Close this visit safely": "এই ভিজিট নিরাপদে ক্লোজ করুন",
+  "Compose a WhatsApp follow-up for this patient":
+    "এই রোগীর জন্য WhatsApp ফলো-আপ লিখুন",
+  "Triage this patient reply": "এই রোগীর রিপ্লাই ট্রায়াজ করুন",
+  "Write a referral letter for this patient": "এই রোগীর জন্য রেফারাল লেটার লিখুন",
+  "Create a visit summary for the family": "পরিবারের জন্য ভিজিট সারাংশ তৈরি করুন",
+  "Brief me on today's clinic queue": "আজকের ক্লিনিক কিউ নিয়ে আমাকে ব্রিফ করুন",
+  "Tell me what to do next for this case": "এই কেসে এরপর কী করতে হবে বলুন",
+  "Create a nurse handoff and receptionist task list":
+    "নার্স হ্যান্ডঅফ ও রিসেপশনিস্ট টাস্ক লিস্ট তৈরি করুন",
+  "Clean this intake and extract vitals": "এই ইনটেক পরিষ্কার করে ভাইটাল বের করুন",
+  "Explain why this case is risky": "এই কেস কেন ঝুঁকিপূর্ণ ব্যাখ্যা করুন",
+  "Add a bleeding red flag and simplify the Bangla handout":
+    "ব্লিডিং রেড ফ্ল্যাগ যোগ করে বাংলা হ্যান্ডআউট সহজ করুন",
+  "Create a 52 year old male chest pain intake":
+    "৫২ বছরের পুরুষ বুক ব্যথা ইনটেক তৈরি করুন",
+  "Check medicine safety for paracetamol 500mg and antibiotic twice daily":
+    "Paracetamol 500mg ও দিনে দুইবার antibiotic এর ওষুধ সেফটি চেক করুন",
+  "Confirm vitals or mark unavailable": "ভাইটাল কনফার্ম করুন বা অনুপলব্ধ মার্ক করুন",
+  "Vitals are required before a clinical draft or patient packet should be treated as ready.":
+    "ক্লিনিক্যাল ড্রাফট বা রোগী প্যাকেট রেডি ধরা হওয়ার আগে ভাইটাল প্রয়োজন।",
+  "Confirm medicine allergy status": "ওষুধ অ্যালার্জি স্ট্যাটাস কনফার্ম করুন",
+  "Medicine-facing output must stay blocked until allergy status is checked.":
+    "অ্যালার্জি স্ট্যাটাস চেক না হওয়া পর্যন্ত ওষুধ-সম্পর্কিত আউটপুট ব্লক থাকবে।",
+  "Acknowledge red-flag escalation": "রেড-ফ্ল্যাগ এসক্যালেশন স্বীকার করুন",
+  "red flags require human escalation acknowledgment.":
+    "রেড ফ্ল্যাগের জন্য মানব এসক্যালেশন স্বীকৃতি দরকার।",
+  "Approve patient packet for print": "প্রিন্টের জন্য রোগী প্যাকেট অনুমোদন করুন",
+  "Handout, medicine slip, referral, and follow-up sheet are drafts until reviewed.":
+    "হ্যান্ডআউট, মেডিসিন স্লিপ, রেফারাল ও ফলো-আপ শিট রিভিউ না হওয়া পর্যন্ত ড্রাফট।",
+  "No approvals waiting": "কোনো অ্যাপ্রুভাল অপেক্ষায় নেই",
+  "The current case has no detected approval blockers, but clinician review remains required.":
+    "বর্তমান কেসে কোনো অ্যাপ্রুভাল ব্লকার ধরা পড়েনি, তবে ক্লিনিশিয়ান রিভিউ এখনও প্রয়োজন।",
+  "Clinic team": "ক্লিনিক টিম",
+  "Preview print": "প্রিন্ট প্রিভিউ",
 };
 
 export function useClinicText() {

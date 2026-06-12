@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import { useClinicText } from "../use-clinic-text";
 import { SectionHeading } from "./section-heading";
 
 const explorerTools = [
@@ -48,10 +49,11 @@ const explorerTools = [
 type ExplorerToolName = (typeof explorerTools)[number]["name"];
 
 export function McpExplorer() {
+  const t = useClinicText();
   const [selectedName, setSelectedName] = useState<ExplorerToolName>(
     explorerTools[0].name,
   );
-  const [response, setResponse] = useState("Run an MCP call.");
+  const [response, setResponse] = useState(t("Run an MCP call."));
   const [isRunning, setIsRunning] = useState(false);
   const selectedTool = useMemo(
     () =>
@@ -62,7 +64,7 @@ export function McpExplorer() {
 
   async function runCall() {
     setIsRunning(true);
-    setResponse("Running...");
+    setResponse(t("Running..."));
     try {
       const result = await fetch("/api/mcp", {
         method: "POST",
@@ -73,7 +75,7 @@ export function McpExplorer() {
       setResponse(JSON.stringify(json, null, 2));
     } catch (caught) {
       setResponse(
-        caught instanceof Error ? caught.message : "MCP call failed.",
+        caught instanceof Error ? caught.message : t("MCP call failed."),
       );
     } finally {
       setIsRunning(false);
@@ -85,8 +87,10 @@ export function McpExplorer() {
       <CardHeader>
         <SectionHeading
           icon={<Server size={18} aria-hidden="true" />}
-          title="MCP Explorer"
-          subtitle="Inspect tools, copy payloads, and run demo-safe external-agent calls"
+          title={t("MCP Explorer")}
+          subtitle={t(
+            "Inspect tools, copy payloads, and run demo-safe external-agent calls",
+          )}
         />
       </CardHeader>
       <CardContent>
@@ -104,7 +108,7 @@ export function McpExplorer() {
                   <p className="font-bold text-sm">{tool.name}</p>
                 </div>
                 <p className="mt-1 text-muted-foreground text-xs leading-5">
-                  {tool.description}
+                  {t(tool.description)}
                 </p>
               </button>
             ))}
@@ -124,10 +128,10 @@ export function McpExplorer() {
             </div>
             <Button type="button" disabled={isRunning} onClick={runCall}>
               <Play size={16} aria-hidden="true" />
-              {isRunning ? "Running MCP call" : "Run MCP call"}
+              {isRunning ? t("Running MCP call") : t("Run MCP call")}
             </Button>
             <Textarea
-              aria-label="MCP explorer response"
+              aria-label={t("MCP explorer response")}
               className="min-h-72 font-mono text-xs"
               readOnly
               value={response}

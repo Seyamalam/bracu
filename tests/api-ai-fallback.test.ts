@@ -283,7 +283,7 @@ describe("AI and agent routes without provider keys", () => {
       maxOutputTokens: 4096,
       maxRetries: 0,
       prompt:
-        "Instructions:\nYou are a safe clinic assistant.\n\nTask:\nReturn JSON only.",
+        "Instructions:\nYou are a safe clinic assistant.\n\nReturn only valid JSON matching the requested schema. Do not wrap JSON in markdown. Do not add commentary outside JSON.\n\nTask:\nReturn JSON only.",
       timeout: 45_000,
     });
     expect("system" in prompt).toBe(false);

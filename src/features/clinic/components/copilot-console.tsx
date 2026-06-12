@@ -21,6 +21,7 @@ import type {
   CopilotOutput,
   IntakeFormState,
 } from "../types";
+import { useClinicText } from "../use-clinic-text";
 import type { SafetyGate } from "./clinical-safety-gates";
 import type { ClinicRole } from "./role-workspace-panel";
 
@@ -89,6 +90,7 @@ export function CopilotConsole({
   const [threadMessages, setThreadMessages] = useState<ThreadMessage[]>([]);
   const [activeThread, setActiveThread] =
     useState<(typeof threadTemplates)[number]["id"]>("patient");
+  const t = useClinicText();
   const openSafetyGates = safetyGates.filter((gate) => !gate.passed);
   const currentThread = threadTemplates.find(
     (thread) => thread.id === activeThread,
@@ -98,7 +100,7 @@ export function CopilotConsole({
     const command =
       (nextPrompt ?? prompt).trim() ||
       currentThread?.prompt ||
-      "Review this case and suggest the next safest action";
+      t("Review this case and suggest the next safest action");
     setThreadMessages((messages) => [
       ...messages,
       { id: crypto.randomUUID(), from: "clinic", body: command },
@@ -110,9 +112,11 @@ export function CopilotConsole({
       const result = await onCommand(command);
       const summary =
         result?.summary ??
-        "I received the command, but no visible workflow action was returned.";
+        t(
+          "I received the command, but no visible workflow action was returned.",
+        );
       const actions = result?.actions.length
-        ? ` Actions: ${result.actions.join(", ")}.`
+        ? ` ${t("Actions")}: ${result.actions.join(", ")}.`
         : "";
       setThreadMessages((messages) => [
         ...messages,
@@ -120,7 +124,7 @@ export function CopilotConsole({
           id: crypto.randomUUID(),
           from: "agent",
           body: `${summary}${actions}`,
-          meta: result?.mode ?? "done",
+          meta: t(result?.mode ?? "done"),
         },
       ]);
     } catch (caught) {
@@ -132,8 +136,8 @@ export function CopilotConsole({
           body:
             caught instanceof Error
               ? caught.message
-              : "The command could not be completed.",
-          meta: "error",
+              : t("The command could not be completed."),
+          meta: t("error"),
         },
       ]);
     } finally {
@@ -144,7 +148,7 @@ export function CopilotConsole({
   return (
     <section
       className="grid min-h-[calc(100svh-220px)] overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm xl:grid-cols-[300px_minmax(0,1fr)]"
-      aria-label="Copilot command room"
+      aria-label={t("Copilot command room")}
     >
       <aside className="border-slate-200 border-b bg-[#fbfaf6] p-3 xl:border-r xl:border-b-0">
         <div className="flex items-center justify-between gap-2 px-2 py-1">
@@ -158,7 +162,7 @@ export function CopilotConsole({
           <Badge
             variant={runningAction || isSubmitting ? "default" : "secondary"}
           >
-            {runningAction || isSubmitting ? "run" : "idle"}
+            {runningAction || isSubmitting ? t("run") : t("idle")}
           </Badge>
         </div>
         <div className="mt-3 grid gap-1">
@@ -174,7 +178,7 @@ export function CopilotConsole({
               type="button"
               onClick={() => setActiveThread(thread.id)}
             >
-              <span className="block font-bold">{thread.label}</span>
+              <span className="block font-bold">{t(thread.label)}</span>
               <span
                 className={`mt-1 block text-xs leading-4 ${
                   activeThread === thread.id
@@ -182,7 +186,7 @@ export function CopilotConsole({
                     : "text-muted-foreground"
                 }`}
               >
-                {thread.prompt}
+                {t(thread.prompt)}
               </span>
             </button>
           ))}
@@ -190,7 +194,7 @@ export function CopilotConsole({
         <div className="mt-4 rounded-md border border-border bg-white p-3">
           <div className="flex items-center gap-2 font-bold text-sm">
             <Clock3 size={15} aria-hidden="true" />
-            Recent runs
+            {t("Recent runs")}
           </div>
           <div className="mt-2 space-y-2">
             {commandHistory.slice(0, 3).map((entry) => (
@@ -206,7 +210,7 @@ export function CopilotConsole({
             ))}
             {!commandHistory.length ? (
               <p className="text-muted-foreground text-xs leading-5">
-                Agent actions will appear here after you run a command.
+                {t("Agent actions will appear here after you run a command.")}
               </p>
             ) : null}
           </div>
@@ -219,18 +223,19 @@ export function CopilotConsole({
             <div className="flex items-center gap-2">
               <Sparkles className="text-primary" size={20} aria-hidden="true" />
               <h2 className="font-black text-2xl tracking-normal">
-                {currentThread?.label ?? "Patient thread"}
+                {t(currentThread?.label ?? "Patient thread")}
               </h2>
             </div>
             <p className="mt-1 text-muted-foreground text-sm">
-              Ask for the next action, a draft, a safety check, or a patient
-              explanation. Tools run inline and remain draft-only.
+              {t(
+                "Ask for the next action, a draft, a safety check, or a patient explanation. Tools run inline and remain draft-only.",
+              )}
             </p>
           </div>
           <Badge
             variant={runningAction || isSubmitting ? "default" : "secondary"}
           >
-            {runningAction || isSubmitting ? "running" : "ready"}
+            {runningAction || isSubmitting ? t("running") : t("ready")}
           </Badge>
         </div>
 
@@ -238,15 +243,17 @@ export function CopilotConsole({
           <Message from="clinic" meta="context">
             <p>
               {form.patientName
-                ? `${form.patientName}, age ${form.age || "unknown"}. Role: ${activeRole}.`
-                : `No active patient selected. Role: ${activeRole}.`}
+                ? `${form.patientName}, ${t("age")} ${form.age || t("unknown")}. ${t("Role")}: ${t(activeRole)}.`
+                : `${t("No active patient selected.")} ${t("Role")}: ${t(activeRole)}.`}
             </p>
           </Message>
           <Message from="agent" meta={output ? "case-aware" : "ready"}>
             <p>
               {output
-                ? `${output.chiefComplaint}. I found ${output.redFlags.length} red flags, ${output.missingQuestions.length} missing questions, and ${openSafetyGates.length} open safety gates.`
-                : "I can help with queue triage, missing clinical details, patient-friendly Bangla, follow-up ownership, and print-ready drafts."}
+                ? `${output.chiefComplaint}. ${t("I found")} ${output.redFlags.length} ${t("red flags")}, ${output.missingQuestions.length} ${t("missing questions")}, ${t("and")} ${openSafetyGates.length} ${t("open safety gates")}.`
+                : t(
+                    "I can help with queue triage, missing clinical details, patient-friendly Bangla, follow-up ownership, and print-ready drafts.",
+                  )}
             </p>
           </Message>
           {threadMessages.map((message) => (
@@ -265,11 +272,12 @@ export function CopilotConsole({
                 />
                 <div>
                   <p className="font-bold text-sm">
-                    Clinical review stays required
+                    {t("Clinical review stays required")}
                   </p>
                   <p className="mt-1 text-muted-foreground text-xs leading-5">
-                    Copilot can draft, summarize, and route work. It should not
-                    diagnose, prescribe, or bypass clinician approval.
+                    {t(
+                      "Copilot can draft, summarize, and route work. It should not diagnose, prescribe, or bypass clinician approval.",
+                    )}
                   </p>
                 </div>
               </div>
@@ -287,7 +295,7 @@ export function CopilotConsole({
                 onClick={() => submitPrompt(item)}
               >
                 <MessageSquareText size={16} aria-hidden="true" />
-                {item}
+                {t(item)}
               </Button>
             ))}
           </div>
@@ -303,7 +311,7 @@ export function CopilotConsole({
               onClick={onOpenCase}
             >
               <Stethoscope size={15} aria-hidden="true" />
-              Open case
+              {t("Open case")}
             </Button>
             <Button
               size="sm"
@@ -311,11 +319,11 @@ export function CopilotConsole({
               type="button"
               variant="outline"
               onClick={() =>
-                void submitPrompt("Extract this prescription and lab report")
+                void submitPrompt(t("Extract this prescription and lab report"))
               }
             >
               <Paperclip size={15} aria-hidden="true" />
-              Attach note
+              {t("Attach note")}
             </Button>
             <Button
               size="sm"
@@ -323,16 +331,16 @@ export function CopilotConsole({
               type="button"
               variant="outline"
               onClick={() =>
-                void submitPrompt("Answer this patient question in Bangla")
+                void submitPrompt(t("Answer this patient question in Bangla"))
               }
             >
               <Volume2 size={15} aria-hidden="true" />
-              Audio/Bangla
+              {t("Audio/Bangla")}
             </Button>
           </div>
           <PromptInput
             disabled={isSubmitting}
-            placeholder="Ask Copilot..."
+            placeholder={t("Ask Copilot...")}
             value={prompt}
             onChange={setPrompt}
             onSubmit={submitPrompt}

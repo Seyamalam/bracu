@@ -6,6 +6,8 @@ type PromptParts = {
   prompt: string;
 };
 
+type AiProvider = "google" | "lmstudio";
+
 const lmStudio = createOpenAICompatible({
   name: "lmstudio",
   baseURL: process.env.LMSTUDIO_BASE_URL ?? "http://127.0.0.1:1234/v1",
@@ -24,6 +26,17 @@ export function resolveAiModel(
   requestedModel: string,
   allowedModels: string[],
 ) {
+  if (requestedModel === "lmstudio") {
+    return {
+      model: lmStudio(process.env.LMSTUDIO_MODEL ?? "google/gemma-4-12b"),
+      provider: "lmstudio",
+    } as const;
+  }
+
+  if (requestedModel !== "env" && allowedModels.includes(requestedModel)) {
+    return { model: google(requestedModel), provider: "google" } as const;
+  }
+
   if (
     process.env.LMSTUDIO_ENABLED === "1" ||
     process.env.AI_PROVIDER === "lmstudio"
@@ -34,15 +47,12 @@ export function resolveAiModel(
     } as const;
   }
 
-  const model =
-    requestedModel !== "env" && allowedModels.includes(requestedModel)
-      ? requestedModel
-      : (process.env.GOOGLE_GENERATIVE_AI_MODEL ?? "gemini-2.5-flash");
+  const model = process.env.GOOGLE_GENERATIVE_AI_MODEL ?? "gemini-2.5-flash";
 
   return { model: google(model), provider: "google" } as const;
 }
 
-export function getAiProviderLabel(provider: "google" | "lmstudio") {
+export function getAiProviderLabel(provider: AiProvider) {
   if (provider === "lmstudio") {
     return `LM Studio (${process.env.LMSTUDIO_MODEL ?? "google/gemma-4-12b"})`;
   }
@@ -51,7 +61,7 @@ export function getAiProviderLabel(provider: "google" | "lmstudio") {
 }
 
 export function buildPromptForProvider(
-  provider: "google" | "lmstudio",
+  provider: AiProvider,
   { system, prompt }: PromptParts,
 ) {
   if (provider === "lmstudio") {
@@ -61,6 +71,8 @@ export function buildPromptForProvider(
       timeout: Number(process.env.LMSTUDIO_TIMEOUT_MS ?? 45_000),
       prompt: `Instructions:
 ${system}
+
+Return only valid JSON matching the requested schema. Do not wrap JSON in markdown. Do not add commentary outside JSON.
 
 Task:
 ${prompt}`,
@@ -92,7 +104,7 @@ export function describeAiProviderError(error: unknown) {
 
 export function aiProviderErrorResponse(
   scope: string,
-  provider: "google" | "lmstudio",
+  provider: AiProvider,
   error: unknown,
 ) {
   const detail = describeAiProviderError(error);
