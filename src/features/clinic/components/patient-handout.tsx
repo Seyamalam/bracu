@@ -1,7 +1,10 @@
+"use client";
+
 import { Copy, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import type { CopilotOutput } from "../types";
+import { useClinicText } from "../use-clinic-text";
 import { SectionHeading } from "./section-heading";
 
 export function PatientHandout({
@@ -16,6 +19,7 @@ export function PatientHandout({
   };
   output: CopilotOutput | null;
 }) {
+  const t = useClinicText();
   const handoutText = output
     ? [
         output.patientHandout.title,
@@ -55,7 +59,7 @@ export function PatientHandout({
                   {output.patientHandout.title}
                 </p>
                 <p className="mt-1 text-muted-foreground text-sm">
-                  Follow-up: {output.followUp.timing}
+                  {t("Follow-up")}: {output.followUp.timing}
                 </p>
               </div>
               <div className="flex gap-2">
@@ -63,7 +67,7 @@ export function PatientHandout({
                   size="icon"
                   type="button"
                   variant="outline"
-                  title="Copy handout"
+                  title={t("Copy handout")}
                   onClick={copyHandout}
                 >
                   <Copy size={17} aria-hidden="true" />
@@ -72,7 +76,7 @@ export function PatientHandout({
                   size="icon"
                   type="button"
                   variant="outline"
-                  title="Print handout"
+                  title={t("Print handout")}
                   onClick={() => window.print()}
                 >
                   <Printer size={17} aria-hidden="true" />
@@ -83,13 +87,16 @@ export function PatientHandout({
               {output.patientHandout.plainSummary}
             </p>
             <div className="mt-4 grid gap-3 md:grid-cols-3">
-              <MiniList title="Care" items={output.patientHandout.careSteps} />
               <MiniList
-                title="Medicine"
+                title={t("Care")}
+                items={output.patientHandout.careSteps}
+              />
+              <MiniList
+                title={t("Medicine")}
                 items={output.patientHandout.medicineInstructions}
               />
               <MiniList
-                title="Urgent return"
+                title={t("Urgent return")}
                 items={output.patientHandout.urgentReturnWarnings}
               />
             </div>
@@ -99,7 +106,7 @@ export function PatientHandout({
           </div>
         ) : (
           <p className="text-muted-foreground text-sm">
-            Generate a draft to create a shareable handout.
+            {t("Generate a draft to create a shareable handout.")}
           </p>
         )}
       </CardContent>

@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import type { CopilotOutput, NextStepOutput } from "../types";
+import { useClinicText } from "../use-clinic-text";
 import { SectionHeading } from "./section-heading";
 import { SuggestedCommandButton } from "./suggested-command-button";
 
@@ -27,6 +28,7 @@ export function NextStepNavigator({
   const [plan, setPlan] = useState<NextStepOutput | null>(null);
   const [isPlanning, setIsPlanning] = useState(false);
   const [error, setError] = useState("");
+  const t = useClinicText();
 
   const followUpText = useMemo(() => {
     if (!output) {
@@ -37,7 +39,7 @@ export function NextStepNavigator({
 
   const planNextSteps = useCallback(async () => {
     if (!output) {
-      setError("Generate or select a case before planning next steps.");
+      setError(t("Generate or select a case before planning next steps."));
       return;
     }
 
@@ -60,17 +62,19 @@ export function NextStepNavigator({
       });
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error ?? "Next-step planning failed.");
+        throw new Error(t(data.error ?? "Next-step planning failed."));
       }
       setPlan(data.output as NextStepOutput);
     } catch (caught) {
       setError(
-        caught instanceof Error ? caught.message : "Next-step planning failed.",
+        caught instanceof Error
+          ? caught.message
+          : t("Next-step planning failed."),
       );
     } finally {
       setIsPlanning(false);
     }
-  }, [commandInstruction, followUpText, model, output, patientName]);
+  }, [commandInstruction, followUpText, model, output, patientName, t]);
 
   useEffect(() => {
     if (planSignal > 0) {
@@ -83,8 +87,8 @@ export function NextStepNavigator({
       <CardHeader>
         <SectionHeading
           icon={<Compass size={18} aria-hidden="true" />}
-          title="Next-Step Navigator"
-          subtitle="AI turns the selected case into actions and commands"
+          title={t("Next-Step Navigator")}
+          subtitle={t("AI turns the selected case into actions and commands")}
         />
       </CardHeader>
       <CardContent>
@@ -96,7 +100,7 @@ export function NextStepNavigator({
           onClick={() => void planNextSteps()}
         >
           <Sparkles size={17} aria-hidden="true" />
-          {isPlanning ? "Planning..." : "Plan Next Steps"}
+          {isPlanning ? t("Planning...") : t("Plan Next Steps")}
         </Button>
 
         {plan ? (
@@ -105,7 +109,7 @@ export function NextStepNavigator({
               <div className="flex items-start justify-between gap-2">
                 <p className="font-semibold text-sm">{plan.headline}</p>
                 <Badge className="capitalize" variant="outline">
-                  {plan.priority}
+                  {t(plan.priority)}
                 </Badge>
               </div>
               <p className="mt-2 text-muted-foreground text-xs leading-5">
@@ -113,10 +117,10 @@ export function NextStepNavigator({
               </p>
             </div>
 
-            <NextStepList items={plan.immediateActions} title="Do next" />
+            <NextStepList items={plan.immediateActions} title={t("Do next")} />
 
             <div className="rounded-md bg-[#f7f4ee] p-3">
-              <p className="font-semibold text-xs">Suggested commands</p>
+              <p className="font-semibold text-xs">{t("Suggested commands")}</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {plan.suggestedCommands.map((command) => (
                   <SuggestedCommandButton
@@ -130,10 +134,12 @@ export function NextStepNavigator({
 
             <NextStepList
               items={plan.accessibilityNotes}
-              title="Accessibility notes"
+              title={t("Accessibility notes")}
             />
             <div className="rounded-md border border-border bg-background p-3">
-              <p className="font-semibold text-xs">Patient communication</p>
+              <p className="font-semibold text-xs">
+                {t("Patient communication")}
+              </p>
               <p className="mt-2 text-muted-foreground text-xs leading-5">
                 {plan.patientCommunication}
               </p>
@@ -141,7 +147,9 @@ export function NextStepNavigator({
           </div>
         ) : (
           <p className="mt-3 text-muted-foreground text-sm">
-            Ask what to do next and the app will suggest safe workflow commands.
+            {t(
+              "Ask what to do next and the app will suggest safe workflow commands.",
+            )}
           </p>
         )}
 

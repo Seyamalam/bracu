@@ -1166,7 +1166,7 @@ export function ClinicCopilotApp({
       });
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error ?? "Suggested command failed.");
+        throw new Error(formatApiError(data, "Suggested command failed."));
       }
       const plan = data.output as CommandPlan;
       await applyCommandPlan(plan);
@@ -1197,6 +1197,10 @@ export function ClinicCopilotApp({
     } finally {
       setRunningAction(null);
     }
+  }
+
+  async function runCommandWithResult(command: string) {
+    return await runSuggestedCommand(command);
   }
 
   async function runCommandAndForget(command: string) {
@@ -1345,7 +1349,7 @@ export function ClinicCopilotApp({
                 model={selectedModel}
                 output={displayOutput}
                 selectedPatient={selectedCase?.patientName ?? form.patientName}
-                onRunCommand={runCommandAndForget}
+                onRunCommand={runCommandWithResult}
               />
               <CommandCopilot
                 ref={commandInputRef}

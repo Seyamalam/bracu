@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import type { CopilotOutput, MedicineSafetyOutput } from "../types";
+import { useClinicText } from "../use-clinic-text";
 import { SectionHeading } from "./section-heading";
 
 export function MedicineSafety({
@@ -27,6 +28,7 @@ export function MedicineSafety({
   const [result, setResult] = useState<MedicineSafetyOutput | null>(null);
   const [isChecking, setIsChecking] = useState(false);
   const [error, setError] = useState("");
+  const t = useClinicText();
 
   const checkSafety = useCallback(
     async (nextMedicines = medicines) => {
@@ -44,18 +46,20 @@ export function MedicineSafety({
         });
         const data = await response.json();
         if (!response.ok) {
-          throw new Error(data.error ?? "Medicine check failed.");
+          throw new Error(t(data.error ?? "Medicine check failed."));
         }
         setResult(data.output as MedicineSafetyOutput);
       } catch (caught) {
         setError(
-          caught instanceof Error ? caught.message : "Medicine check failed.",
+          caught instanceof Error
+            ? caught.message
+            : t("Medicine check failed."),
         );
       } finally {
         setIsChecking(false);
       }
     },
-    [medicines, model, output?.summary],
+    [medicines, model, output?.summary, t],
   );
 
   useEffect(() => {
@@ -73,12 +77,14 @@ export function MedicineSafety({
       <CardHeader>
         <SectionHeading
           icon={<Pill size={18} aria-hidden="true" />}
-          title="Medicine Safety"
-          subtitle="Checks clarity, allergies, and warning language"
+          title={t("Medicine Safety")}
+          subtitle={t("Checks clarity, allergies, and warning language")}
         />
       </CardHeader>
       <CardContent>
-        <Label htmlFor="medicine-text">Draft medicine instructions</Label>
+        <Label htmlFor="medicine-text">
+          {t("Draft medicine instructions")}
+        </Label>
         <Textarea
           id="medicine-text"
           className="mt-1 min-h-28"
@@ -93,7 +99,7 @@ export function MedicineSafety({
           onClick={() => void checkSafety()}
         >
           <ShieldAlert size={17} aria-hidden="true" />
-          Check medicine safety
+          {t("Check medicine safety")}
         </Button>
         {error ? (
           <p className="mt-3 text-destructive text-sm">{error}</p>
@@ -110,15 +116,15 @@ export function MedicineSafety({
                     : "success"
               }
             >
-              {result.riskLevel} risk
+              {t(result.riskLevel)} {t("risk")}
             </Badge>
-            <SafetyList title="Issues" items={result.issues} />
+            <SafetyList title={t("Issues")} items={result.issues} />
             <SafetyList
-              title="Clarifying questions"
+              title={t("Clarifying questions")}
               items={result.clarifyingQuestions}
             />
             <SafetyList
-              title="Patient instructions"
+              title={t("Patient instructions")}
               items={result.patientInstructions}
             />
           </div>

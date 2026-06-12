@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import type { DocumentExtractionOutput } from "../types";
+import { useClinicText } from "../use-clinic-text";
 import { SectionHeading } from "./section-heading";
 import { SuggestedCommandButton } from "./suggested-command-button";
 
@@ -30,10 +31,11 @@ export function DocumentExtractor({
   const activeDocumentText = commandDocumentText ?? documentText;
   const [isExtracting, setIsExtracting] = useState(false);
   const [error, setError] = useState("");
+  const t = useClinicText();
 
   const extractDocument = useCallback(async () => {
     if (activeDocumentText.trim().length < 8) {
-      setError("Paste or attach lab, prescription, or OCR text first.");
+      setError(t("Paste or attach lab, prescription, or OCR text first."));
       return;
     }
 
@@ -50,19 +52,19 @@ export function DocumentExtractor({
       });
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error ?? "Document extraction failed.");
+        throw new Error(t(data.error ?? "Document extraction failed."));
       }
       setExtraction(data.output as DocumentExtractionOutput);
     } catch (caught) {
       setError(
         caught instanceof Error
           ? caught.message
-          : "Document extraction failed.",
+          : t("Document extraction failed."),
       );
     } finally {
       setIsExtracting(false);
     }
-  }, [activeDocumentText, model]);
+  }, [activeDocumentText, model, t]);
 
   useEffect(() => {
     if (extractSignal > 0) {
@@ -75,8 +77,10 @@ export function DocumentExtractor({
       <CardHeader>
         <SectionHeading
           icon={<ScanText size={18} aria-hidden="true" />}
-          title="Document Extractor"
-          subtitle="AI parses lab, prescription, and OCR text into case facts"
+          title={t("Document Extractor")}
+          subtitle={t(
+            "AI parses lab, prescription, and OCR text into case facts",
+          )}
         />
       </CardHeader>
       <CardContent>
@@ -88,7 +92,7 @@ export function DocumentExtractor({
           onClick={() => void extractDocument()}
         >
           <FileText size={17} aria-hidden="true" />
-          {isExtracting ? "Extracting..." : "Extract Document Text"}
+          {isExtracting ? t("Extracting...") : t("Extract Document Text")}
         </Button>
 
         {extraction ? (
@@ -99,7 +103,7 @@ export function DocumentExtractor({
                   {extraction.documentType.replace("_", " ")}
                 </p>
                 <Badge className="capitalize" variant="outline">
-                  {extraction.confidence} confidence
+                  {t(extraction.confidence)} {t("confidence")}
                 </Badge>
               </div>
               <p className="mt-2 text-muted-foreground text-xs leading-5">
@@ -110,25 +114,28 @@ export function DocumentExtractor({
             <div className="grid gap-2 md:grid-cols-2">
               <ExtractionList
                 items={extraction.extractedVitals}
-                title="Vitals"
+                title={t("Vitals")}
               />
-              <ExtractionList items={extraction.extractedLabs} title="Labs" />
+              <ExtractionList
+                items={extraction.extractedLabs}
+                title={t("Labs")}
+              />
               <ExtractionList
                 items={extraction.extractedMedicines}
-                title="Medicines"
+                title={t("Medicines")}
               />
               <ExtractionList
                 items={extraction.possibleSafetyIssues}
-                title="Safety issues"
+                title={t("Safety issues")}
               />
             </div>
             <ExtractionList
               items={extraction.missingClarifications}
-              title="Clarify"
+              title={t("Clarify")}
             />
 
             <div className="rounded-md bg-[#f7f4ee] p-3">
-              <p className="font-semibold text-xs">Suggested commands</p>
+              <p className="font-semibold text-xs">{t("Suggested commands")}</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {extraction.suggestedCommands.map((command) => (
                   <SuggestedCommandButton
@@ -146,12 +153,14 @@ export function DocumentExtractor({
               variant="outline"
               onClick={() => onApplyAddendum(extraction.intakeAddendum)}
             >
-              Apply addendum to intake
+              {t("Apply addendum to intake")}
             </Button>
           </div>
         ) : (
           <p className="mt-3 text-muted-foreground text-sm">
-            Attach or paste report text, then ask the command box to extract it.
+            {t(
+              "Attach or paste report text, then ask the command box to extract it.",
+            )}
           </p>
         )}
 

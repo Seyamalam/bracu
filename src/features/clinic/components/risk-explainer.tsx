@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import type { CopilotOutput, RiskExplanationOutput } from "../types";
+import { useClinicText } from "../use-clinic-text";
 import { SectionHeading } from "./section-heading";
 
 export function RiskExplainer({
@@ -24,10 +25,11 @@ export function RiskExplainer({
   );
   const [isExplaining, setIsExplaining] = useState(false);
   const [error, setError] = useState("");
+  const t = useClinicText();
 
   const explainRisk = useCallback(async () => {
     if (!output) {
-      setError("Generate or select a case before explaining risk.");
+      setError(t("Generate or select a case before explaining risk."));
       return;
     }
 
@@ -48,17 +50,19 @@ export function RiskExplainer({
       });
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error ?? "Risk explanation failed.");
+        throw new Error(t(data.error ?? "Risk explanation failed."));
       }
       setExplanation(data.output as RiskExplanationOutput);
     } catch (caught) {
       setError(
-        caught instanceof Error ? caught.message : "Risk explanation failed.",
+        caught instanceof Error
+          ? caught.message
+          : t("Risk explanation failed."),
       );
     } finally {
       setIsExplaining(false);
     }
-  }, [commandInstruction, model, output]);
+  }, [commandInstruction, model, output, t]);
 
   useEffect(() => {
     if (explainSignal > 0) {
@@ -74,19 +78,19 @@ export function RiskExplainer({
       [
         explanation.plainReason,
         "",
-        "Evidence for risk",
+        t("Evidence for risk"),
         ...explanation.evidenceForRisk.map((item) => `- ${item}`),
         "",
-        "Evidence against risk",
+        t("Evidence against risk"),
         ...explanation.evidenceAgainstRisk.map((item) => `- ${item}`),
         "",
-        "Uncertainty",
+        t("Uncertainty"),
         ...explanation.uncertainty.map((item) => `- ${item}`),
         "",
-        "Clinician actions",
+        t("Clinician actions"),
         ...explanation.clinicianActions.map((item) => `- ${item}`),
         "",
-        "Patient safety net",
+        t("Patient safety net"),
         ...explanation.patientSafetyNet.map((item) => `- ${item}`),
       ].join("\n"),
     );
@@ -97,8 +101,8 @@ export function RiskExplainer({
       <CardHeader>
         <SectionHeading
           icon={<BrainCircuit size={18} aria-hidden="true" />}
-          title="Risk Rationale"
-          subtitle="Explainable safety reasoning for review"
+          title={t("Risk Rationale")}
+          subtitle={t("Explainable safety reasoning for review")}
         />
       </CardHeader>
       <CardContent>
@@ -110,7 +114,7 @@ export function RiskExplainer({
           onClick={() => void explainRisk()}
         >
           <ShieldAlert size={17} aria-hidden="true" />
-          {isExplaining ? "Explaining..." : "Explain Risk"}
+          {isExplaining ? t("Explaining...") : t("Explain Risk")}
         </Button>
 
         {explanation ? (
@@ -121,25 +125,28 @@ export function RiskExplainer({
                   {explanation.plainReason}
                 </p>
                 <Badge className="capitalize" variant="outline">
-                  {explanation.riskLevel}
+                  {t(explanation.riskLevel)}
                 </Badge>
               </div>
             </div>
             <RiskList
-              title="Evidence for risk"
+              title={t("Evidence for risk")}
               items={explanation.evidenceForRisk}
             />
             <RiskList
-              title="Evidence against risk"
+              title={t("Evidence against risk")}
               items={explanation.evidenceAgainstRisk}
             />
-            <RiskList title="Uncertainty" items={explanation.uncertainty} />
             <RiskList
-              title="Clinician actions"
+              title={t("Uncertainty")}
+              items={explanation.uncertainty}
+            />
+            <RiskList
+              title={t("Clinician actions")}
               items={explanation.clinicianActions}
             />
             <RiskList
-              title="Patient safety net"
+              title={t("Patient safety net")}
               items={explanation.patientSafetyNet}
             />
             <Button
@@ -149,12 +156,12 @@ export function RiskExplainer({
               onClick={copyExplanation}
             >
               <Copy size={16} aria-hidden="true" />
-              Copy rationale
+              {t("Copy rationale")}
             </Button>
           </div>
         ) : (
           <p className="mt-3 text-muted-foreground text-sm">
-            Ask why a case is risky, or run the explanation here.
+            {t("Ask why a case is risky, or run the explanation here.")}
           </p>
         )}
 

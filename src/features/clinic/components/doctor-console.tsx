@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { emptyWorkflowSteps } from "../data";
 import type { CopilotOutput } from "../types";
+import { useClinicText } from "../use-clinic-text";
 import { SectionHeading } from "./section-heading";
 
 export function DoctorConsole({
@@ -15,6 +16,7 @@ export function DoctorConsole({
   output: CopilotOutput | null;
   onSave: (output: CopilotOutput) => void;
 }) {
+  const t = useClinicText();
   const [draft, setDraft] = useState<CopilotOutput | null>(output);
 
   useEffect(() => {
@@ -28,8 +30,8 @@ export function DoctorConsole({
       <CardHeader>
         <SectionHeading
           icon={<ClipboardCheck size={18} aria-hidden="true" />}
-          title="Doctor Console"
-          subtitle="Draft support only, clinician reviewed"
+          title={t("Doctor Console")}
+          subtitle={t("Draft support only, clinician reviewed")}
         />
       </CardHeader>
       <CardContent>
@@ -38,7 +40,7 @@ export function DoctorConsole({
             <div className="grid gap-3 md:grid-cols-[1fr_auto]">
               <div>
                 <Textarea
-                  aria-label="Chief complaint"
+                  aria-label={t("Chief complaint")}
                   className="min-h-14 resize-none font-semibold text-xl"
                   value={activeOutput.chiefComplaint}
                   onChange={(event) =>
@@ -49,7 +51,7 @@ export function DoctorConsole({
                   }
                 />
                 <Textarea
-                  aria-label="Case summary"
+                  aria-label={t("Case summary")}
                   className="mt-2 min-h-24 resize-none text-sm"
                   value={activeOutput.summary}
                   onChange={(event) =>
@@ -65,14 +67,14 @@ export function DoctorConsole({
                   onClick={() => onSave(activeOutput)}
                 >
                   <Save size={16} aria-hidden="true" />
-                  Save edits
+                  {t("Save edits")}
                 </Button>
               </div>
             </div>
 
             <div className="grid gap-3 md:grid-cols-2">
               <InfoBlock
-                title="Missing Questions"
+                title={t("Missing Questions")}
                 items={activeOutput.missingQuestions}
                 onItemsChange={(items) =>
                   setDraft({ ...activeOutput, missingQuestions: items })
@@ -80,7 +82,7 @@ export function DoctorConsole({
               />
               <InfoBlock
                 tone="danger"
-                title="Safety Red Flags"
+                title={t("Safety Red Flags")}
                 items={activeOutput.redFlags}
                 onItemsChange={(items) =>
                   setDraft({ ...activeOutput, redFlags: items })
@@ -144,6 +146,7 @@ export function SeverityBadge({
 }: {
   severity: CopilotOutput["severity"];
 }) {
+  const t = useClinicText();
   const variant =
     severity === "high"
       ? "destructive"
@@ -153,12 +156,13 @@ export function SeverityBadge({
 
   return (
     <Badge className="h-fit capitalize" variant={variant}>
-      {severity} priority
+      {t(`${severity} priority`)}
     </Badge>
   );
 }
 
 function EmptyState() {
+  const t = useClinicText();
   return (
     <div className="grid gap-3 md:grid-cols-3">
       {emptyWorkflowSteps.map(([step, title, text]) => (
@@ -169,8 +173,10 @@ function EmptyState() {
           <p className="flex size-8 items-center justify-center rounded-full bg-[#f2c14e] font-bold text-slate-950">
             {step}
           </p>
-          <p className="mt-3 font-semibold">{title}</p>
-          <p className="mt-1 text-muted-foreground text-sm leading-6">{text}</p>
+          <p className="mt-3 font-semibold">{t(title)}</p>
+          <p className="mt-1 text-muted-foreground text-sm leading-6">
+            {t(text)}
+          </p>
         </div>
       ))}
     </div>
@@ -229,11 +235,12 @@ function SoapCard({
   value: string;
   onChange: (value: string) => void;
 }) {
+  const t = useClinicText();
   return (
     <div className="rounded-lg border border-border bg-background p-4">
       <p className="font-black text-[#e2553d] text-xl">{label}</p>
       <Textarea
-        aria-label={`${label} SOAP note`}
+        aria-label={`${label} ${t("SOAP note")}`}
         className="mt-2 min-h-28 text-sm"
         value={value}
         onChange={(event) => onChange(event.target.value)}

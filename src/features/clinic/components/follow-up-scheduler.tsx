@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import type { CopilotOutput, FollowUpPlanOutput } from "../types";
+import { useClinicText } from "../use-clinic-text";
 import { SectionHeading } from "./section-heading";
 import { SuggestedCommandButton } from "./suggested-command-button";
 
@@ -27,10 +28,11 @@ export function FollowUpScheduler({
   const [plan, setPlan] = useState<FollowUpPlanOutput | null>(null);
   const [isScheduling, setIsScheduling] = useState(false);
   const [error, setError] = useState("");
+  const t = useClinicText();
 
   const scheduleFollowUp = useCallback(async () => {
     if (!output) {
-      setError("Generate or select a case before scheduling follow-up.");
+      setError(t("Generate or select a case before scheduling follow-up."));
       return;
     }
 
@@ -53,19 +55,19 @@ export function FollowUpScheduler({
       });
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error ?? "Follow-up scheduling failed.");
+        throw new Error(t(data.error ?? "Follow-up scheduling failed."));
       }
       setPlan(data.output as FollowUpPlanOutput);
     } catch (caught) {
       setError(
         caught instanceof Error
           ? caught.message
-          : "Follow-up scheduling failed.",
+          : t("Follow-up scheduling failed."),
       );
     } finally {
       setIsScheduling(false);
     }
-  }, [commandInstruction, model, output, patientName]);
+  }, [commandInstruction, model, output, patientName, t]);
 
   useEffect(() => {
     if (scheduleSignal > 0) {
@@ -78,8 +80,8 @@ export function FollowUpScheduler({
       <CardHeader>
         <SectionHeading
           icon={<CalendarClock size={18} aria-hidden="true" />}
-          title="Follow-up Scheduler"
-          subtitle="AI callback timing, reminders, and closure rules"
+          title={t("Follow-up Scheduler")}
+          subtitle={t("AI callback timing, reminders, and closure rules")}
         />
       </CardHeader>
       <CardContent>
@@ -91,7 +93,7 @@ export function FollowUpScheduler({
           onClick={() => void scheduleFollowUp()}
         >
           <PhoneCall size={17} aria-hidden="true" />
-          {isScheduling ? "Scheduling..." : "Schedule Follow-up"}
+          {isScheduling ? t("Scheduling...") : t("Schedule Follow-up")}
         </Button>
 
         {plan ? (
@@ -101,11 +103,11 @@ export function FollowUpScheduler({
                 <div>
                   <p className="font-semibold text-sm">{plan.timing}</p>
                   <p className="mt-1 text-muted-foreground text-xs">
-                    Owner: {plan.staffOwner}
+                    {t("Owner")}: {t(plan.staffOwner)}
                   </p>
                 </div>
                 <Badge className="capitalize" variant="outline">
-                  {plan.priority} / {plan.channel}
+                  {t(plan.priority)} / {t(plan.channel)}
                 </Badge>
               </div>
               <p className="mt-2 text-muted-foreground text-xs leading-5">
@@ -114,13 +116,19 @@ export function FollowUpScheduler({
             </div>
 
             <div className="grid gap-2 md:grid-cols-2">
-              <ScheduleList items={plan.reminders} title="Reminders" />
-              <ScheduleList items={plan.escalationRules} title="Escalate if" />
+              <ScheduleList items={plan.reminders} title={t("Reminders")} />
+              <ScheduleList
+                items={plan.escalationRules}
+                title={t("Escalate if")}
+              />
             </div>
-            <ScheduleList items={plan.closureCriteria} title="Close when" />
+            <ScheduleList
+              items={plan.closureCriteria}
+              title={t("Close when")}
+            />
 
             <div className="rounded-md bg-[#f7f4ee] p-3">
-              <p className="font-semibold text-xs">Suggested commands</p>
+              <p className="font-semibold text-xs">{t("Suggested commands")}</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {plan.suggestedCommands.map((command) => (
                   <SuggestedCommandButton
@@ -134,8 +142,9 @@ export function FollowUpScheduler({
           </div>
         ) : (
           <p className="mt-3 text-muted-foreground text-sm">
-            Schedule callback timing and escalation rules after a draft is
-            ready.
+            {t(
+              "Schedule callback timing and escalation rules after a draft is ready.",
+            )}
           </p>
         )}
 

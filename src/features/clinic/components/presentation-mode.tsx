@@ -1,6 +1,7 @@
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { CopilotOutput } from "../types";
+import { useClinicText } from "../use-clinic-text";
 
 export function PresentationMode({
   caseCount,
@@ -13,6 +14,8 @@ export function PresentationMode({
   output: CopilotOutput | null;
   onClose: () => void;
 }) {
+  const t = useClinicText();
+
   return (
     <div className="fixed inset-0 z-50 overflow-auto bg-[#12332c] p-4 text-white">
       <div className="mx-auto max-w-6xl">
@@ -25,43 +28,49 @@ export function PresentationMode({
           </div>
           <Button type="button" variant="secondary" onClick={onClose}>
             <X size={17} aria-hidden="true" />
-            Close
+            {t("Close")}
           </Button>
         </div>
 
         <div className="mt-8 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
           <div className="rounded-lg bg-white p-6 text-slate-950">
-            <p className="font-semibold text-primary text-sm">Clinic flow</p>
+            <p className="font-semibold text-primary text-sm">
+              {t("Clinic flow")}
+            </p>
             <ol className="mt-4 grid gap-3 text-xl">
-              <li>1. Capture Bangla-English intake at reception.</li>
-              <li>2. AI finds missing questions and urgent red flags.</li>
-              <li>3. Clinician reviews and approves the note.</li>
-              <li>4. Patient leaves with a plain Bangla handout.</li>
-              <li>5. Clinic tracks follow-up and anonymized trends.</li>
+              <li>1. {t("Capture Bangla-English intake at reception.")}</li>
+              <li>
+                2. {t("AI finds missing questions and urgent red flags.")}
+              </li>
+              <li>3. {t("Clinician reviews and approves the note.")}</li>
+              <li>4. {t("Patient leaves with a plain Bangla handout.")}</li>
+              <li>5. {t("Clinic tracks follow-up and anonymized trends.")}</li>
             </ol>
           </div>
 
           <div className="grid gap-4">
-            <Stat label="Seeded demo cases" value={caseCount} />
+            <Stat label={t("Seeded demo cases")} value={caseCount} />
             <Stat
-              label="Missing questions found"
+              label={t("Missing questions found")}
               value={output?.missingQuestions.length ?? 4}
             />
             <Stat
-              label="Red flags caught"
+              label={t("Red flags caught")}
               value={output?.redFlags.length ?? 1}
             />
           </div>
         </div>
 
         <div className="mt-4 rounded-lg border border-white/20 bg-white/10 p-5">
-          <p className="font-semibold text-[#f2c14e]">Current case</p>
+          <p className="font-semibold text-[#f2c14e]">{t("Current case")}</p>
           <p className="mt-2 font-bold text-3xl">
-            {output?.chiefComplaint ?? "Load a scenario to start"}
+            {output?.chiefComplaint ?? t("Load a scenario to start")}
           </p>
           <p className="mt-3 max-w-3xl text-white/80 leading-7">
             {output?.summary ??
-              "Use the command copilot or guided workflow controls to drive the presentation."}
+              t(
+                "Use the command copilot or guided workflow controls to drive the presentation.",
+              )}
           </p>
         </div>
       </div>

@@ -1,3 +1,4 @@
+import { CornerDownLeft, Loader2 } from "lucide-react";
 import type { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,10 @@ export function Agent({
 }) {
   return (
     <section
-      className={cn("rounded-lg border border-border bg-background", className)}
+      className={cn(
+        "overflow-hidden rounded-lg border border-border bg-background shadow-sm",
+        className,
+      )}
       aria-label="AI agent workspace"
     >
       {children}
@@ -21,20 +25,22 @@ export function Agent({
 }
 
 export function AgentHeader({
+  detail,
   name,
   model,
   status,
 }: {
+  detail?: ReactNode;
   name: string;
   model: string;
   status: string;
 }) {
   return (
-    <div className="flex flex-wrap items-start justify-between gap-3 border-border border-b p-4">
+    <div className="flex flex-wrap items-start justify-between gap-3 border-border border-b bg-[#fbfaf6] p-4">
       <div>
         <p className="font-black text-lg">{name}</p>
         <p className="mt-1 text-muted-foreground text-xs">
-          Agentic clinic operating layer
+          {detail ?? "Agentic clinic operating layer"}
         </p>
       </div>
       <div className="flex flex-wrap gap-2">
@@ -50,11 +56,13 @@ export function AgentContent({ children }: { children: ReactNode }) {
 }
 
 export function PromptInput({
-  value,
+  disabled = false,
   onChange,
   onSubmit,
   placeholder,
+  value,
 }: {
+  disabled?: boolean;
   value: string;
   onChange: (value: string) => void;
   onSubmit: (value?: string) => void;
@@ -62,7 +70,7 @@ export function PromptInput({
 }) {
   return (
     <form
-      className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]"
+      className="grid gap-2 rounded-lg border border-border bg-white p-2 shadow-sm sm:grid-cols-[minmax(0,1fr)_auto]"
       onSubmit={(event) => {
         event.preventDefault();
         const form = event.currentTarget;
@@ -75,13 +83,23 @@ export function PromptInput({
       <textarea
         aria-label="Agent command"
         name="agent-command"
-        className="min-h-20 resize-none rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="min-h-24 resize-none rounded-md border-0 bg-transparent px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-0"
+        disabled={disabled}
         placeholder={placeholder}
         value={value}
         onChange={(event) => onChange(event.target.value)}
       />
-      <Button className="h-full min-h-12" type="submit">
-        Run agent
+      <Button
+        className="h-full min-h-12 self-stretch"
+        disabled={disabled}
+        type="submit"
+      >
+        {disabled ? (
+          <Loader2 className="animate-spin" size={16} aria-hidden="true" />
+        ) : (
+          <CornerDownLeft size={16} aria-hidden="true" />
+        )}
+        {disabled ? "Running" : "Run agent"}
       </Button>
     </form>
   );
@@ -110,10 +128,7 @@ export function Plan({ steps }: { steps: string[] }) {
   return (
     <ol className="grid gap-2 md:grid-cols-3">
       {steps.map((step, index) => (
-        <li
-          className="rounded-md border border-border bg-[#f7f4ee] p-3"
-          key={step}
-        >
+        <li className="rounded-md border border-border bg-white p-3" key={step}>
           <Badge variant="outline">{index + 1}</Badge>
           <p className="mt-2 font-semibold text-sm">{step}</p>
         </li>
@@ -141,7 +156,7 @@ export function ToolCard({
     <button
       aria-label={`Run agent tool: ${label}`}
       className={cn(
-        "rounded-md border border-border bg-background p-3 text-left transition hover:border-primary hover:bg-[#eaf6f1]",
+        "rounded-md border border-border bg-background p-3 text-left transition hover:border-primary hover:bg-[#eaf6f1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         tone === "danger" && "border-red-200 bg-red-50",
         tone === "success" && "border-emerald-200 bg-emerald-50",
       )}
@@ -198,11 +213,13 @@ export function TaskQueue({
 }
 
 export function Message({
-  from,
   children,
+  from,
+  meta,
 }: {
   from: "agent" | "clinic";
   children: ReactNode;
+  meta?: ReactNode;
 }) {
   return (
     <div
@@ -213,9 +230,14 @@ export function Message({
           : "border-border bg-background",
       )}
     >
-      <p className="mb-1 font-semibold text-xs uppercase tracking-normal">
-        {from}
-      </p>
+      <div className="mb-1 flex items-center justify-between gap-2">
+        <p className="font-semibold text-xs uppercase tracking-normal">
+          {from}
+        </p>
+        {meta ? (
+          <span className="text-muted-foreground text-xs">{meta}</span>
+        ) : null}
+      </div>
       {children}
     </div>
   );

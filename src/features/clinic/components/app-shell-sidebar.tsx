@@ -21,6 +21,7 @@ import { useLanguage } from "@/features/language/language-context";
 import { LanguageToggle } from "@/features/language/language-toggle";
 import { BrandMark } from "@/features/marketing/components/brand-mark";
 import { cn } from "@/lib/utils";
+import { useClinicText } from "../use-clinic-text";
 
 export type WorkspacePage =
   | "admin"
@@ -90,6 +91,7 @@ export function AppShellSidebar({
 }) {
   const [helpOpen, setHelpOpen] = useState(false);
   const { language, setLanguage } = useLanguage();
+  const t = useClinicText();
   const sidebar = (
     <aside
       className={cn(
@@ -102,7 +104,7 @@ export function AppShellSidebar({
           <BrandMark />
           {overlay ? (
             <Button
-              aria-label="Close workspace navigation"
+              aria-label={t("Close workspace navigation")}
               size="icon"
               type="button"
               variant="outline"
@@ -115,7 +117,9 @@ export function AppShellSidebar({
         <div className="mt-5 rounded-md border border-primary/15 bg-white p-3 shadow-sm">
           <p className="font-semibold text-primary text-sm">{clinicName}</p>
           <p className="mt-1 text-muted-foreground text-xs capitalize">
-            {role} workspace
+            {language === "bn"
+              ? `${t(role)} ${t("workspace")}`
+              : `${role} workspace`}
           </p>
         </div>
         <LanguageToggle
@@ -124,13 +128,15 @@ export function AppShellSidebar({
           onChange={setLanguage}
         />
       </div>
-      <nav className="flex-1 space-y-1 p-3" aria-label="Workspace">
+      <nav className="flex-1 space-y-1 p-3" aria-label={t("Workspace")}>
         {workspaceNav.map((item) => {
           const Icon = item.icon;
           const isActive = activePage === item.id;
+          const label = t(item.label);
+          const description = t(item.description);
           return (
             <button
-              aria-label={`Open ${item.label} workspace: ${item.description}`}
+              aria-label={`${t("Open workspace navigation")}: ${label}, ${description}`}
               aria-current={isActive ? "page" : undefined}
               className={cn(
                 "flex w-full items-center gap-3 rounded-md border border-transparent px-3 py-3 text-left transition hover:border-primary/20 hover:bg-[#eaf6f1]",
@@ -153,9 +159,9 @@ export function AppShellSidebar({
                 aria-hidden="true"
               />
               <span className="min-w-0">
-                <span className="block font-bold text-sm">{item.label}</span>
+                <span className="block font-bold text-sm">{label}</span>
                 <span className="mt-0.5 block text-muted-foreground text-xs leading-4">
-                  {item.description}
+                  {description}
                 </span>
               </span>
             </button>
@@ -170,7 +176,7 @@ export function AppShellSidebar({
           onClick={() => setHelpOpen(true)}
         >
           <HelpCircle size={17} aria-hidden="true" />
-          Help and tools
+          {t("Help and tools")}
         </Button>
         <Button
           className="w-full justify-start"
@@ -179,7 +185,7 @@ export function AppShellSidebar({
           onClick={onLogout}
         >
           <LogOut size={17} aria-hidden="true" />
-          Sign out
+          {t("Sign out")}
         </Button>
       </div>
     </aside>
@@ -189,7 +195,7 @@ export function AppShellSidebar({
     <>
       {overlay && collapsed ? (
         <Button
-          aria-label="Open workspace navigation"
+          aria-label={t("Open workspace navigation")}
           className="fixed top-4 left-4 z-40 hidden shadow-lg lg:inline-flex"
           size="icon"
           type="button"
@@ -218,7 +224,7 @@ export function AppShellSidebar({
               onClick={() => setHelpOpen(true)}
             >
               <HelpCircle size={15} aria-hidden="true" />
-              Help
+              {t("Help")}
             </Button>
             <Button
               size="sm"
@@ -227,7 +233,7 @@ export function AppShellSidebar({
               onClick={onLogout}
             >
               <LogOut size={15} aria-hidden="true" />
-              Sign out
+              {t("Sign out")}
             </Button>
           </div>
         </div>
@@ -236,13 +242,17 @@ export function AppShellSidebar({
           value={language}
           onChange={setLanguage}
         />
-        <nav className="mt-3 grid grid-cols-3 gap-2" aria-label="Workspace">
+        <nav
+          className="mt-3 grid grid-cols-3 gap-2"
+          aria-label={t("Workspace")}
+        >
           {workspaceNav.map((item) => {
             const Icon = item.icon;
             const isActive = activePage === item.id;
+            const label = t(item.label);
             return (
               <button
-                aria-label={`Open ${item.label} workspace`}
+                aria-label={`${t("Open workspace navigation")}: ${label}`}
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
                   "flex items-center justify-center gap-2 rounded-md border border-border bg-background px-2 py-2 font-semibold text-xs",
@@ -254,7 +264,7 @@ export function AppShellSidebar({
                 onClick={() => onPageChange(item.id)}
               >
                 <Icon size={15} aria-hidden="true" />
-                {item.label}
+                {label}
               </button>
             );
           })}
@@ -262,14 +272,15 @@ export function AppShellSidebar({
       </div>
       <nav
         className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-6 border-slate-200 border-t bg-white/95 px-1 py-1 shadow-[0_-8px_24px_rgba(15,23,42,0.08)] backdrop-blur lg:hidden"
-        aria-label="Primary mobile workspace"
+        aria-label={t("Primary mobile workspace")}
       >
         {workspaceNav.map((item) => {
           const Icon = item.icon;
           const isActive = activePage === item.id;
+          const label = t(item.label);
           return (
             <button
-              aria-label={`Open ${item.label} workspace`}
+              aria-label={`${t("Open workspace navigation")}: ${label}`}
               aria-current={isActive ? "page" : undefined}
               className={cn(
                 "flex min-h-14 flex-col items-center justify-center gap-1 rounded-md px-1 py-1 font-semibold text-[10px]",
@@ -282,7 +293,7 @@ export function AppShellSidebar({
               onClick={() => onPageChange(item.id)}
             >
               <Icon size={16} aria-hidden="true" />
-              <span>{item.label}</span>
+              <span>{label}</span>
             </button>
           );
         })}
@@ -296,7 +307,7 @@ export function AppShellSidebar({
             onClick={() => onCollapsedChange?.(false)}
           >
             <Menu size={17} aria-hidden="true" />
-            Open workspace navigation
+            {t("Open workspace navigation")}
           </Button>
         </div>
       ) : null}
@@ -308,19 +319,21 @@ export function AppShellSidebar({
 }
 
 function SidebarHelpDrawer({ onClose }: { onClose: () => void }) {
+  const t = useClinicText();
   return (
     <div className="fixed inset-0 z-50 bg-black/30">
       <aside className="absolute inset-y-0 right-0 flex w-full max-w-md flex-col overflow-y-auto border-slate-200 border-l bg-white shadow-2xl">
         <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-slate-200 border-b bg-white p-4">
           <div>
-            <p className="font-black text-xl">Help</p>
+            <p className="font-black text-xl">{t("Help")}</p>
             <p className="text-muted-foreground text-sm">
-              Shortcuts, safety rules, and tool reference live here so the
-              workspace can stay calm.
+              {t(
+                "Shortcuts, safety rules, and tool reference live here so the workspace can stay calm.",
+              )}
             </p>
           </div>
           <Button
-            aria-label="Close help drawer"
+            aria-label={t("Close help drawer")}
             size="icon"
             type="button"
             variant="outline"
@@ -332,31 +345,35 @@ function SidebarHelpDrawer({ onClose }: { onClose: () => void }) {
         <div className="space-y-4 p-4">
           <HelpBlock
             icon={Keyboard}
-            title="Shortcuts"
+            title={t("Shortcuts")}
             items={[
-              "Cmd/Ctrl+K opens Copilot",
-              "Cmd/Ctrl+G generates a draft",
-              "Cmd/Ctrl+P opens presentation mode",
-              "Esc closes presentation mode",
+              t("Cmd/Ctrl+K opens Copilot"),
+              t("Cmd/Ctrl+G generates a draft"),
+              t("Cmd/Ctrl+P opens presentation mode"),
+              t("Esc closes presentation mode"),
             ]}
           />
           <HelpBlock
             icon={ShieldCheck}
-            title="Safety reminders"
+            title={t("Safety reminders")}
             items={[
-              "Vitals, allergies, escalation, return warnings, and clinician approval stay visible before print.",
-              "Copilot output is draft support only.",
-              "Use Case for patient work; use Copilot for questions and agent actions.",
+              t(
+                "Vitals, allergies, escalation, return warnings, and clinician approval stay visible before print.",
+              ),
+              t("Copilot output is draft support only."),
+              t(
+                "Use Case for patient work; use Copilot for questions and agent actions.",
+              ),
             ]}
           />
           <HelpBlock
             icon={Bot}
-            title="Useful Copilot asks"
+            title={t("Useful Copilot asks")}
             items={[
-              "What should I do next?",
-              "Is this safe to print?",
-              "Explain this in simple Bangla.",
-              "Prepare follow-up ownership.",
+              t("What should I do next?"),
+              t("Is this safe to print?"),
+              t("Explain this in simple Bangla."),
+              t("Prepare follow-up ownership."),
             ]}
           />
           <a
@@ -365,7 +382,7 @@ function SidebarHelpDrawer({ onClose }: { onClose: () => void }) {
           >
             <span className="flex items-center gap-2">
               <BookOpen size={16} aria-hidden="true" />
-              Open public docs and tool catalog
+              {t("Open public docs and tool catalog")}
             </span>
           </a>
         </div>

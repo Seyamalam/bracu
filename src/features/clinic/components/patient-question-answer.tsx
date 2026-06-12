@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { demoPatientQuestion } from "../data";
 import type { CopilotOutput, PatientQuestionOutput } from "../types";
+import { useClinicText } from "../use-clinic-text";
 import { SectionHeading } from "./section-heading";
 import { SuggestedCommandButton } from "./suggested-command-button";
 
@@ -26,6 +27,7 @@ export function PatientQuestionAnswer({
   output: CopilotOutput | null;
   patientName: string;
 }) {
+  const t = useClinicText();
   const [question, setQuestion] = useState(demoPatientQuestion);
   const [answer, setAnswer] = useState<PatientQuestionOutput | null>(null);
   const [isAnswering, setIsAnswering] = useState(false);
@@ -35,7 +37,7 @@ export function PatientQuestionAnswer({
     async (questionOverride?: string) => {
       const nextQuestion = (questionOverride ?? question).trim();
       if (nextQuestion.length < 3) {
-        setError("Paste the patient or family question first.");
+        setError(t("Paste the patient or family question first."));
         return;
       }
 
@@ -57,20 +59,20 @@ export function PatientQuestionAnswer({
         });
         const data = await response.json();
         if (!response.ok) {
-          throw new Error(data.error ?? "Patient question answer failed.");
+          throw new Error(t(data.error ?? "Patient question answer failed."));
         }
         setAnswer(data.output as PatientQuestionOutput);
       } catch (caught) {
         setError(
           caught instanceof Error
             ? caught.message
-            : "Patient question answer failed.",
+            : t("Patient question answer failed."),
         );
       } finally {
         setIsAnswering(false);
       }
     },
-    [model, output, patientName, question],
+    [model, output, patientName, question, t],
   );
 
   useEffect(() => {
@@ -88,13 +90,15 @@ export function PatientQuestionAnswer({
       <CardHeader>
         <SectionHeading
           icon={<HelpCircle size={18} aria-hidden="true" />}
-          title="Patient Question"
-          subtitle="AI drafts safe Bangla-English answers for clinician review"
+          title={t("Patient Question")}
+          subtitle={t(
+            "AI drafts safe Bangla-English answers for clinician review",
+          )}
         />
       </CardHeader>
       <CardContent>
         <Textarea
-          aria-label="Patient or family question"
+          aria-label={t("Patient or family question")}
           className="min-h-24"
           value={question}
           onChange={(event) => setQuestion(event.target.value)}
@@ -107,7 +111,7 @@ export function PatientQuestionAnswer({
           onClick={() => void answerQuestion()}
         >
           <Languages size={17} aria-hidden="true" />
-          {isAnswering ? "Answering..." : "Answer Patient Question"}
+          {isAnswering ? t("Answering...") : t("Answer Patient Question")}
         </Button>
 
         {answer ? (
@@ -115,35 +119,35 @@ export function PatientQuestionAnswer({
             <div className="rounded-md border border-border bg-background p-3">
               <div className="flex items-start justify-between gap-2">
                 <p className="font-semibold text-sm">
-                  Teach-back: {answer.teachBackQuestion}
+                  {t("Teach-back")}: {answer.teachBackQuestion}
                 </p>
                 <Badge className="capitalize" variant="outline">
-                  {answer.urgency}
+                  {t(answer.urgency)}
                 </Badge>
               </div>
             </div>
 
             <div className="grid gap-2 md:grid-cols-2">
               <AnswerDraft
-                label="Bangla answer"
+                label={t("Bangla answer")}
                 text={answer.plainAnswerBn}
                 onCopy={copyText}
               />
               <AnswerDraft
-                label="English answer"
+                label={t("English answer")}
                 text={answer.plainAnswerEn}
                 onCopy={copyText}
               />
             </div>
 
-            <AnswerList items={answer.redFlagReminder} title="Red flags" />
+            <AnswerList items={answer.redFlagReminder} title={t("Red flags")} />
             <AnswerList
               items={answer.clinicianReviewNeeded}
-              title="Clinician review"
+              title={t("Clinician review")}
             />
 
             <div className="rounded-md bg-[#f7f4ee] p-3">
-              <p className="font-semibold text-xs">Suggested commands</p>
+              <p className="font-semibold text-xs">{t("Suggested commands")}</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {answer.suggestedCommands.map((command) => (
                   <SuggestedCommandButton
@@ -157,7 +161,9 @@ export function PatientQuestionAnswer({
           </div>
         ) : (
           <p className="mt-3 text-muted-foreground text-sm">
-            Paste a patient question, or ask the command box to answer it.
+            {t(
+              "Paste a patient question, or ask the command box to answer it.",
+            )}
           </p>
         )}
 
@@ -178,6 +184,7 @@ function AnswerDraft({
   onCopy: (text: string) => Promise<void>;
   text: string;
 }) {
+  const t = useClinicText();
   return (
     <div className="rounded-md border border-border bg-background p-3">
       <div className="flex items-center justify-between gap-2">
@@ -189,7 +196,7 @@ function AnswerDraft({
           onClick={() => void onCopy(text)}
         >
           <ClipboardCopy size={14} aria-hidden="true" />
-          Copy
+          {t("Copy")}
         </Button>
       </div>
       <p className="mt-2 text-muted-foreground text-xs leading-5">{text}</p>

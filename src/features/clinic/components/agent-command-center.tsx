@@ -1,4 +1,16 @@
-import { Bot, Brain, Stethoscope, Zap } from "lucide-react";
+import {
+  Activity,
+  Bot,
+  Brain,
+  CheckCircle2,
+  Clock3,
+  Play,
+  ShieldCheck,
+  Sparkles,
+  Stethoscope,
+  TerminalSquare,
+  Zap,
+} from "lucide-react";
 import type { ReactNode } from "react";
 import { useCallback, useMemo, useState } from "react";
 import {
@@ -13,12 +25,13 @@ import {
   TaskQueue,
   ToolCard,
 } from "@/components/ai-elements/agentic-primitives";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useLanguage } from "@/features/language/language-context";
 import { cn } from "@/lib/utils";
 import type { Doc } from "../../../../convex/_generated/dataModel";
-import type { CopilotOutput } from "../types";
+import type { CommandHistoryEntry, CopilotOutput } from "../types";
 import { SectionHeading } from "./section-heading";
 
 type AgentTool = {
@@ -403,6 +416,13 @@ const categories = [
   "operations",
 ] as const;
 
+type AgentTranscriptMessage = {
+  id: string;
+  from: "agent" | "clinic";
+  body: string;
+  meta?: string;
+};
+
 export function AgentCommandCenter({
   cases,
   model,
@@ -412,7 +432,9 @@ export function AgentCommandCenter({
 }: {
   cases: Doc<"cases">[] | undefined;
   model: string;
-  onRunCommand: (command: string) => Promise<void>;
+  onRunCommand: (
+    command: string,
+  ) => Promise<CommandHistoryEntry | null | undefined>;
   output: CopilotOutput | null;
   selectedPatient: string;
 }) {
@@ -429,6 +451,14 @@ export function AgentCommandCenter({
     "No agent command has run yet.",
   );
   const [isRunning, setIsRunning] = useState(false);
+  const [transcript, setTranscript] = useState<AgentTranscriptMessage[]>([
+    {
+      id: "agent-ready",
+      from: "agent",
+      body: "Tell me the outcome you want. I can choose tools, run the workflow, and report what changed.",
+      meta: "ready",
+    },
+  ]);
 
   const visibleTools = agentTools.filter(
     (tool) => tool.category === activeCategory,
@@ -466,18 +496,41 @@ export function AgentCommandCenter({
     [t],
   );
 
+  function appendMessage(message: Omit<AgentTranscriptMessage, "id">) {
+    setTranscript((messages) =>
+      [...messages, { ...message, id: crypto.randomUUID() }].slice(-8),
+    );
+  }
+
   async function run(command: string) {
     setIsRunning(true);
     setLastCommand(command);
+    appendMessage({ from: "clinic", body: command, meta: "command" });
     try {
-      await onRunCommand(command);
+      const result = await onRunCommand(command);
+      appendMessage({
+        from: "agent",
+        body:
+          result?.summary ??
+          "Command completed. I updated the workspace or opened the matching tool.",
+        meta: result?.actions?.length ? result.actions.join(", ") : "completed",
+      });
+    } catch (caught) {
+      appendMessage({
+        from: "agent",
+        body:
+          caught instanceof Error
+            ? caught.message
+            : "The command could not be completed.",
+        meta: "error",
+      });
     } finally {
       setIsRunning(false);
     }
   }
 
-  async function runPrompt() {
-    const command = agentPrompt.trim();
+  async function runPrompt(submittedPrompt = agentPrompt) {
+    const command = submittedPrompt.trim();
     if (!command) {
       return;
     }
@@ -492,65 +545,86 @@ export function AgentCommandCenter({
   }
 
   return (
-    <Agent className="overflow-hidden">
+    <Agent>
       <AgentHeader
-        name={t("Clinic Agent Swarm")}
+        detail={t("Codex-style command loop for clinic workflows")}
+        name={t("Clinic Agent")}
         model={model}
         status={isRunning ? t("running tools") : t("ready")}
       />
       <AgentContent>
-        <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_380px]">
-          <div className="space-y-3">
-            <Message from="agent">
-              <p>
-                {t(
-                  "I can operate intake, safety, patient communication, documents, queue ops, and demo automation for",
-                )}{" "}
-                <strong>{selectedPatient || t("the selected patient")}</strong>.
-              </p>
-            </Message>
+        <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_360px]">
+          <div className="space-y-3 rounded-lg border border-border bg-[#f7f4ee] p-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <Bot className="text-primary" size={18} aria-hidden="true" />
+                <div>
+                  <p className="font-black text-sm">{t("Agent thread")}</p>
+                  <p className="text-muted-foreground text-xs">
+                    {selectedPatient || t("the selected patient")}
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="secondary">
+                  <Activity size={13} aria-hidden="true" />
+                  {isRunning ? t("running") : t("idle")}
+                </Badge>
+                <Badge variant="outline">
+                  <ShieldCheck size={13} aria-hidden="true" />
+                  {t("draft-only")}
+                </Badge>
+              </div>
+            </div>
+            <div className="grid max-h-[360px] gap-2 overflow-y-auto pr-1">
+              {transcript.map((message) => (
+                <Message
+                  from={message.from}
+                  key={message.id}
+                  meta={message.meta}
+                >
+                  <p>{t(message.body)}</p>
+                </Message>
+              ))}
+            </div>
             <PromptInput
+              disabled={isRunning}
               placeholder={t("Ask the agent to run any clinic workflow...")}
               value={agentPrompt}
               onChange={setAgentPrompt}
-              onSubmit={() => void runPrompt()}
+              onSubmit={(value) => void runPrompt(value)}
             />
             <div className="flex flex-wrap gap-2">
               <Suggestion
                 command="Run the full clinic workflow"
                 onRun={(command) => void run(command)}
               >
+                <Play size={14} aria-hidden="true" />
                 {t("Full workflow")}
               </Suggestion>
               <Suggestion
                 command="Check if this case is ready to approve"
                 onRun={(command) => void run(command)}
               >
+                <ShieldCheck size={14} aria-hidden="true" />
                 {t("Safety signoff")}
               </Suggestion>
               <Suggestion
                 command="Brief me on today's clinic queue"
                 onRun={(command) => void run(command)}
               >
+                <TerminalSquare size={14} aria-hidden="true" />
                 {t("Queue brief")}
               </Suggestion>
-              <Button type="button" onClick={() => void runBurst()}>
+              <Button
+                disabled={isRunning}
+                type="button"
+                onClick={() => void runBurst()}
+              >
                 <Zap size={16} aria-hidden="true" />
                 {t("Run tool burst")}
               </Button>
             </div>
-            <Reasoning title={t("Agent routing logic")}>
-              {t(
-                "The swarm chooses the fastest existing clinic command, opens the right workspace when needed, and keeps outputs draft-only. Critical tools emphasize vitals, allergy, red flags, escalation, and clinician approval.",
-              )}
-            </Reasoning>
-            <Plan
-              steps={[
-                t("Sense active case and queue pressure"),
-                t("Run smallest safe tool chain"),
-                t("Surface print, follow-up, and audit-ready outputs"),
-              ]}
-            />
           </div>
 
           <div className="space-y-3">
@@ -573,12 +647,41 @@ export function AgentCommandCenter({
                 </p>
               </CardContent>
             </Card>
+            <div className="grid gap-2 rounded-lg border border-border bg-white p-3">
+              <MiniAgent
+                icon={<Clock3 size={17} aria-hidden="true" />}
+                title={t("Run state")}
+                body={
+                  isRunning
+                    ? t("Working through the selected tool chain.")
+                    : t("Waiting for your next command.")
+                }
+              />
+              <MiniAgent
+                icon={<CheckCircle2 size={17} aria-hidden="true" />}
+                title={t("Local model")}
+                body={t("LM Studio is used when AI_PROVIDER=lmstudio.")}
+              />
+            </div>
             <TaskQueue
               items={queueItems}
               onRun={(command) => void run(command)}
             />
           </div>
         </div>
+
+        <Reasoning title={t("Agent routing logic")}>
+          {t(
+            "The agent translates natural language into the smallest safe clinic command chain, opens the right workspace when needed, and keeps outputs draft-only. Critical tools emphasize vitals, allergy, red flags, escalation, and clinician approval.",
+          )}
+        </Reasoning>
+        <Plan
+          steps={[
+            t("Understand the active patient and queue"),
+            t("Run the safest matching tool chain"),
+            t("Report changes, blockers, and next commands"),
+          ]}
+        />
 
         <div className="space-y-3">
           <div className="flex flex-wrap gap-2">
@@ -635,7 +738,7 @@ export function AgentCommandCenter({
             )}
           />
           <MiniAgent
-            icon={<Zap size={17} aria-hidden="true" />}
+            icon={<Sparkles size={17} aria-hidden="true" />}
             title={t("Operations Agent")}
             body={t(
               "Routes queue pressure, follow-up ownership, and staff handoffs.",

@@ -1,8 +1,10 @@
 import {
   Bot,
+  Clock3,
   MessageSquareText,
   Paperclip,
   ShieldCheck,
+  Sparkles,
   Stethoscope,
   Volume2,
 } from "lucide-react";
@@ -26,6 +28,7 @@ type ThreadMessage = {
   body: string;
   from: "agent" | "clinic";
   id: string;
+  meta?: string;
 };
 
 const threadTemplates = [
@@ -117,6 +120,7 @@ export function CopilotConsole({
           id: crypto.randomUUID(),
           from: "agent",
           body: `${summary}${actions}`,
+          meta: result?.mode ?? "done",
         },
       ]);
     } catch (caught) {
@@ -129,6 +133,7 @@ export function CopilotConsole({
             caught instanceof Error
               ? caught.message
               : "The command could not be completed.",
+          meta: "error",
         },
       ]);
     } finally {
@@ -138,16 +143,23 @@ export function CopilotConsole({
 
   return (
     <section
-      className="grid min-h-[calc(100svh-220px)] overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm xl:grid-cols-[300px_minmax(0,1fr)]"
+      className="grid min-h-[calc(100svh-220px)] overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm xl:grid-cols-[300px_minmax(0,1fr)]"
       aria-label="Copilot command room"
     >
       <aside className="border-slate-200 border-b bg-[#fbfaf6] p-3 xl:border-r xl:border-b-0">
-        <div className="flex items-center gap-2 px-2 py-1">
-          <Bot className="text-primary" size={18} aria-hidden="true" />
-          <div>
-            <p className="font-black text-sm">Copilot</p>
-            <p className="text-muted-foreground text-xs">{model}</p>
+        <div className="flex items-center justify-between gap-2 px-2 py-1">
+          <div className="flex items-center gap-2">
+            <Bot className="text-primary" size={18} aria-hidden="true" />
+            <div>
+              <p className="font-black text-sm">Copilot</p>
+              <p className="text-muted-foreground text-xs">{model}</p>
+            </div>
           </div>
+          <Badge
+            variant={runningAction || isSubmitting ? "default" : "secondary"}
+          >
+            {runningAction || isSubmitting ? "run" : "idle"}
+          </Badge>
         </div>
         <div className="mt-3 grid gap-1">
           {threadTemplates.map((thread) => (
@@ -176,7 +188,10 @@ export function CopilotConsole({
           ))}
         </div>
         <div className="mt-4 rounded-md border border-border bg-white p-3">
-          <p className="font-bold text-sm">Recent runs</p>
+          <div className="flex items-center gap-2 font-bold text-sm">
+            <Clock3 size={15} aria-hidden="true" />
+            Recent runs
+          </div>
           <div className="mt-2 space-y-2">
             {commandHistory.slice(0, 3).map((entry) => (
               <button
@@ -199,11 +214,14 @@ export function CopilotConsole({
       </aside>
 
       <div className="flex min-h-[560px] flex-col">
-        <div className="flex items-start justify-between gap-3 border-slate-200 border-b p-4">
+        <div className="flex items-start justify-between gap-3 border-slate-200 border-b bg-white p-4">
           <div>
-            <h2 className="font-black text-2xl tracking-normal">
-              {currentThread?.label ?? "Patient thread"}
-            </h2>
+            <div className="flex items-center gap-2">
+              <Sparkles className="text-primary" size={20} aria-hidden="true" />
+              <h2 className="font-black text-2xl tracking-normal">
+                {currentThread?.label ?? "Patient thread"}
+              </h2>
+            </div>
             <p className="mt-1 text-muted-foreground text-sm">
               Ask for the next action, a draft, a safety check, or a patient
               explanation. Tools run inline and remain draft-only.
@@ -217,19 +235,23 @@ export function CopilotConsole({
         </div>
 
         <div className="flex-1 space-y-3 overflow-y-auto bg-[#fbfaf6] p-4">
-          <Message from="clinic">
-            {form.patientName
-              ? `${form.patientName}, age ${form.age || "unknown"}. Role: ${activeRole}.`
-              : `No active patient selected. Role: ${activeRole}.`}
+          <Message from="clinic" meta="context">
+            <p>
+              {form.patientName
+                ? `${form.patientName}, age ${form.age || "unknown"}. Role: ${activeRole}.`
+                : `No active patient selected. Role: ${activeRole}.`}
+            </p>
           </Message>
-          <Message from="agent">
-            {output
-              ? `${output.chiefComplaint}. I found ${output.redFlags.length} red flags, ${output.missingQuestions.length} missing questions, and ${openSafetyGates.length} open safety gates.`
-              : "I can help with queue triage, missing clinical details, patient-friendly Bangla, follow-up ownership, and print-ready drafts."}
+          <Message from="agent" meta={output ? "case-aware" : "ready"}>
+            <p>
+              {output
+                ? `${output.chiefComplaint}. I found ${output.redFlags.length} red flags, ${output.missingQuestions.length} missing questions, and ${openSafetyGates.length} open safety gates.`
+                : "I can help with queue triage, missing clinical details, patient-friendly Bangla, follow-up ownership, and print-ready drafts."}
+            </p>
           </Message>
           {threadMessages.map((message) => (
-            <Message from={message.from} key={message.id}>
-              {message.body}
+            <Message from={message.from} key={message.id} meta={message.meta}>
+              <p>{message.body}</p>
             </Message>
           ))}
 
@@ -258,6 +280,7 @@ export function CopilotConsole({
             {quickPrompts.map((item) => (
               <Button
                 className="min-h-11 justify-start whitespace-normal text-left text-sm leading-5"
+                disabled={isSubmitting}
                 key={item}
                 type="button"
                 variant="outline"
@@ -274,6 +297,7 @@ export function CopilotConsole({
           <div className="mb-2 flex flex-wrap gap-2">
             <Button
               size="sm"
+              disabled={isSubmitting}
               type="button"
               variant="outline"
               onClick={onOpenCase}
@@ -283,6 +307,7 @@ export function CopilotConsole({
             </Button>
             <Button
               size="sm"
+              disabled={isSubmitting}
               type="button"
               variant="outline"
               onClick={() =>
@@ -294,6 +319,7 @@ export function CopilotConsole({
             </Button>
             <Button
               size="sm"
+              disabled={isSubmitting}
               type="button"
               variant="outline"
               onClick={() =>
@@ -305,6 +331,7 @@ export function CopilotConsole({
             </Button>
           </div>
           <PromptInput
+            disabled={isSubmitting}
             placeholder="Ask Copilot..."
             value={prompt}
             onChange={setPrompt}

@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import type { ApprovalReadinessOutput, CopilotOutput } from "../types";
+import { useClinicText } from "../use-clinic-text";
 import { SectionHeading } from "./section-heading";
 import { SuggestedCommandButton } from "./suggested-command-button";
 
@@ -27,10 +28,11 @@ export function ApprovalReadiness({
   );
   const [isChecking, setIsChecking] = useState(false);
   const [error, setError] = useState("");
+  const t = useClinicText();
 
   const checkReadiness = useCallback(async () => {
     if (!output) {
-      setError("Generate or select a draft before checking approval.");
+      setError(t("Generate or select a draft before checking approval."));
       return;
     }
 
@@ -48,19 +50,19 @@ export function ApprovalReadiness({
       });
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error ?? "Approval readiness check failed.");
+        throw new Error(t(data.error ?? "Approval readiness check failed."));
       }
       setReadiness(data.output as ApprovalReadinessOutput);
     } catch (caught) {
       setError(
         caught instanceof Error
           ? caught.message
-          : "Approval readiness check failed.",
+          : t("Approval readiness check failed."),
       );
     } finally {
       setIsChecking(false);
     }
-  }, [commandInstruction, model, output]);
+  }, [commandInstruction, model, output, t]);
 
   useEffect(() => {
     if (checkSignal > 0) {
@@ -73,8 +75,8 @@ export function ApprovalReadiness({
       <CardHeader>
         <SectionHeading
           icon={<ShieldCheck size={18} aria-hidden="true" />}
-          title="Approval Guard"
-          subtitle="AI checks blockers before clinician signoff"
+          title={t("Approval Guard")}
+          subtitle={t("AI checks blockers before clinician signoff")}
         />
       </CardHeader>
       <CardContent>
@@ -86,7 +88,7 @@ export function ApprovalReadiness({
           onClick={() => void checkReadiness()}
         >
           <ShieldCheck size={17} aria-hidden="true" />
-          {isChecking ? "Checking..." : "Check Approval Readiness"}
+          {isChecking ? t("Checking...") : t("Check Approval Readiness")}
         </Button>
 
         {readiness ? (
@@ -95,32 +97,32 @@ export function ApprovalReadiness({
               <div className="flex items-start justify-between gap-2">
                 <p className="font-semibold text-sm">{readiness.headline}</p>
                 <Badge className="capitalize" variant="outline">
-                  {readiness.readiness.replace("_", " ")}
+                  {t(readiness.readiness.replace("_", " "))}
                 </Badge>
               </div>
               <p className="mt-2 text-muted-foreground text-xs capitalize">
-                Risk level: {readiness.riskLevel}
+                {t("Risk level")}: {t(readiness.riskLevel)}
               </p>
             </div>
 
             <div className="grid gap-2 md:grid-cols-2">
-              <ReadinessList items={readiness.blockers} title="Blockers" />
+              <ReadinessList items={readiness.blockers} title={t("Blockers")} />
               <ReadinessList
                 items={readiness.missingChecks}
-                title="Missing checks"
+                title={t("Missing checks")}
               />
               <ReadinessList
                 items={readiness.readySignals}
-                title="Ready signals"
+                title={t("Ready signals")}
               />
               <ReadinessList
                 items={readiness.clinicianSignoffChecklist}
-                title="Signoff checklist"
+                title={t("Signoff checklist")}
               />
             </div>
 
             <div className="rounded-md bg-[#f7f4ee] p-3">
-              <p className="font-semibold text-xs">Suggested commands</p>
+              <p className="font-semibold text-xs">{t("Suggested commands")}</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {readiness.suggestedCommands.map((command) => (
                   <SuggestedCommandButton
@@ -134,7 +136,9 @@ export function ApprovalReadiness({
           </div>
         ) : (
           <p className="mt-3 text-muted-foreground text-sm">
-            Check whether the selected draft is ready for clinician approval.
+            {t(
+              "Check whether the selected draft is ready for clinician approval.",
+            )}
           </p>
         )}
 

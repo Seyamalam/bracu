@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import type { CopilotOutput, StaffHandoffOutput } from "../types";
+import { useClinicText } from "../use-clinic-text";
 import { SectionHeading } from "./section-heading";
 
 export function StaffHandoff({
@@ -24,6 +25,7 @@ export function StaffHandoff({
   const [handoff, setHandoff] = useState<StaffHandoffOutput | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState("");
+  const t = useClinicText();
 
   const followUpText = useMemo(() => {
     if (!output) {
@@ -34,7 +36,7 @@ export function StaffHandoff({
 
   const generateHandoff = useCallback(async () => {
     if (!output) {
-      setError("Generate or select a case before creating a handoff.");
+      setError(t("Generate or select a case before creating a handoff."));
       return;
     }
 
@@ -57,17 +59,17 @@ export function StaffHandoff({
       });
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error ?? "Staff handoff failed.");
+        throw new Error(t(data.error ?? "Staff handoff failed."));
       }
       setHandoff(data.output as StaffHandoffOutput);
     } catch (caught) {
       setError(
-        caught instanceof Error ? caught.message : "Staff handoff failed.",
+        caught instanceof Error ? caught.message : t("Staff handoff failed."),
       );
     } finally {
       setIsGenerating(false);
     }
-  }, [commandInstruction, followUpText, model, output, patientName]);
+  }, [commandInstruction, followUpText, model, output, patientName, t]);
 
   useEffect(() => {
     if (handoffSignal > 0) {
@@ -83,24 +85,24 @@ export function StaffHandoff({
     await navigator.clipboard.writeText(
       [
         handoff.headline,
-        `Urgency: ${handoff.urgency}`,
+        `${t("Urgency")}: ${t(handoff.urgency)}`,
         "",
-        "Receptionist",
+        t("Receptionist"),
         ...handoff.receptionistTasks.map((item) => `- ${item}`),
         "",
-        "Nurse",
+        t("Nurse"),
         ...handoff.nurseTasks.map((item) => `- ${item}`),
         "",
-        "Doctor",
+        t("Doctor"),
         ...handoff.doctorTasks.map((item) => `- ${item}`),
         "",
-        "Follow-up desk",
+        t("Follow-up desk"),
         ...handoff.followUpDeskTasks.map((item) => `- ${item}`),
         "",
-        "Safety notes",
+        t("Safety notes"),
         ...handoff.safetyNotes.map((item) => `- ${item}`),
         "",
-        "Handoff script",
+        t("Handoff script"),
         handoff.handoffScript,
       ].join("\n"),
     );
@@ -111,8 +113,10 @@ export function StaffHandoff({
       <CardHeader>
         <SectionHeading
           icon={<UsersRound size={18} aria-hidden="true" />}
-          title="Staff Handoff"
-          subtitle="AI task split for receptionist, nurse, doctor, and follow-up desk"
+          title={t("Staff Handoff")}
+          subtitle={t(
+            "AI task split for receptionist, nurse, doctor, and follow-up desk",
+          )}
         />
       </CardHeader>
       <CardContent>
@@ -124,7 +128,7 @@ export function StaffHandoff({
           onClick={() => void generateHandoff()}
         >
           <ClipboardList size={17} aria-hidden="true" />
-          {isGenerating ? "Creating handoff..." : "Create Staff Handoff"}
+          {isGenerating ? t("Creating handoff...") : t("Create Staff Handoff")}
         </Button>
 
         {handoff ? (
@@ -133,7 +137,7 @@ export function StaffHandoff({
               <div className="flex items-start justify-between gap-2">
                 <p className="font-semibold text-sm">{handoff.headline}</p>
                 <Badge className="capitalize" variant="outline">
-                  {handoff.urgency}
+                  {t(handoff.urgency)}
                 </Badge>
               </div>
               <p className="mt-2 text-muted-foreground text-xs leading-5">
@@ -143,16 +147,16 @@ export function StaffHandoff({
             <div className="grid gap-2 md:grid-cols-2">
               <TaskList
                 items={handoff.receptionistTasks}
-                title="Receptionist"
+                title={t("Receptionist")}
               />
-              <TaskList items={handoff.nurseTasks} title="Nurse" />
-              <TaskList items={handoff.doctorTasks} title="Doctor" />
+              <TaskList items={handoff.nurseTasks} title={t("Nurse")} />
+              <TaskList items={handoff.doctorTasks} title={t("Doctor")} />
               <TaskList
                 items={handoff.followUpDeskTasks}
-                title="Follow-up desk"
+                title={t("Follow-up desk")}
               />
             </div>
-            <TaskList items={handoff.safetyNotes} title="Safety notes" />
+            <TaskList items={handoff.safetyNotes} title={t("Safety notes")} />
             <Button
               className="w-full"
               type="button"
@@ -160,12 +164,14 @@ export function StaffHandoff({
               onClick={copyHandoff}
             >
               <Copy size={16} aria-hidden="true" />
-              Copy handoff
+              {t("Copy handoff")}
             </Button>
           </div>
         ) : (
           <p className="mt-3 text-muted-foreground text-sm">
-            Ask for a nurse handoff or team task list from the command box.
+            {t(
+              "Ask for a nurse handoff or team task list from the command box.",
+            )}
           </p>
         )}
 

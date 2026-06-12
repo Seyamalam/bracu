@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import type { Doc } from "../../../../convex/_generated/dataModel";
 import type { ClinicBriefingOutput } from "../types";
+import { useClinicText } from "../use-clinic-text";
 import { SectionHeading } from "./section-heading";
 
 type BriefingCase = Pick<
@@ -36,6 +37,7 @@ export function ClinicBriefing({
   const [briefing, setBriefing] = useState<ClinicBriefingOutput | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState("");
+  const t = useClinicText();
 
   const generateBriefing = useCallback(async () => {
     setIsGenerating(true);
@@ -61,17 +63,17 @@ export function ClinicBriefing({
       });
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error ?? "Clinic briefing failed.");
+        throw new Error(t(data.error ?? "Clinic briefing failed."));
       }
       setBriefing(data.output as ClinicBriefingOutput);
     } catch (caught) {
       setError(
-        caught instanceof Error ? caught.message : "Clinic briefing failed.",
+        caught instanceof Error ? caught.message : t("Clinic briefing failed."),
       );
     } finally {
       setIsGenerating(false);
     }
-  }, [cases, clinicName, model]);
+  }, [cases, clinicName, model, t]);
 
   useEffect(() => {
     if (briefingSignal > 0) {
@@ -88,16 +90,16 @@ export function ClinicBriefing({
         briefing.headline,
         briefing.queueSummary,
         "",
-        "Priority patients",
+        t("Priority patients"),
         ...briefing.priorityPatients.map((item) => `- ${item}`),
         "",
-        "Follow-up actions",
+        t("Follow-up actions"),
         ...briefing.followUpActions.map((item) => `- ${item}`),
         "",
-        "Paperwork gaps",
+        t("Paperwork gaps"),
         ...briefing.paperworkGaps.map((item) => `- ${item}`),
         "",
-        "Next best actions",
+        t("Next best actions"),
         ...briefing.nextBestActions.map((item) => `- ${item}`),
         "",
         briefing.operatorSummary,
@@ -110,8 +112,8 @@ export function ClinicBriefing({
       <CardHeader>
         <SectionHeading
           icon={<ClipboardList size={18} aria-hidden="true" />}
-          title="Clinic Briefing"
-          subtitle="AI queue summary for the next safe move"
+          title={t("Clinic Briefing")}
+          subtitle={t("AI queue summary for the next safe move")}
         />
       </CardHeader>
       <CardContent>
@@ -122,7 +124,7 @@ export function ClinicBriefing({
           onClick={() => void generateBriefing()}
         >
           <Sparkles size={17} aria-hidden="true" />
-          {isGenerating ? "Briefing..." : "Brief Clinic Queue"}
+          {isGenerating ? t("Briefing...") : t("Brief Clinic Queue")}
         </Button>
 
         {briefing ? (
@@ -131,7 +133,7 @@ export function ClinicBriefing({
               <div className="flex items-start justify-between gap-2">
                 <p className="font-semibold text-sm">{briefing.headline}</p>
                 <Badge className="capitalize" variant="outline">
-                  {briefing.riskLevel}
+                  {t(briefing.riskLevel)}
                 </Badge>
               </div>
               <p className="mt-2 text-muted-foreground text-xs leading-5">
@@ -141,16 +143,19 @@ export function ClinicBriefing({
 
             <BriefingList
               items={briefing.priorityPatients}
-              title="Priority patients"
+              title={t("Priority patients")}
             />
             <BriefingList
               items={briefing.followUpActions}
-              title="Follow-up actions"
+              title={t("Follow-up actions")}
             />
-            <BriefingList items={briefing.paperworkGaps} title="Paperwork" />
+            <BriefingList
+              items={briefing.paperworkGaps}
+              title={t("Paperwork")}
+            />
             <BriefingList
               items={briefing.nextBestActions}
-              title="Next best actions"
+              title={t("Next best actions")}
             />
             <div className="rounded-md bg-[#fff7df] p-3 text-sm">
               {briefing.operatorSummary}
@@ -162,12 +167,12 @@ export function ClinicBriefing({
               onClick={copyBriefing}
             >
               <Copy size={16} aria-hidden="true" />
-              Copy briefing
+              {t("Copy briefing")}
             </Button>
           </div>
         ) : (
           <p className="mt-3 text-muted-foreground text-sm">
-            Ask Command Copilot to brief the clinic, or run it here.
+            {t("Ask Command Copilot to brief the clinic, or run it here.")}
           </p>
         )}
 

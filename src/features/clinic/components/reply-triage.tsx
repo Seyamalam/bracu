@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { demoPatientReply } from "../data";
 import type { CopilotOutput, PatientReplyTriageOutput } from "../types";
+import { useClinicText } from "../use-clinic-text";
 import { SectionHeading } from "./section-heading";
 import { SuggestedCommandButton } from "./suggested-command-button";
 
@@ -26,6 +27,7 @@ export function ReplyTriage({
   patientName: string;
   triageSignal: number;
 }) {
+  const t = useClinicText();
   const [replyText, setReplyText] = useState(demoPatientReply);
   const [triage, setTriage] = useState<PatientReplyTriageOutput | null>(null);
   const [isTriaging, setIsTriaging] = useState(false);
@@ -35,7 +37,7 @@ export function ReplyTriage({
     async (replyOverride?: string) => {
       const nextReplyText = (replyOverride ?? replyText).trim();
       if (nextReplyText.length < 3) {
-        setError("Paste the patient's reply before triage.");
+        setError(t("Paste the patient's reply before triage."));
         return;
       }
 
@@ -56,18 +58,18 @@ export function ReplyTriage({
         });
         const data = await response.json();
         if (!response.ok) {
-          throw new Error(data.error ?? "Reply triage failed.");
+          throw new Error(t(data.error ?? "Reply triage failed."));
         }
         setTriage(data.output as PatientReplyTriageOutput);
       } catch (caught) {
         setError(
-          caught instanceof Error ? caught.message : "Reply triage failed.",
+          caught instanceof Error ? caught.message : t("Reply triage failed."),
         );
       } finally {
         setIsTriaging(false);
       }
     },
-    [model, output, patientName, replyText],
+    [model, output, patientName, replyText, t],
   );
 
   useEffect(() => {
@@ -85,13 +87,13 @@ export function ReplyTriage({
       <CardHeader>
         <SectionHeading
           icon={<MessageSquareWarning size={18} aria-hidden="true" />}
-          title="Reply Triage"
-          subtitle="AI reviews incoming patient replies after follow-up"
+          title={t("Reply Triage")}
+          subtitle={t("AI reviews incoming patient replies after follow-up")}
         />
       </CardHeader>
       <CardContent>
         <Textarea
-          aria-label="Patient follow-up reply"
+          aria-label={t("Patient follow-up reply")}
           className="min-h-24"
           value={replyText}
           onChange={(event) => setReplyText(event.target.value)}
@@ -104,7 +106,7 @@ export function ReplyTriage({
           onClick={() => void triageReply()}
         >
           <ShieldCheck size={17} aria-hidden="true" />
-          {isTriaging ? "Triaging..." : "Triage Patient Reply"}
+          {isTriaging ? t("Triaging...") : t("Triage Patient Reply")}
         </Button>
 
         {triage ? (
@@ -113,7 +115,7 @@ export function ReplyTriage({
               <div className="flex items-start justify-between gap-2">
                 <p className="font-semibold text-sm">{triage.replySummary}</p>
                 <Badge className="capitalize" variant="outline">
-                  {triage.urgency}
+                  {t(triage.urgency)}
                 </Badge>
               </div>
               <p className="mt-2 text-muted-foreground text-xs leading-5">
@@ -122,26 +124,32 @@ export function ReplyTriage({
             </div>
 
             <div className="grid gap-2 md:grid-cols-2">
-              <ReplyList items={triage.concerningSignals} title="Concerning" />
-              <ReplyList items={triage.reassuringSignals} title="Reassuring" />
+              <ReplyList
+                items={triage.concerningSignals}
+                title={t("Concerning")}
+              />
+              <ReplyList
+                items={triage.reassuringSignals}
+                title={t("Reassuring")}
+              />
             </div>
-            <ReplyList items={triage.staffActions} title="Staff actions" />
+            <ReplyList items={triage.staffActions} title={t("Staff actions")} />
 
             <div className="grid gap-2 md:grid-cols-2">
               <ResponseDraft
-                label="Bangla response"
+                label={t("Bangla response")}
                 text={triage.responseBn}
                 onCopy={copyText}
               />
               <ResponseDraft
-                label="English response"
+                label={t("English response")}
                 text={triage.responseEn}
                 onCopy={copyText}
               />
             </div>
 
             <div className="rounded-md bg-[#f7f4ee] p-3">
-              <p className="font-semibold text-xs">Suggested commands</p>
+              <p className="font-semibold text-xs">{t("Suggested commands")}</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {triage.suggestedCommands.map((command) => (
                   <SuggestedCommandButton
@@ -155,7 +163,7 @@ export function ReplyTriage({
           </div>
         ) : (
           <p className="mt-3 text-muted-foreground text-sm">
-            Paste a patient reply, or ask the command box to triage it.
+            {t("Paste a patient reply, or ask the command box to triage it.")}
           </p>
         )}
 
@@ -189,6 +197,7 @@ function ResponseDraft({
   onCopy: (text: string) => Promise<void>;
   text: string;
 }) {
+  const t = useClinicText();
   return (
     <div className="rounded-md border border-border bg-background p-3">
       <div className="flex items-center justify-between gap-2">
@@ -200,7 +209,7 @@ function ResponseDraft({
           onClick={() => void onCopy(text)}
         >
           <ClipboardCopy size={14} aria-hidden="true" />
-          Copy
+          {t("Copy")}
         </Button>
       </div>
       <p className="mt-2 text-muted-foreground text-xs leading-5">{text}</p>
