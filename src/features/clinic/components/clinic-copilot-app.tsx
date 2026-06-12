@@ -29,15 +29,6 @@ import type {
   UiLanguage,
 } from "../types";
 import { useClinicText } from "../use-clinic-text";
-import {
-  AccessibilityControls,
-  type AccessibilitySettings,
-} from "./accessibility-controls";
-import {
-  type AgentTimelineEvent,
-  initialTimeline,
-} from "./agent-operating-system";
-import { AgenticWorkflowStudio } from "./agentic-workflow-studio";
 import { AiRunReceipts } from "./ai-run-receipts";
 import {
   AppShellSidebar,
@@ -46,7 +37,6 @@ import {
 } from "./app-shell-sidebar";
 import { ApprovalReadiness } from "./approval-readiness";
 import { ApprovalsInbox } from "./approvals-inbox";
-import { AuditLogViewer } from "./audit-log-viewer";
 import { CaseAssistant } from "./case-assistant";
 import { CaseBoard } from "./case-board";
 import { ClinicBriefing } from "./clinic-briefing";
@@ -65,10 +55,8 @@ import {
   LowConnectivityPanel,
   type QueuedDraft,
 } from "./low-connectivity-panel";
-import { McpExplorer } from "./mcp-explorer";
 import { MedicineSafety } from "./medicine-safety";
 import { Metric } from "./metric";
-import { ModelSelector } from "./model-selector";
 import { NextStepNavigator } from "./next-step-navigator";
 import { OperationsPulse } from "./operations-pulse";
 import { PatientHandout } from "./patient-handout";
@@ -79,13 +67,10 @@ import {
 import { PatientQuestionAnswer } from "./patient-question-answer";
 import { PresentationMode } from "./presentation-mode";
 import { PrintWorkflowPanel } from "./print-workflow-panel";
-import { ReadinessScorecard } from "./readiness-scorecard";
 import { ReferralComposer } from "./referral-composer";
 import { ReplyTriage } from "./reply-triage";
 import { RiskExplainer } from "./risk-explainer";
 import { type ClinicRole, RoleWorkspacePanel } from "./role-workspace-panel";
-import { SafetyFrame } from "./safety-frame";
-import { ShortcutHelp } from "./shortcut-help";
 import { StaffHandoff } from "./staff-handoff";
 import { TeachBackCheck } from "./teach-back-check";
 import { TrendDashboard } from "./trend-dashboard";
@@ -138,6 +123,12 @@ type ApiErrorPayload = {
 type ProviderErrorPayload = {
   detail?: string;
   provider?: string;
+};
+
+type AccessibilitySettings = {
+  calmMotion: boolean;
+  highContrast: boolean;
+  largeText: boolean;
 };
 
 function formatApiError(data: ApiErrorPayload, fallback: string) {
@@ -211,17 +202,14 @@ export function ClinicCopilotApp({
   const [commandNextStepInstruction, setCommandNextStepInstruction] = useState<
     string | undefined
   >();
-  const [accessibilitySettings, setAccessibilitySettings] =
-    useState<AccessibilitySettings>({
-      calmMotion: false,
-      highContrast: false,
-      largeText: false,
-    });
+  const accessibilitySettings: AccessibilitySettings = {
+    calmMotion: false,
+    highContrast: false,
+    largeText: false,
+  };
   const [activeWorkspacePage, setActiveWorkspacePage] =
     useState<WorkspacePage>(initialWorkspace);
   const [activeRole, setActiveRole] = useState<ClinicRole>("doctor");
-  const [_agentTimeline, setAgentTimeline] =
-    useState<AgentTimelineEvent[]>(initialTimeline);
   const [printPreviewOpen, setPrintPreviewOpen] = useState(false);
   const [aiDrawerOpen, setAiDrawerOpen] = useState(false);
   const [appSidebarCollapsed, setAppSidebarCollapsed] = useState(false);
@@ -267,10 +255,6 @@ export function ClinicCopilotApp({
   const [caseAssistantAskSignal, setCaseAssistantAskSignal] = useState(0);
 
   const cases = useQuery(api.cases.listRecent, { userId: auth.user?._id });
-  const auditLogs = useQuery(
-    api.cases.listAuditLogs,
-    auth.user ? { userId: auth.user._id } : "skip",
-  );
   const createCase = useMutation(api.cases.createCase);
   const updateStatus = useMutation(api.cases.updateStatus);
   const approveCase = useMutation(api.cases.approveCase);
@@ -480,41 +464,19 @@ export function ClinicCopilotApp({
     setLiveMessage(`${title}: ${body}`);
   }
 
-  function addAgentEvent(
-    agent: AgentTimelineEvent["agent"],
-    detail: string,
-    status: AgentTimelineEvent["status"] = "complete",
-  ) {
-    setAgentTimeline((events) =>
-      [
-        {
-          id: crypto.randomUUID(),
-          agent,
-          detail,
-          status,
-          timestamp: Date.now(),
-        },
-        ...events,
-      ].slice(0, 24),
-    );
-  }
-
   function beginAction(action: string, title: string, body: string) {
     setRunningAction(action);
     notify(title, body, "info");
-    addAgentEvent("Ops", `${title}: ${body}`, "running");
   }
 
   function finishAction(title: string, body: string) {
     setRunningAction(null);
     notify(title, body, "success");
-    addAgentEvent("Ops", `${title}: ${body}`, "complete");
   }
 
   function failAction(title: string, body: string) {
     setRunningAction(null);
     notify(title, body, "error");
-    addAgentEvent("Safety", `${title}: ${body}`, "blocked");
   }
 
   function queueLocalDraft(note: string) {
@@ -710,11 +672,6 @@ export function ClinicCopilotApp({
   function recordCommand(entry: CommandHistoryEntry) {
     setCommandHistory((history) => [entry, ...history].slice(0, 8));
     setLiveMessage(`Command complete: ${entry.summary}`);
-    addAgentEvent(
-      inferAgentForCommand(entry.command),
-      `Command complete: ${entry.summary}`,
-      "complete",
-    );
   }
 
   function resetWorkspace(scope: "filters" | "intake" | "all") {
@@ -1231,7 +1188,6 @@ export function ClinicCopilotApp({
       if (isModifier && event.key.toLowerCase() === "k") {
         event.preventDefault();
         openWorkspacePage("ai");
-        addAgentEvent("Ops", "Cmd+K opened Copilot.", "complete");
       }
       if (isModifier && event.key.toLowerCase() === "g") {
         event.preventDefault();
@@ -1664,78 +1620,6 @@ export function ClinicCopilotApp({
                   clinicName={currentUser.clinicName}
                   model={selectedModel}
                 />
-              </div>
-            </div>
-          ) : null}
-
-          {activeWorkspacePage === "operations" ? (
-            <div className="mt-4 grid gap-4 xl:grid-cols-[380px_minmax(0,1fr)_380px]">
-              <div className="space-y-4">
-                <OperationsPulse cases={cases} />
-                <LowConnectivityPanel
-                  isOnline={isOnline}
-                  queue={queuedDrafts}
-                  onQueueDraft={queueLocalDraft}
-                  onSyncDraft={syncQueuedDraft}
-                />
-              </div>
-              <div className="space-y-4">
-                <ClinicBriefing
-                  briefingSignal={briefingSignal}
-                  cases={cases}
-                  clinicName={currentUser.clinicName}
-                  model={selectedModel}
-                />
-                <TrendDashboard cases={cases} />
-              </div>
-              <div className="space-y-4">
-                <FollowUpPanel cases={cases} onSelectCase={setSelectedCaseId} />
-                <SafetyFrame />
-              </div>
-            </div>
-          ) : null}
-
-          {activeWorkspacePage === "builder" ? (
-            <div className="mt-4">
-              <AgenticWorkflowStudio
-                activeRole={activeRole}
-                cases={cases}
-                form={form}
-                output={displayOutput}
-                onCommand={runCommandAndForget}
-              />
-            </div>
-          ) : null}
-
-          {activeWorkspacePage === "admin" ? (
-            <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,360px)_minmax(0,1fr)_minmax(0,360px)]">
-              <div className="min-w-0 space-y-4">
-                <RoleWorkspacePanel
-                  activeRole={activeRole}
-                  onRoleChange={setActiveRole}
-                  onOpenPage={openWorkspacePage}
-                />
-                <ModelSelector
-                  value={selectedModel}
-                  onChange={setSelectedModel}
-                />
-                <AccessibilityControls
-                  settings={accessibilitySettings}
-                  onChange={setAccessibilitySettings}
-                />
-              </div>
-              <div className="min-w-0 space-y-4">
-                <ReadinessScorecard
-                  auditCount={auditLogs?.length ?? 0}
-                  cases={cases}
-                  output={displayOutput}
-                />
-                <McpExplorer />
-                <AuditLogViewer logs={auditLogs} />
-              </div>
-              <div className="min-w-0 space-y-4">
-                <ShortcutHelp />
-                <SafetyFrame />
               </div>
             </div>
           ) : null}
@@ -2293,23 +2177,4 @@ function ProviderSwitch({
       })}
     </fieldset>
   );
-}
-
-function inferAgentForCommand(command: string): AgentTimelineEvent["agent"] {
-  const normalized = command.toLowerCase();
-  if (/(intake|extract|vital|document)/.test(normalized)) {
-    return "Reception";
-  }
-  if (
-    /(risk|safety|approval|allergy|medicine|triage|red flag)/.test(normalized)
-  ) {
-    return "Safety";
-  }
-  if (/(follow|whatsapp|reply|schedule|call)/.test(normalized)) {
-    return "Follow-up";
-  }
-  if (/(brief|queue|filter|search|handoff|task)/.test(normalized)) {
-    return "Ops";
-  }
-  return "Doctor";
 }

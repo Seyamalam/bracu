@@ -3,21 +3,18 @@ import type { WorkspacePage } from "./components/app-shell-sidebar";
 export const defaultWorkspacePage: WorkspacePage = "ai";
 
 export const workspacePageToSlug: Record<WorkspacePage, string> = {
-  admin: "admin",
   ai: "copilot",
-  builder: "builder",
   case: "case",
-  operations: "operations",
   queue: "queue",
 };
 
 export const workspaceSlugToPage: Record<string, WorkspacePage> = {
-  admin: "admin",
+  admin: "ai",
   ai: "ai",
-  builder: "builder",
+  builder: "ai",
   case: "case",
   copilot: "ai",
-  operations: "operations",
+  operations: "ai",
   queue: "queue",
 };
 

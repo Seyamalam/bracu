@@ -5,13 +5,10 @@ import {
   BookOpen,
   Bot,
   BriefcaseMedical,
-  Building2,
-  GitBranch,
   HelpCircle,
   Keyboard,
   LogOut,
   Menu,
-  Settings,
   ShieldCheck,
   X,
 } from "lucide-react";
@@ -23,13 +20,7 @@ import { BrandMark } from "@/features/marketing/components/brand-mark";
 import { cn } from "@/lib/utils";
 import { useClinicText } from "../use-clinic-text";
 
-export type WorkspacePage =
-  | "admin"
-  | "ai"
-  | "builder"
-  | "case"
-  | "operations"
-  | "queue";
+export type WorkspacePage = "ai" | "case" | "queue";
 
 export const workspaceMeta = [
   {
@@ -49,24 +40,6 @@ export const workspaceMeta = [
     icon: Activity,
     id: "queue",
     label: "Queue",
-  },
-  {
-    description: "Shift brief, analytics, follow-up, offline sync",
-    icon: Building2,
-    id: "operations",
-    label: "Operations",
-  },
-  {
-    description: "Workflow canvas, protocols, simulation, templates",
-    icon: GitBranch,
-    id: "builder",
-    label: "Builder",
-  },
-  {
-    description: "Settings, roles, MCP, audit, readiness",
-    icon: Settings,
-    id: "admin",
-    label: "Admin",
   },
 ] as const;
 

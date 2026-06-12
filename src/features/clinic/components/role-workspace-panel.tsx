@@ -56,14 +56,14 @@ const roleConfig: Record<
   },
   follow_up: {
     label: "Follow-up desk",
-    page: "operations",
+    page: "queue",
     icon: PhoneCall,
     focus: "Own call-backs, reply triage, and patient understanding.",
     tasks: ["Schedule callback", "Triage replies", "Confirm teach-back"],
   },
   admin: {
     label: "Admin",
-    page: "admin",
+    page: "queue",
     icon: Users,
     focus: "Monitor queue, staffing load, audit, and clinic readiness.",
     tasks: ["Watch queue pressure", "Review audit trail", "Assign owners"],

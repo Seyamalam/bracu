@@ -19,10 +19,10 @@ const quickActions = [
     page: "ai",
   },
   {
-    body: "Review queue pressure, follow-ups, trends, model, and audit trail.",
+    body: "Review queue pressure, follow-ups, trends, and red flags.",
     icon: Activity,
-    label: "Open Ops",
-    page: "operations",
+    label: "Open Queue",
+    page: "queue",
   },
 ] as const;
 
