@@ -70,7 +70,7 @@ import { PrintWorkflowPanel } from "./print-workflow-panel";
 import { ReferralComposer } from "./referral-composer";
 import { ReplyTriage } from "./reply-triage";
 import { RiskExplainer } from "./risk-explainer";
-import { type ClinicRole, RoleWorkspacePanel } from "./role-workspace-panel";
+import type { ClinicRole } from "./role-workspace-panel";
 import { StaffHandoff } from "./staff-handoff";
 import { TeachBackCheck } from "./teach-back-check";
 import { TrendDashboard } from "./trend-dashboard";
@@ -209,7 +209,7 @@ export function ClinicCopilotApp({
   };
   const [activeWorkspacePage, setActiveWorkspacePage] =
     useState<WorkspacePage>(initialWorkspace);
-  const [activeRole, setActiveRole] = useState<ClinicRole>("doctor");
+  const [activeRole] = useState<ClinicRole>("doctor");
   const [printPreviewOpen, setPrintPreviewOpen] = useState(false);
   const [aiDrawerOpen, setAiDrawerOpen] = useState(false);
   const [appSidebarCollapsed, setAppSidebarCollapsed] = useState(false);
@@ -1578,46 +1578,51 @@ export function ClinicCopilotApp({
           ) : null}
 
           {activeWorkspacePage === "queue" ? (
-            <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,360px)_minmax(0,1fr)_minmax(0,360px)]">
-              <div className="min-w-0 space-y-4">
-                <RoleWorkspacePanel
-                  activeRole={activeRole}
-                  onRoleChange={setActiveRole}
-                  onOpenPage={openWorkspacePage}
-                />
-                <OperationsPulse cases={cases} />
-                <LowConnectivityPanel
-                  isOnline={isOnline}
-                  queue={queuedDrafts}
-                  onQueueDraft={queueLocalDraft}
-                  onSyncDraft={syncQueuedDraft}
-                />
+            <div className="mt-4 space-y-4">
+              <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
+                <div className="min-w-0">
+                  <CaseBoard
+                    cases={filteredCases}
+                    searchQuery={caseSearch}
+                    selectedCaseId={selectedCaseId}
+                    severityFilter={severityFilter}
+                    statusFilter={statusFilter}
+                    onSearchChange={setCaseSearch}
+                    onSelectCase={setSelectedCaseId}
+                    onSeverityFilterChange={setSeverityFilter}
+                    onStatusFilterChange={setStatusFilter}
+                    onStatusChange={changeCaseStatus}
+                    onApproveCase={approveSelectedCase}
+                  />
+                </div>
+                <div className="min-w-0 space-y-4">
+                  <OperationsPulse cases={cases} />
+                  <ClinicBriefing
+                    briefingSignal={briefingSignal}
+                    cases={cases}
+                    clinicName={currentUser.clinicName}
+                    model={selectedModel}
+                  />
+                </div>
               </div>
-              <div className="min-w-0 space-y-4">
-                <CaseBoard
-                  cases={filteredCases}
-                  searchQuery={caseSearch}
-                  selectedCaseId={selectedCaseId}
-                  severityFilter={severityFilter}
-                  statusFilter={statusFilter}
-                  onSearchChange={setCaseSearch}
-                  onSelectCase={setSelectedCaseId}
-                  onSeverityFilterChange={setSeverityFilter}
-                  onStatusFilterChange={setStatusFilter}
-                  onStatusChange={changeCaseStatus}
-                  onApproveCase={approveSelectedCase}
-                />
-                <FollowUpPanel cases={cases} onSelectCase={setSelectedCaseId} />
-                <TrendDashboard cases={cases} />
-              </div>
-              <div className="min-w-0 space-y-4">
-                <ClinicBriefing
-                  briefingSignal={briefingSignal}
-                  cases={cases}
-                  clinicName={currentUser.clinicName}
-                  model={selectedModel}
-                />
-              </div>
+              <details className="rounded-md border border-slate-200 bg-white shadow-sm">
+                <summary className="cursor-pointer px-4 py-3 font-bold text-sm">
+                  {t("Queue follow-up and trends")}
+                </summary>
+                <div className="grid gap-4 border-slate-200 border-t bg-[#fbfaf7] p-4 lg:grid-cols-3">
+                  <LowConnectivityPanel
+                    isOnline={isOnline}
+                    queue={queuedDrafts}
+                    onQueueDraft={queueLocalDraft}
+                    onSyncDraft={syncQueuedDraft}
+                  />
+                  <FollowUpPanel
+                    cases={cases}
+                    onSelectCase={setSelectedCaseId}
+                  />
+                  <TrendDashboard cases={cases} />
+                </div>
+              </details>
             </div>
           ) : null}
         </section>
