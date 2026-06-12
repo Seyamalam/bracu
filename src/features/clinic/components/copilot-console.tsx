@@ -26,6 +26,7 @@ import type {
   IntakeFormState,
 } from "../types";
 import { useClinicText } from "../use-clinic-text";
+import { useSpeechTranscription } from "../use-speech-transcription";
 import type { SafetyGate } from "./clinical-safety-gates";
 import type { ClinicRole } from "./role-workspace-panel";
 
@@ -35,44 +36,6 @@ type ThreadMessage = {
   id: string;
   meta?: string;
 };
-
-type SpeechRecognitionAlternative = {
-  transcript: string;
-};
-
-type SpeechRecognitionResult = {
-  readonly isFinal: boolean;
-  readonly [index: number]: SpeechRecognitionAlternative;
-};
-
-type SpeechRecognitionResultList = {
-  readonly length: number;
-  readonly [index: number]: SpeechRecognitionResult;
-};
-
-type SpeechRecognitionEvent = Event & {
-  resultIndex: number;
-  results: SpeechRecognitionResultList;
-};
-
-type SpeechRecognitionInstance = EventTarget & {
-  continuous: boolean;
-  interimResults: boolean;
-  lang: string;
-  onend: (() => void) | null;
-  onerror: ((event: Event) => void) | null;
-  onresult: ((event: SpeechRecognitionEvent) => void) | null;
-  start: () => void;
-  stop: () => void;
-};
-
-type SpeechRecognitionConstructor = new () => SpeechRecognitionInstance;
-
-type SpeechWindow = Window &
-  typeof globalThis & {
-    SpeechRecognition?: SpeechRecognitionConstructor;
-    webkitSpeechRecognition?: SpeechRecognitionConstructor;
-  };
 
 const threadTemplates = [
   {
@@ -153,24 +116,21 @@ export function CopilotConsole({
 }) {
   const [prompt, setPrompt] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isListening, setIsListening] = useState(false);
-  const [voiceError, setVoiceError] = useState<string | null>(null);
-  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const voiceBasePromptRef = useRef("");
   const [threadMessages, setThreadMessages] = useState<ThreadMessage[]>([]);
   const [activeThread, setActiveThread] =
     useState<(typeof threadTemplates)[number]["id"]>("patient");
   const t = useClinicText();
+  const voiceInput = useSpeechTranscription({
+    stoppedMessage: t("Voice transcription stopped. Please try again."),
+    unsupportedMessage: t(
+      "Voice transcription is not supported in this browser.",
+    ),
+  });
   const openSafetyGates = safetyGates.filter((gate) => !gate.passed);
   const currentThread = threadTemplates.find(
     (thread) => thread.id === activeThread,
   );
-  const canUseSpeech =
-    typeof window !== "undefined" &&
-    Boolean(
-      (window as SpeechWindow).SpeechRecognition ||
-        (window as SpeechWindow).webkitSpeechRecognition,
-    );
 
   function setTranscript(transcript: string) {
     const normalizedTranscript = transcript.trim();
@@ -181,55 +141,8 @@ export function CopilotConsole({
   }
 
   function toggleVoiceInput() {
-    if (isListening) {
-      recognitionRef.current?.stop();
-      return;
-    }
-
-    const SpeechRecognition =
-      (window as SpeechWindow).SpeechRecognition ??
-      (window as SpeechWindow).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      setVoiceError(t("Voice transcription is not supported in this browser."));
-      return;
-    }
-
-    setVoiceError(null);
     voiceBasePromptRef.current = prompt;
-    const recognition = new SpeechRecognition();
-    recognitionRef.current = recognition;
-    recognition.continuous = false;
-    recognition.interimResults = true;
-    recognition.lang = "bn-BD";
-    recognition.onresult = (event) => {
-      let finalTranscript = "";
-      let interimTranscript = "";
-      for (
-        let index = event.resultIndex;
-        index < event.results.length;
-        index++
-      ) {
-        const result = event.results[index];
-        const transcript = result[0]?.transcript ?? "";
-        if (result.isFinal) {
-          finalTranscript += transcript;
-        } else {
-          interimTranscript += transcript;
-        }
-      }
-      setTranscript(finalTranscript || interimTranscript);
-    };
-    recognition.onerror = () => {
-      setVoiceError(t("Voice transcription stopped. Please try again."));
-      setIsListening(false);
-      recognitionRef.current = null;
-    };
-    recognition.onend = () => {
-      setIsListening(false);
-      recognitionRef.current = null;
-    };
-    setIsListening(true);
-    recognition.start();
+    voiceInput.toggle(setTranscript);
   }
 
   async function submitPrompt(nextPrompt?: string) {
@@ -466,21 +379,21 @@ export function CopilotConsole({
           </Button>
           <Button
             size="sm"
-            disabled={isSubmitting || !canUseSpeech}
+            disabled={isSubmitting || !voiceInput.isSupported}
             type="button"
-            variant={isListening ? "default" : "outline"}
+            variant={voiceInput.isListening ? "default" : "outline"}
             onClick={toggleVoiceInput}
           >
-            {isListening ? (
+            {voiceInput.isListening ? (
               <MicOff size={15} aria-hidden="true" />
             ) : (
               <Mic size={15} aria-hidden="true" />
             )}
-            {isListening ? t("Stop dictation") : t("Dictate")}
+            {voiceInput.isListening ? t("Stop dictation") : t("Dictate")}
           </Button>
         </div>
-        {voiceError ? (
-          <p className="mb-2 text-red-700 text-xs">{voiceError}</p>
+        {voiceInput.error ? (
+          <p className="mb-2 text-red-700 text-xs">{voiceInput.error}</p>
         ) : null}
         <PromptInput
           disabled={isSubmitting}
