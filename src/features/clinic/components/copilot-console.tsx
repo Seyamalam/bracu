@@ -1,13 +1,16 @@
 import {
   Bot,
   Clock3,
+  FileText,
   MessageSquareText,
   Mic,
   MicOff,
   Paperclip,
+  Play,
   ShieldCheck,
   Sparkles,
   Stethoscope,
+  Users,
   Volume2,
 } from "lucide-react";
 import { useRef, useState } from "react";
@@ -100,6 +103,30 @@ const quickPrompts = [
   "Is this safe to print?",
   "What is missing?",
   "Explain this in simple Bangla",
+] as const;
+
+const primaryActions = [
+  {
+    command: "Run the full clinic workflow for this case",
+    icon: Play,
+    label: "Full workflow",
+  },
+  {
+    command: "Check clinical blockers before print or closeout",
+    icon: ShieldCheck,
+    label: "Safety check",
+  },
+  {
+    command:
+      "Prepare the print packet for handout, referral, medicines, and follow-up",
+    icon: FileText,
+    label: "Print packet",
+  },
+  {
+    command: "Brief me on today's queue pressure and red flags",
+    icon: Users,
+    label: "Queue brief",
+  },
 ] as const;
 
 export function CopilotConsole({
@@ -328,25 +355,49 @@ export function CopilotConsole({
       </aside>
 
       <div className="flex min-h-[560px] flex-col">
-        <div className="flex items-start justify-between gap-3 border-slate-200 border-b bg-white p-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <Sparkles className="text-primary" size={20} aria-hidden="true" />
-              <h2 className="font-black text-2xl tracking-normal">
-                {t(currentThread?.label ?? "Patient thread")}
-              </h2>
+        <div className="space-y-3 border-slate-200 border-b bg-white p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <div className="flex items-center gap-2">
+                <Sparkles
+                  className="text-primary"
+                  size={20}
+                  aria-hidden="true"
+                />
+                <h2 className="font-black text-2xl tracking-normal">
+                  {t(currentThread?.label ?? "Patient thread")}
+                </h2>
+              </div>
+              <p className="mt-1 text-muted-foreground text-sm">
+                {t(
+                  "Ask for the next action, a draft, a safety check, or a patient explanation. Tools run inline and remain draft-only.",
+                )}
+              </p>
             </div>
-            <p className="mt-1 text-muted-foreground text-sm">
-              {t(
-                "Ask for the next action, a draft, a safety check, or a patient explanation. Tools run inline and remain draft-only.",
-              )}
-            </p>
+            <Badge
+              variant={runningAction || isSubmitting ? "default" : "secondary"}
+            >
+              {runningAction || isSubmitting ? t("running") : t("ready")}
+            </Badge>
           </div>
-          <Badge
-            variant={runningAction || isSubmitting ? "default" : "secondary"}
-          >
-            {runningAction || isSubmitting ? t("running") : t("ready")}
-          </Badge>
+          <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+            {primaryActions.map((action) => {
+              const Icon = action.icon;
+              return (
+                <Button
+                  className="min-h-12 justify-start whitespace-normal text-left"
+                  disabled={isSubmitting}
+                  key={action.label}
+                  type="button"
+                  variant="outline"
+                  onClick={() => submitPrompt(action.command)}
+                >
+                  <Icon size={16} aria-hidden="true" />
+                  {t(action.label)}
+                </Button>
+              );
+            })}
+          </div>
         </div>
 
         <div className="flex-1 space-y-3 overflow-y-auto bg-[#fbfaf6] p-4">

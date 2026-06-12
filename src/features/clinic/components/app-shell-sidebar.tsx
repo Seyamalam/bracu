@@ -31,12 +31,12 @@ export type WorkspacePage =
   | "operations"
   | "queue";
 
-export const workspaceNav = [
+export const workspaceMeta = [
   {
-    description: "Waiting room, red flags, owners, and follow-ups",
-    icon: Activity,
-    id: "queue",
-    label: "Queue",
+    description: "Chat, tools, runs, approvals, memory, MCP",
+    icon: Bot,
+    id: "ai",
+    label: "Copilot",
   },
   {
     description: "One patient, intake, safety, draft, packet",
@@ -45,10 +45,10 @@ export const workspaceNav = [
     label: "Case",
   },
   {
-    description: "Chat, tools, runs, approvals, memory, MCP",
-    icon: Bot,
-    id: "ai",
-    label: "Copilot",
+    description: "Waiting room, red flags, owners, and follow-ups",
+    icon: Activity,
+    id: "queue",
+    label: "Queue",
   },
   {
     description: "Shift brief, analytics, follow-up, offline sync",
@@ -68,6 +68,12 @@ export const workspaceNav = [
     id: "admin",
     label: "Admin",
   },
+] as const;
+
+export const workspaceNav = [
+  workspaceMeta[0],
+  workspaceMeta[1],
+  workspaceMeta[2],
 ] as const;
 
 export function AppShellSidebar({
@@ -271,7 +277,7 @@ export function AppShellSidebar({
         </nav>
       </div>
       <nav
-        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-6 border-slate-200 border-t bg-white/95 px-1 py-1 shadow-[0_-8px_24px_rgba(15,23,42,0.08)] backdrop-blur lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-3 border-slate-200 border-t bg-white/95 px-1 py-1 shadow-[0_-8px_24px_rgba(15,23,42,0.08)] backdrop-blur lg:hidden"
         aria-label={t("Primary mobile workspace")}
       >
         {workspaceNav.map((item) => {

@@ -146,6 +146,7 @@ const clinicTextBn: Record<string, string> = {
     "ভিজিট ওয়ার্কফ্লো ছাড়ার আগে ফাইনাল স্টাফ স্টেপ, রোগীর নির্দেশনা, প্রিন্ট প্যাকেট ও অডিট নোট প্রস্তুত করুন।",
   "Primary mobile workspace": "প্রাইমারি মোবাইল ওয়ার্কস্পেস",
   "Print packet": "প্রিন্ট প্যাকেট",
+  "Queue brief": "কিউ ব্রিফ",
   Queue: "কিউ",
   "Queue workspace": "কিউ ওয়ার্কস্পেস",
   "Review handout": "হ্যান্ডআউট রিভিউ করুন",
@@ -337,6 +338,7 @@ const clinicTextBn: Record<string, string> = {
   "Running MCP call": "MCP কল চলছে",
   Running: "চলছে",
   "Safety review": "সেফটি রিভিউ",
+  "Safety check": "সেফটি চেক",
   "List clinical blockers before print or closeout":
     "প্রিন্ট বা ক্লোজআউটের আগে ক্লিনিক্যাল ব্লকার তালিকা করুন",
   "SOAP support, red flags, handout, follow-up":
@@ -696,6 +698,7 @@ const clinicTextBn: Record<string, string> = {
   "Family must repeat before leaving:": "যাওয়ার আগে পরিবারকে পুনরাবৃত্তি করতে হবে:",
   "Focused workflows for each clinic worker":
     "প্রতিটি ক্লিনিক কর্মীর জন্য ফোকাসড ওয়ার্কফ্লো",
+  "Full workflow": "ফুল ওয়ার্কফ্লো",
   "Generate or select a case to fill this printable packet.":
     "এই প্রিন্টযোগ্য প্যাকেট পূরণ করতে একটি কেস জেনারেট বা সিলেক্ট করুন।",
   "Handout, referral, medicine slip, call sheet, doctor summary":

@@ -43,7 +43,7 @@ import { AiRunReceipts } from "./ai-run-receipts";
 import {
   AppShellSidebar,
   type WorkspacePage,
-  workspaceNav,
+  workspaceMeta,
 } from "./app-shell-sidebar";
 import { ApprovalReadiness } from "./approval-readiness";
 import { ApprovalsInbox } from "./approvals-inbox";
@@ -1274,8 +1274,8 @@ export function ClinicCopilotApp({
   }
 
   const activeWorkspace =
-    workspaceNav.find((item) => item.id === activeWorkspacePage) ??
-    workspaceNav[0];
+    workspaceMeta.find((item) => item.id === activeWorkspacePage) ??
+    workspaceMeta[0];
   const ActiveWorkspaceIcon = activeWorkspace.icon;
 
   return (

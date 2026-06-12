@@ -1,6 +1,6 @@
 import type { WorkspacePage } from "./components/app-shell-sidebar";
 
-export const defaultWorkspacePage: WorkspacePage = "queue";
+export const defaultWorkspacePage: WorkspacePage = "ai";
 
 export const workspacePageToSlug: Record<WorkspacePage, string> = {
   admin: "admin",
