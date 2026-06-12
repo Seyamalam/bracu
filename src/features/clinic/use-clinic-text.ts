@@ -138,6 +138,7 @@ const clinicTextBn: Record<string, string> = {
   "One patient, intake, safety, draft, packet":
     "এক রোগী, ইনটেক, সেফটি, ড্রাফট, প্যাকেট",
   "Open public docs and tool catalog": "পাবলিক ডকস ও টুল ক্যাটালগ খুলুন",
+  "Open full Copilot": "পূর্ণ কোপাইলট খুলুন",
   "Open workspace navigation": "ওয়ার্কস্পেস নেভিগেশন খুলুন",
   "Operations workspace": "অপারেশনস ওয়ার্কস্পেস",
   "Paste or attach lab, prescription, or OCR text first.":

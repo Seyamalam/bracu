@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery } from "convex/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/features/language/language-context";
 import { cn } from "@/lib/utils";
@@ -33,7 +33,6 @@ import {
   AccessibilityControls,
   type AccessibilitySettings,
 } from "./accessibility-controls";
-import { AgentCommandCenter } from "./agent-command-center";
 import {
   type AgentTimelineEvent,
   initialTimeline,
@@ -55,7 +54,6 @@ import {
   ClinicalSafetyGates,
   getClinicalSafetyGates,
 } from "./clinical-safety-gates";
-import { CommandCopilot } from "./command-copilot";
 import { CopilotConsole } from "./copilot-console";
 import { DoctorConsole } from "./doctor-console";
 import { DocumentExtractor } from "./document-extractor";
@@ -162,11 +160,10 @@ function formatProviderFallback(providerError?: ProviderErrorPayload) {
 }
 
 export function ClinicCopilotApp({
-  initialWorkspace = "queue",
+  initialWorkspace = "ai",
 }: ClinicCopilotAppProps = {}) {
   const router = useRouter();
   const auth = useDemoAuth();
-  const commandInputRef = useRef<HTMLInputElement>(null);
   const { language: uiLanguage, setLanguage: setUiLanguage } = useLanguage();
   const [form, setForm] = useState<IntakeFormState>(initialIntake);
   const [output, setOutput] = useState<CopilotOutput | null>(null);
@@ -1224,10 +1221,6 @@ export function ClinicCopilotApp({
     }
   }
 
-  async function runCommandWithResult(command: string) {
-    return await runSuggestedCommand(command);
-  }
-
   async function runCommandAndForget(command: string) {
     await runSuggestedCommand(command);
   }
@@ -1238,11 +1231,7 @@ export function ClinicCopilotApp({
       if (isModifier && event.key.toLowerCase() === "k") {
         event.preventDefault();
         openWorkspacePage("ai");
-        addAgentEvent(
-          "Ops",
-          "Cmd+K opened the agent command palette.",
-          "complete",
-        );
+        addAgentEvent("Ops", "Cmd+K opened Copilot.", "complete");
       }
       if (isModifier && event.key.toLowerCase() === "g") {
         event.preventDefault();
@@ -1370,20 +1359,16 @@ export function ClinicCopilotApp({
               </Button>
             </div>
             <div className="space-y-4 p-4">
-              <AgentCommandCenter
-                cases={cases}
-                model={selectedModel}
-                output={displayOutput}
-                selectedPatient={selectedCase?.patientName ?? form.patientName}
-                onRunCommand={runCommandWithResult}
-              />
-              <CommandCopilot
-                ref={commandInputRef}
-                history={commandHistory}
-                model={selectedModel}
-                onCommandComplete={recordCommand}
-                onApplyPlan={applyCommandPlan}
-              />
+              <Button
+                className="w-full justify-center"
+                type="button"
+                onClick={() => {
+                  setAiDrawerOpen(false);
+                  openWorkspacePage("ai");
+                }}
+              >
+                {t("Open full Copilot")}
+              </Button>
               <AiRunReceipts
                 form={form}
                 output={displayOutput}
@@ -1832,6 +1817,7 @@ const bnTextMap = new Map<string, string>(
     "Help and tools": "সহায়তা ও টুল",
     Help: "সহায়তা",
     "Open workspace navigation": "ওয়ার্কস্পেস ন্যাভিগেশন খুলুন",
+    "Open full Copilot": "পূর্ণ কোপাইলট খুলুন",
     "Close workspace navigation": "ওয়ার্কস্পেস ন্যাভিগেশন বন্ধ করুন",
     Workspace: "ওয়ার্কস্পেস",
     "Primary mobile workspace": "প্রাথমিক মোবাইল ওয়ার্কস্পেস",

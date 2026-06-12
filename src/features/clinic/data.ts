@@ -260,54 +260,6 @@ export const safetyPrinciples = [
   "Patient copy prioritizes plain language and return warnings.",
 ];
 
-export const commandExamples = [
-  "Run the full clinic workflow",
-  "Run the guided clinic workflow",
-  "Undo last command",
-  "Load dengue watch and generate a draft",
-  "Switch to Bangla and open presentation mode",
-  "Approve this case and move it to handout",
-  "Check if this case is ready to approve",
-  "Search for Farzana and show high priority cases",
-  "Use the fastest model and clear filters",
-  "Mark this patient for follow-up",
-  "Schedule follow-up for this patient",
-  "Close this visit safely",
-  "Compose a WhatsApp follow-up for this patient",
-  "Triage this patient reply",
-  "Answer this patient question in Bangla",
-  "Write a referral letter for this patient",
-  "Create a visit summary for the family",
-  "Brief me on today's clinic queue",
-  "Tell me what to do next for this case",
-  "Extract this prescription and lab report",
-  "Create a nurse handoff and receptionist task list",
-  "Clean this intake and extract vitals",
-  "Explain why this case is risky",
-  "Add a bleeding red flag and simplify the Bangla handout",
-  "Create a 52 year old male chest pain intake",
-  "Check medicine safety for paracetamol 500mg and antibiotic twice daily",
-];
-
-export const commandPlaybook = [
-  {
-    label: "Operate",
-    examples: ["answer question", "triage reply", "close visit", "undo"],
-  },
-  {
-    label: "Navigate",
-    examples: ["brief queue", "show high priority", "clear filters"],
-  },
-  {
-    label: "Demo",
-    examples: ["full workflow", "guided workflow", "open presentation"],
-  },
-  {
-    label: "AI setup",
-    examples: ["extract document", "clean intake", "check medicines"],
-  },
-] as const;
-
 export const guidedWorkflowScript = {
   command: "Run guided clinic workflow",
   scenarioLabel: "Pregnancy fever",
